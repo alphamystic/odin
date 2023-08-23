@@ -1,0 +1,133 @@
+syntax = "proto3";
+
+package grpcapi;
+
+
+// Implant defines our C2 API functions
+service Implant {
+    rpc FetchCommand (Command) returns (Command);
+    rpc SendOutput (Command) returns (Empty);
+    rpc RunAuthentication (Auth) returns (Auth);
+  //  rpc GetMinion (Command) returns (Minion);
+    // can only start as it's not requested but initiated (operator runs initiating a start)
+  //  rpc StartRevShell (stream ReverseShellResponse) returns (stream ReverseShellRequest);
+  //
+
+    rpc ReceiveUpload (Command) returns (File);
+    rpc SendUploadReport (FileMessage) returns (Empty);
+    rpc SendDownload (File) returns (Empty);
+    rpc TakeScreenShot (Screenshots) returns (Empty);
+}
+
+// Admin defines our Admin API functions
+service Admin {
+    rpc RunCommand (Command) returns (Command);
+    //rpc RunMinion (Command) returns (Minion);
+    rpc AdminDownloadFile (FileMessage) returns (File);
+    rpc AdminSendFile (File) returns (FileMessage);
+    //rpc AdminSendOutput (Command) returns (Command);
+    rpc RunAC2Command (C2Command) returns (C2Command);
+    rpc RunOperatorAuthentication (Auth) returns (Auth);
+    rpc TakeAdminScreenShot (C2Command) returns (Screenshots);
+    // start a revershell on the mothership
+    //rpc StartReverseShell (C2Command) returns (stream ReverseShellResponse);
+  //  rpc RunInteractive (stream ReverseShellRequest) returns (stream ReverseShellResponse);
+    //stream  the reverse shell from client and admin
+  //  rpc RunClientReverseShell (stream ReverseShellRequest) returns (stream ReverseShellResponse);
+    //rpc GetEvents (C2Command) returns (Events);
+
+    rpc SendUpload (File) returns (FileMessage);
+    rpc ReceiveDownload (FileMessage) returns (File);
+    rpc RunScreenShot (Command) returns (Screenshots);
+}
+// add an rpc for screenshots let them be a repeated string
+
+message Event {
+  string Name = 1;
+  string ID = 2;
+  int32 EType = 3;
+  bool Handled = 4;
+  string CreatedAt = 5;
+  string UpdatedAt = 6;
+}
+message Events {
+  repeated Event C2Events = 1;
+}
+// Command defines a with both input and output fields
+message Command {
+    string In = 1;
+    string Out = 2;
+    bool Individual = 3;
+    string UserId = 4;
+    string OperatorId = 5;
+}
+
+message C2Command {
+  string In = 1;
+  string Out = 2;
+  bool Individual = 3;
+  string MSId = 4;
+}
+
+// Empty defines an empty message used in place of null
+message Empty {
+}
+
+message Screenshots {
+  string UserId = 1;
+  repeated string Screenshot = 2;
+}
+
+message Encoded {
+  string Data = 1;
+}
+message FileMessage {
+  string UserId = 1;
+  string Name = 2;
+  string Directory = 3;
+  bool Done = 4;
+  int32 Pid = 5;
+}
+message File {
+  string UserId = 1;
+  bytes Data = 2;
+  string Name =3;
+  bool Run = 4;
+}
+message Loot {
+  repeated File Files = 1;
+}
+message Auth {
+  string UserId = 1;
+  bool Authenticated = 2;
+  string MSId = 3;
+}
+
+message ReverseShellRequest {
+  bytes Input = 1;
+}
+
+message ReverseShellResponse {
+  bytes Output = 1;
+}
+
+message Minion {
+  string MinionId = 1;
+  string MSession = 2;
+  string HostName = 3;
+  string Username = 4;
+  string Userid = 5;
+  string GroupId = 6;
+  string Homedir = 7;
+  string MinionType = 8;
+  string OsType = 9;
+  string Description = 10;
+  bool Installed = 11;
+  string MothershipId = 12;
+  string MinionIp = 13;
+  string OwnerId = 14;
+  string Lastseen = 15;
+  string PID = 16;
+  bool Persistance = 17;
+  string PersistanceMode = 18;
+}
