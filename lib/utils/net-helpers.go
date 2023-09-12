@@ -8,7 +8,7 @@ import (
 )
 
 func ServerAddHeaderVal(res http.ResponseWriter, name,val string) {
-  res.Header.Set(name,val)
+  res.Header().Set(name,val)
 }
 
 func ClientAddHeaderVal(req *http.Request,name,val string){

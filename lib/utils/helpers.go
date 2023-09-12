@@ -18,7 +18,12 @@ import (
   "runtime"
 	"unicode"
   "math/rand"
+  "github.com/google/uuid"
 )
+
+func GenerateUUID() string {
+  return uuid.New().String()
+}
 
 func ReturnErrorPlusMessage( e error,text string) error{
   if e != nil{

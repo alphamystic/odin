@@ -1,7 +1,19 @@
 package cmd
 
 import (
+  "os"
   "fmt"
+  "net"
+  "bytes"
+  "bufio"
+  "errors"
+  "net/http"
+  "crypto/tls"
+  "odin/lib/c2"
+  "encoding/gob"
+  "odin/lib/core"
+  "odin/lib/utils"
+  "github.com/spf13/cobra"
 )
 
 
@@ -9,6 +21,7 @@ var cmdAdminCli = &cobra.Command {
   Use: "im",
   Long: "Interact with a admin server",
 	Run: func(cmd *cobra.Command, args []string){
+    var err error
     id,err := cmd.Flags().GetString("id")
     if err != nil {
       utils.Logerror(fmt.Errorf("Honey-badger id can not be nill"));return
@@ -18,7 +31,6 @@ var cmdAdminCli = &cobra.Command {
       utils.Logerror(fmt.Errorf(" Password for Honey-badger can not be nill"));return
     }
     var (
-      err error
       url string
       client *http.Client
       requestBody bytes.Buffer
@@ -34,14 +46,14 @@ var cmdAdminCli = &cobra.Command {
     }
     client = new(http.Client)
     if con.Tls {
-      client = &http.CLient{
+      client = &http.Client{
   			Transport: &http.Transport{
   				TLSClientConfig: &tls.Config{
   					InsecureSkipVerify: true,
   				},
   			},
   		}
-      url = fmt.Sprintf("https://%s",con.Address)
+      url = fmt.Sprintf("https://%s",con.OAddress)
     } else {
       client = &http.Client{}
       url = fmt.Sprintf("http://%s",con.Address)
@@ -53,10 +65,14 @@ var cmdAdminCli = &cobra.Command {
       encoder = gob.NewEncoder(&requestBody)
       decoder = gob.NewDecoder(&requestBody)
     }()
-    if err = encioder.Encode(work);err != nil{
+    if err = encoder.Encode(work);err != nil{
       utils.Logerror(fmt.Errorf("Error encoding registration.\nERROR: %q",err));return
     }
     req,err := http.NewRequest("PUT",url,&requestBody)
+    if err != nil{
+      utils.Logerror(err);return
+    }
+    resp,err := client.Do(req)
     if err != nil{
       utils.Logerror(err);return
     }
@@ -69,19 +85,21 @@ var cmdAdminCli = &cobra.Command {
       START:
       switch iarg {
         case "shell":
-          conn,err net.Dial("tcp",address)
+          conn,err := net.Dial("tcp",address)
           if err != nil {
             utils.Logerror(err)
           }
+        default:
+          goto START
         }
       END:
     }
   },
 }
 
-func AdminErrorChecker = func(res http.Response)error{
+var AdminErrorChecker = func(res http.Response)error{
   val := res.Header.Get("ERROR")
-  if len(Val) > 0 {
+  if len(val) > 0 {
     return errors.New(val)
   }
   return nil

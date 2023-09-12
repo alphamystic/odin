@@ -31,6 +31,7 @@ type Pillar struct{
 }
 
 var ErrNoWork = errors.New("Error: No work for user.")
+
 func InitializePillar()*Pillar{
   return &Pillar{
     Pools: make(map[string]*Pool),

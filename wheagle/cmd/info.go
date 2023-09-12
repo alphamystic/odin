@@ -47,7 +47,7 @@ var (
 
 var WheagleCommands = []string{
   `gen-admin --name home --iprotocol tcp --oprotocol tcp --oport 45566  --iport  44566 --arch x64 --os lin --f elf --addr 0.0.0.0 --pass Qwerty`,
-  `generate --name 6bwpool --f elf --ops lin --lhost 127.0.0.1 --lport 44566  --arch x64  --msid 5323a0ea5ae00a123ca42220ad255da7`,
+  `generate --name home-minon --f elf --ops lin --lhost 127.0.0.1 --lport 44566  --arch x64  --msid 9b8669f83e7769473ed4dd4fc0875d27`,
   `generate --name live --f exe --ops lin --lhost 127.0.0.1 --lport 44566  --arch x64  --msid 5323a0ea5ae00a123ca42220ad255da7`,
   `Interact with admin ia --id [connector id]`,
   `Interact with minion ia --id [session id]`,

