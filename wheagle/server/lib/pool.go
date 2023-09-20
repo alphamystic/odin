@@ -132,6 +132,7 @@ func (p *Pillar) MarkAsDone(cmd *grpcapi.Command) error {
   return errors.New("No such pool found.")
 }
 
+// Iteratinghere allows not to itterate on every given protocol
 func (p *Pillar) GetWorkDone(cmd *grpcapi.Command)(workDone *grpcapi.Command,err error){
   p.mu.RLock()
   defer p.mu.RUnlock()

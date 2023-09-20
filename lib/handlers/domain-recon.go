@@ -248,7 +248,7 @@ func SanitizeSubdomains(subdomains,prevSubdomains []string)[]string{
 func ProcessTheHarvester(domain string) (*TheHarvester,error,[]string) {
   var buf bytes.Buffer
   var aips []net.IP
-  cmd := `theHarvester -d {{.Domain}} -r -n -c -b zoomeye,sublist3r,threatcrowd,threatminer,dnsdumpster,hackertarget,github-code,fullhunt,certspotter,crtsh,anubis,bing`
+  cmd := `theHarvester -d {{.Domain}} -r -n -c -b anubis,certspotter,crtsh,baidu,brave`
   temp = template.Must(template.New("cmd").Parse(cmd))
   _ = temp.Execute(&buf,struct{Domain string}{domain})
   var th TheHarvester

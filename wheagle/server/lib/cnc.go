@@ -65,7 +65,7 @@ func (srv *AdminServer) RunCommand(ctx context.Context,cmd *grpcapi.Command) (*g
       return
     }
     work := &Jacuzzi{
-      OperatorId: "Universal for now",
+      OperatorId: cmd.OperatorId,
       CmdIn: cmd.In,
       Done: false,
     }

@@ -20,7 +20,7 @@ var cmdCreateTarget = &cobra.Command{
     var targets []string
     target,_ := cmd.Flags().GetString("t")
     name,_ := cmd.Flags().GetString("name")
-    if utils.CheckifStringIsEmpty(name) {
+    if !utils.CheckifStringIsEmpty(name) {
       utils.Warning("Name of scan can not be empty.");return
     }
     targets = append(targets,target)
@@ -33,7 +33,6 @@ var cmdCreateTarget = &cobra.Command{
     skp.Attack(targets)
     t1 := time.Now()
     utils.PrintTextInASpecificColorInBold("white",fmt.Sprintf("The scan %s took %v to run.\n",name,t1.Sub(t0)))
-
     /*ticker := time.NewTicker(time.Second)
     done := make(chan bool)
     var YES = func(){
