@@ -260,7 +260,7 @@ func (b *Builder) SetTemplate(minion bool) {
       if minion{
         b.Template = lib.Mule
       } else {
-        b.Template = lib.AdminTempl
+        b.Template = lib.AdminGRPC
       }
   }
 }

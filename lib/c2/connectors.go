@@ -27,6 +27,7 @@ type Connector struct{
   OAddress string
   Name string
   Tls bool
+  Protocol string /// Limit to grpc,http/s,dns,tls
   CreatedAt string
 }
 
