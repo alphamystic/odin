@@ -62,7 +62,7 @@ type Implant struct{
   OS string
 }
 
-func (i *Implant) RunImplant(){
+func (i *Implant) RunGRPCImplant(){
   var output string
   var IsAlive bool
   CreateClient:

@@ -52,7 +52,7 @@ func (msr *MSRunner) MSAuthenticate(pass string)error{
 	defer msr.mu.RUnlock()
   err := utils.CheckPasswordHash(pass,msr.Password)
   if err != nil {
-    return fmt.Errorf("Error, wrong password")//%v err
+    return fmt.Errorf("Error, wrong password: %q",err)//%v err
   }
   return nil
 }

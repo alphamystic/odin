@@ -221,7 +221,7 @@ func (ac2 *AdminData) GetTunnelingAddresses(admin bool)(string){
 
 
 // @TODO Remeber to give this parameters
-func (ac2 *AdminData) RunMothership(){
+func (ac2 *AdminData) RunMothershipGRPC(){
   var (
     implantListener,adminListener net.Listener
     err error

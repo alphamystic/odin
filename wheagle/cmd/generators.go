@@ -47,7 +47,7 @@ var cmdImplantGenerate = &cobra.Command{
 }
 /*
   LINUX archs arm,arm64,386,amd64
-  generate --name test_ --f elf --ops lin --lhost 127.0.0.1 --lport 44566  --arch x64  --msid 74ba493d4be29fb05c91e9f8f45bc8fe
+  generate --name test_ --f elf --ops lin --lhost 127.0.0.1 --lport 44566  --arch x64  --msid 39bfc799c4a77b5d0e55c16c59b75f9e
   generate-mutant --name mutant --f so --ops lin --lhost 127.0.0.1 --lport 44566  --arch x64  --msid fa81cec958b46740479ea2b275125fc4
 
   Windows archs 386,amd64,arm,arm64
@@ -97,7 +97,7 @@ var cmdAdminGenerate = &cobra.Command{
     address,_ := cmd.Flags().GetString("addr")
     pass,_ := cmd.Flags().GetString("pass")
     entry,_ := cmd.Flags().GetString("entry")
-    tls,_ := cmd.Flags().GetString("entry")
+    tls,_ := cmd.Flags().GetBool("bool")
     keyCrtFile,_ := cmd.Flags().GetString("keyCrtFile")
     certFile,_ := cmd.Flags().GetString("certFile")
     if pass == ""|| len(pass) < 0{
@@ -354,12 +354,14 @@ func init(){
 }
 
 
-var OpenCertFile = func(keyFile,certFile string)(cert,keyCrt string,err error){
-  if cert,err = ioutil.ReadFile(certFile); err != nil{
+var OpenCertFile = func(keyFile,certFile string)(string,string,error){
+  Cert,err := ioutil.ReadFile(certFile)
+  if err != nil{
     return "","",fmt.Errorf("Error openning cert file.\nERROR: %q",err)
   }
-  if keyCrt,err = ioutil.ReadFile(keyFile); err != nil{
+  KeyCrt,err := ioutil.ReadFile(keyFile)
+  if err != nil{
     return "","",fmt.Errorf("Error openning key file.\nERROR: %q",err)
   }
-  return
+  return string(Cert),string(KeyCrt),nil
 }

