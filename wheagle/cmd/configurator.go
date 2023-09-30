@@ -4,7 +4,7 @@ import (
   "fmt"
   "time"
   "sync"
-  "odin/lib/utils"
+  "github.com/alphamystic/odin/lib/utils"
   "github.com/spf13/cobra"
 )
 /*

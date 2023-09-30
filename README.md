@@ -87,10 +87,3 @@ Classified,Mort,KingJulien,Maurice
 3. Pivoting
 4. AD Pentesting
 5. Syscall unhooking and EDR Detection and evasion techniques
-
-
-
-
-
-Karen Petrou Engine of Inequality
-Cristopher Leonard Age of Easy Money

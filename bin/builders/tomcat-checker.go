@@ -4,8 +4,8 @@ import (
   "fmt"
   "net/http"
   "crypto/tls"
-  "odin/plugins"
-  "odin/lib/utils"
+  "github.com/alphamystic/odin/plugins"
+  "github.com/alphamystic/odin/lib/utils"
 )
 
 

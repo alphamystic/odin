@@ -6,8 +6,8 @@ package cmd
 import (
   "os"
   "fmt"
-  "odin/lib/core"
-  "odin/lib/utils"
+  "github.com/alphamystic/odin/lib/core"
+  "github.com/alphamystic/odin/lib/utils"
 )
 
 type RuntimeWorker struct {
@@ -20,7 +20,7 @@ func CreateRW()*RuntimeWorker{
   return &RuntimeWorker{
     OperatorId: "3l0r@cle",
     Cave: core.InitializeTunnelMan(),
-    Dir: "/home/sam/Documents/3l0racle/odin/wheagle",
+    Dir: "/home/sam/Documents/3l0racle/github.com/alphamystic/odin/wheagle",
   }
 }
 

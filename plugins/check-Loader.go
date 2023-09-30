@@ -7,7 +7,7 @@ import(
   //"errors"
   "plugin"
   "io/ioutil"
-  "odin/lib/utils"
+  "github.com/alphamystic/odin/lib/utils"
 )
 
 type Checker interface {

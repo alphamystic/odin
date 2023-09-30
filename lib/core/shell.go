@@ -10,7 +10,7 @@ import (
   "runtime"
   "crypto/tls"
   "crypto/x509"
-  "odin/lib/penguins/zoo"
+  "github.com/alphamystic/odin/lib/penguins/zoo"
 )
 // Normal TCP Server
 //Runs an interactive shell for admin server

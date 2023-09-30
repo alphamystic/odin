@@ -8,7 +8,7 @@ import (
 	//"strings"
 	"net/http"
 	//"math/rand"
-	"odin/lib/utils"
+	"github.com/alphamystic/odin/lib/utils"
 )
 
 

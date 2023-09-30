@@ -4,7 +4,7 @@ import (
   "os"
   "fmt"
   "encoding/hex"
-  "odin/lib/utils"
+  "github.com/alphamystic/odin/lib/utils"
 )
 type Encoder interface {
   Encode([]byte) ([]byte,error)

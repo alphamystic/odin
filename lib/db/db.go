@@ -8,7 +8,7 @@ import (
   "io/ioutil"
   "path/filepath"
   "encoding/json"
-  "odin/lib/utils"
+  "github.com/alphamystic/odin/lib/utils"
 )
 
 type Driver struct{

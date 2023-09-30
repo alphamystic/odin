@@ -6,12 +6,12 @@ import(
   "errors"
   "plugin"
   "io/ioutil"
-  "odin/lib/utils"
+  "github.com/alphamystic/odin/lib/utils"
 )
 
 type Dropper interface {
   Drop()(Implementor)
-  Wheagle(bool) (func()error)  
+  Wheagle(bool) (func()error)
 }
 
 

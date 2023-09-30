@@ -6,9 +6,9 @@ import (
   "bytes"
   "strings"
   "io/ioutil"
-  "odin/lib/utils"
+  "github.com/alphamystic/odin/lib/utils"
   "github.com/spf13/cobra"
-  "odin/lib/penguins/skipper"
+  "github.com/alphamystic/odin/lib/penguins/skipper"
 )
 
 

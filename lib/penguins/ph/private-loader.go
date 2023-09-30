@@ -6,8 +6,8 @@ import (
   "fmt"
   "plugin"
   "io/ioutil"
-  "odin/lib/utils"
-  "odin/lib/handlers"
+  "github.com/alphamystic/odin/lib/utils"
+  "github.com/alphamystic/odin/lib/handlers"
 )
 
 const PluginsDir = "../bin/"

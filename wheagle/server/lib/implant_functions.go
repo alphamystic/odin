@@ -7,10 +7,10 @@ import(
   "errors"
   "context"
   //"io/ioutil"
-  "odin/lib/core"
-  "odin/lib/utils"
-  //"odin/lib/penguins/zoo"
-  "odin/wheagle/server/grpcapi"
+  "github.com/alphamystic/odin/lib/core"
+  "github.com/alphamystic/odin/lib/utils"
+  //"github.com/alphamystic/odin/lib/penguins/zoo"
+  "github.com/alphamystic/odin/wheagle/server/grpcapi"
 )
 
 type ImplantServer struct{

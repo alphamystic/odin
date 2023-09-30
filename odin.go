@@ -5,8 +5,8 @@ import (
   "fmt"
   "bufio"
   "strings"
-  "odin/cli"
-  "odin/lib/utils"
+  "github.com/alphamystic/odin/cli"
+  "github.com/alphamystic/odin/lib/utils"
 
   "github.com/common-nighthawk/go-figure"
 )

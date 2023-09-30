@@ -3,7 +3,7 @@ package scanner
 import (
 	"fmt"
 	"net/http"
-	"odin/lib/utils"
+	"github.com/alphamystic/odin/lib/utils"
 )
 
 func CheckIdorSubDTo(targets []string) error {

@@ -2,7 +2,7 @@ package cmd
 
 import (
   //"time"
-  "odin/lib/utils"
+  "github.com/alphamystic/odin/lib/utils"
 
   "github.com/spf13/cobra"
 )

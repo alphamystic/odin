@@ -10,11 +10,11 @@ import(
   "net/http"
   "crypto/tls"
   "io/ioutil"
-  "odin/lib/utils"
-  "odin/lib/core"
-  "odin/lib/penguins/zoo"
+  "github.com/alphamystic/odin/lib/utils"
+  "github.com/alphamystic/odin/lib/core"
+  "github.com/alphamystic/odin/lib/penguins/zoo"
   "github.com/gorilla/sessions"
-  "odin/wheagle/server/grpcapi"
+  "github.com/alphamystic/odin/wheagle/server/grpcapi"
 )
 
 var store = sessions.NewCookieStore([]byte(utils.RandNoLetter(30)))
@@ -375,8 +375,10 @@ func (srv *HTTPMS) Authenticate(res http.ResponseWriter,req *http.Request){
       // log the error and return an empty body
       utils.Notice(fmt.Sprintf("%s",err))
       res.WriteHeader(http.StatusInternalServerError)
+      fmt.Println("Not authenticated")
       fmt.Fprintf(res,"Mule with ID Already exists.");return
     }
+    fmt.Println("Authenticated.........")
     session.Values["MinionId"] = mid
     session.Values["IP"] = req.RemoteAddr
     session.Save(req,res)
@@ -384,6 +386,8 @@ func (srv *HTTPMS) Authenticate(res http.ResponseWriter,req *http.Request){
   	fmt.Fprintln(res, "Successfully authenticated.")
     return
   }
+  fmt.Println("NOt authenticated.. but at all.......")
+  res.WriteHeader(http.StatusUnauthorized)
   fmt.Fprintf(res,"Get your own mothership dummy!!.......")
   return
 }

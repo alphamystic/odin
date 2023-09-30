@@ -10,8 +10,8 @@ import(
 	"text/template"
 
   "encoding/hex"
-  "odin/plugins"
-  "odin/lib/utils"
+  "github.com/alphamystic/odin/plugins"
+  "github.com/alphamystic/odin/lib/utils"
 )
 type Spikes struct{}
 

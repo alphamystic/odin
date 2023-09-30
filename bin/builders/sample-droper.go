@@ -1,7 +1,7 @@
 package main
 
 import (
-  "odin/plugins"
+  "github.com/alphamystic/odin/plugins"
 )
 
 type CNC struct{}

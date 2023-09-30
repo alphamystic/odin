@@ -6,8 +6,8 @@ import (
   "errors"
   "strings"
   "text/template"
-  "odin/lib/utils"
-  "odin/wheagle/server/lib"
+  "github.com/alphamystic/odin/lib/utils"
+  "github.com/alphamystic/odin/wheagle/server/lib"
 )
 
 var temp *template.Template
@@ -22,9 +22,10 @@ type Builder struct {
   Dir string
   EntryPoint string
   Template string
+  Protocol string
 }
 
-func CreateBuilder(architecture,ops,format,basic,name,entry string,minion bool)(*Builder,error){
+func CreateBuilder(architecture,ops,format,basic,name,entry,protocol string,minion bool)(*Builder,error){
   var b Builder
   b.Name  = name
   if !utils.CheckifStringIsEmpty(entry){
@@ -45,6 +46,7 @@ func CreateBuilder(architecture,ops,format,basic,name,entry string,minion bool)(
   if err != nil{
     return nil,err
   }
+  b.SetProtocol(protocol)
   b.SetTemplate(minion)
   err = b.SetEncoding(basic)
   if err != nil{
@@ -242,12 +244,26 @@ func (b *Builder) SetFormat(fmrt string)error{
   return nil
 }
 
+func (b *Builder) SetProtocol(prtl string){
+  switch prtl {
+  case "grpc":
+    b.Protocol = "grpc"
+  case "sgrpc":
+    b.Protocol = "sgrpc"
+  case "tls","https":
+    b.Protocol = "https"
+  default:
+    b.Protocol = "http"
+  }
+  return
+}
+
 func (b *Builder) SetTemplate(minion bool) {
   switch b.Format {
     case "gplgn":
       if minion {
         b.Template = lib.MinionLib
-      } else{
+      } else {
         b.Template = lib.AdminLib
       }
     case "dll":
@@ -257,10 +273,20 @@ func (b *Builder) SetTemplate(minion bool) {
         b.Template = lib.DLLLoaderAdmin
       }
     default:
-      if minion{
-        b.Template = lib.Mule
+      if minion {
+        if b.Protocol == "grpc" || b.Protocol == "sgrpc"{
+          b.Template = lib.GrpcMule
+          return
+        } else {
+          b.Template = lib.HttpMule
+          return
+        }
       } else {
-        b.Template = lib.AdminGRPC
+        if b.Protocol == "https" || b.Protocol == "http" {
+          b.Template = lib.AdminHTTP
+        } else {
+          b.Template = lib.AdminGRPC
+        }
       }
   }
 }

@@ -20,7 +20,7 @@ import (
   "path/filepath"
   "encoding/json"
   "encoding/gob"
-  "odin/lib/utils"
+  "github.com/alphamystic/odin/lib/utils"
 )
 
 

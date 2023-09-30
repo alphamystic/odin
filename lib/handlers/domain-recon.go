@@ -9,7 +9,7 @@ import (
   "bufio"
   "strings"
   "text/template"
-  "odin/lib/utils"
+  "github.com/alphamystic/odin/lib/utils"
 )
 /*
 1. Use host -d to find the IP associate(if cloud flare ignore it) check for IPv4 or IPv6

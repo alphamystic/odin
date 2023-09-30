@@ -2,7 +2,7 @@ package handlers
 
 import(
   "fmt"
-  "odin/lib/utils"
+  "github.com/alphamystic/odin/lib/utils"
 )
 /*
   *Handles recon output

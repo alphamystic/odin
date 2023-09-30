@@ -10,9 +10,9 @@ import (
 	"time"
 	"io/ioutil"
 
-	"odin/plugins"
-	"odin/lib/db"
-	"odin/lib/utils"
+	"github.com/alphamystic/odin/plugins"
+	"github.com/alphamystic/odin/lib/db"
+	"github.com/alphamystic/odin/lib/utils"
 	"github.com/spf13/cobra"
 	"github.com/cheggaaa/pb/v3"
 )

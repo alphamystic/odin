@@ -8,7 +8,7 @@ import (
   "image/png"
   "encoding/base64"
 
-  "odin/lib/utils"
+  "github.com/alphamystic/odin/lib/utils"
 
   "github.com/kbinani/screenshot"
 )

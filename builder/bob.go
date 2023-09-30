@@ -9,9 +9,9 @@ import (
   "os/exec"
   "text/template"
 
-  "odin/lib/c2"
-  "odin/lib/utils"
-  //"odin/wheagle/server/lib"
+  "github.com/alphamystic/odin/lib/c2"
+  "github.com/alphamystic/odin/lib/utils"
+  //"github.com/alphamystic/odin/wheagle/server/lib"
 )
 type Generator interface {
   Generate() error

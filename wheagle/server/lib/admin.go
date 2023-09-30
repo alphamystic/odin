@@ -2,7 +2,7 @@ package lib
 
 import (
   "fmt"
-  "odin/wheagle/server/grpcapi"
+  "github.com/alphamystic/odin/wheagle/server/grpcapi"
   "google.golang.org/grpc"
 )
 

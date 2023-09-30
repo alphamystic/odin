@@ -5,7 +5,7 @@ import (
   "fmt"
   "sync"
   "errors"
-  "odin/lib/utils"
+  "github.com/alphamystic/odin/lib/utils"
 )
 /*
   * The cave just create a channelfor everyone to manipulate or access data returned  from it.

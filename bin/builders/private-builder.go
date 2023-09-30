@@ -7,7 +7,7 @@ package main
 import (
   "fmt"
   "net/http"
-  "odin/lib/handlers"
+  "github.com/alphamystic/odin/lib/handlers"
 )
 //we should definietlty change this or give it something universal for proper private loaading
 func NewPrivateScanner() hadlers.Scanner{

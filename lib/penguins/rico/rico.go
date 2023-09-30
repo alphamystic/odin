@@ -2,7 +2,7 @@ package rico
 
 import (
   //"sync"
-  "odin/lib/handlers"
+  "github.com/alphamystic/odin/lib/handlers"
 )
 /*
   * Implements bruteforce handlers.Vulnerabilities

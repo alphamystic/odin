@@ -4,8 +4,8 @@ import (
   "fmt"
   "sync"
   "encoding/json"
-  "odin/lib/db"
-  "odin/lib/utils"
+  "github.com/alphamystic/odin/lib/db"
+  "github.com/alphamystic/odin/lib/utils"
 )
 /*
   This package defines all the various methods for teaming up

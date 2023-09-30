@@ -10,8 +10,8 @@ import (
   //"path/filepath"
   "encoding/json"
 
-	"odin/lib/db"
-	"odin/lib/utils"
+	"github.com/alphamystic/odin/lib/db"
+	"github.com/alphamystic/odin/lib/utils"
 )
 
 var (

@@ -4,9 +4,9 @@ import (
   "fmt"
   //"time"
 
-  "odin/lib/c2"
-  "odin/lib/db"
-  "odin/lib/utils"
+  "github.com/alphamystic/odin/lib/c2"
+  "github.com/alphamystic/odin/lib/db"
+  "github.com/alphamystic/odin/lib/utils"
 
   "github.com/spf13/cobra"
 )

@@ -9,14 +9,14 @@ import (
   "net/http"
   "io/ioutil"
   "crypto/tls"
-  "odin/lib/utils"
+  "github.com/alphamystic/odin/lib/utils"
   "github.com/spf13/cobra"
-	"odin/wheagle/server/grpcapi"
+	"github.com/alphamystic/odin/wheagle/server/grpcapi"
 )
 
 
 var cmdAdminCli = &cobra.Command {
-  Use: "im",
+  Use: "ihm",
   Long: "Interact with a admin server",
 	Run: func(cmd *cobra.Command, args []string){
     var err error

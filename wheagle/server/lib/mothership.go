@@ -8,8 +8,8 @@ import(
   "os/exec"
   "context"
 
-  "odin/lib/utils"
-  "odin/wheagle/server/grpcapi"
+  "github.com/alphamystic/odin/lib/utils"
+  "github.com/alphamystic/odin/wheagle/server/grpcapi"
 )
 
 type MSRunner struct {

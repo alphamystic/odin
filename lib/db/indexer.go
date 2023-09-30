@@ -3,7 +3,7 @@ package db
 import (
   "sync"
   "strings"
-  "odin/lib/utils"
+  "github.com/alphamystic/odin/lib/utils"
 )
 
 type Document struct {

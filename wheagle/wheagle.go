@@ -8,8 +8,8 @@ import (
   "strings"
   _ "image/jpeg"
 	_ "image/png"
-  "odin/lib/utils"
-  "odin/wheagle/cmd"
+  "github.com/alphamystic/odin/lib/utils"
+  "github.com/alphamystic/odin/wheagle/cmd"
 
   "github.com/qeesung/image2ascii/convert"
 

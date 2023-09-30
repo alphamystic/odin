@@ -10,8 +10,8 @@ import(
 	"text/template"
   "encoding/hex"
 
-  "odin/wheagle/server/lib"
-  "odin/lib/utils"
+  "github.com/alphamystic/odin/wheagle/server/lib"
+  "github.com/alphamystic/odin/lib/utils"
 )
 
 type Hunter struct{

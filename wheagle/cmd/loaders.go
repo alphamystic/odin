@@ -2,8 +2,8 @@ package cmd
 
 import (
   "fmt"
-  "odin/plugins"
-  "odin/lib/utils"
+  "github.com/alphamystic/odin/plugins"
+  "github.com/alphamystic/odin/lib/utils"
   "github.com/spf13/cobra"
 )
 

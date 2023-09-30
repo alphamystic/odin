@@ -17,11 +17,11 @@ import (
 	"context"
 	"io/ioutil"
 
-//	"odin/lib/c2"
-	"odin/lib/utils"
-  "odin/lib/penguins/zoo"
-	"odin/wheagle/server/lib"
-	"odin/wheagle/server/grpcapi"
+//	"github.com/alphamystic/odin/lib/c2"
+	"github.com/alphamystic/odin/lib/utils"
+  "github.com/alphamystic/odin/lib/penguins/zoo"
+	"github.com/alphamystic/odin/wheagle/server/lib"
+	"github.com/alphamystic/odin/wheagle/server/grpcapi"
 
 	"github.com/spf13/cobra"
 	"github.com/cheggaaa/pb/v3"
@@ -534,7 +534,7 @@ func Execute() {
 var GoodOpsec = func() error{
 	utils.PrintTextInASpecificColorInBold("yello","PRACTICE GOOD OPPSEC")
 	var adult string
-	fmt.Println("[+]	Confirm that you are an adult and we as the creatorn of ODIN/WHEAGLE aren't responcible for your misconduct")
+	fmt.Println("[+]	Confirm that you are an adult and we as the creatorn of github.com/alphamystic/odin/WHEAGLE aren't responcible for your misconduct")
 	fmt.Printf("[+]	Do you accept: (enter YES or NO): ")
 	fmt.Scanln(&adult)
 	if adult != "YES" {
