@@ -7,7 +7,7 @@ import (
   "strings"
   _ "image/jpeg"
 	_ "image/png"
-  "github.com/alphamystic/odin/plugins/dropper"
+  "github.com/alphamystic/odin/plugins"
   "github.com/alphamystic/odin/lib/utils"
   "github.com/alphamystic/odin/wheagle/cmd"
 
@@ -17,7 +17,7 @@ import (
 
 type WheagleCNC struct{}
 
-func NewDropper() dropper.Dropper{
+func NewDropper() plugins.Dropper{
   return new(WheagleCNC)
 }
 
