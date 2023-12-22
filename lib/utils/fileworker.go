@@ -3,6 +3,7 @@ package utils
 import (
 	"io"
 	"os"
+	"time"
 	"bufio"
 	"errors"
 	"io/ioutil"
@@ -10,6 +11,27 @@ import (
   "crypto/sha256"
 	"path/filepath"
 )
+
+// @TODO Abstract this file worker into a struct or inteface
+func ChangeFileOwnership(filename string,daysToExtend int,perms os.FileMode)error{
+  err := os.Chmod(filename,perms)//update input to take permisions too
+  if err != nil{
+    return err
+  }
+  //change ownership
+  err = os.Chown(filename,os.Getuid(),os.Getgid())
+  if err != nil{
+    return err
+  }
+  //change the timestamp
+  extraDays := time.Now().AddDate(0,0,daysToExtend)
+  err = os.Chtimes(filename,extraDays,extraDays)
+  if err !=  nil{
+    return err
+  }
+  return nil
+}
+
 
 func GetFileHash256(filename string)(string,error){
   var hash string

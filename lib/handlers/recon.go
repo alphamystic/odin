@@ -36,37 +36,47 @@ import (
     *In a way this has skipper written all over it but only time will answer it*
 */
 
+type Scans struct {
+  ScanID string
+  Name string
+  ScanType string
+  utils.TimeStamps
+}
+
 type Target struct{
+  TargetID string
+  ScanID string
   Host string //can be null if not specified as a subdomain
   HostIp net.IP
   TargetIp net.IP
-  Decoys []net.IP
   FireWallName string
-  //RoSD *ReconDataOnSubdomain persist this to DB When done
+  Decoys []net.IP
+  utils.TimeStamps
 }
 
-type ReconData struct{
+type ReconData struct {
   Trg *Target
-  /*CommandUsed string
-  CommandOutput string*/
   Services []*Service
   WD  *WebData
 }
 
-type WebData struct{
+type WebData struct {
   Directories []string
   Parameters []string// should also be associated with the directory it came from
-  Files string
+  Files []stringpyt
 }
 
-type Service struct{
+type Service struct {
+  ServiceID int
+  TargetID string
   ServiceName string
   Port int
   Protocol string
 	State   bool // open or closed
 	Version string
   AT AttackType
-  //Data []*Output
+  utils.TimeStamps
+  Data []Output // we store this as it could be any service and we might need to reply it or enumerate further
 }
 
 type ServiceData []*Output

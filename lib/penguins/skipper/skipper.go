@@ -33,6 +33,7 @@ func (s *Skipper) Attack(targets []string){
   kwsk := &kowalski.KOWALSKI{
     Targets: targets,
     Name: s.Name,
+    ScanID: utils.GenerateUUID(),
   }
   exploits := make(chan *handlers.Exploit)
   exploitsDone := make(chan bool)

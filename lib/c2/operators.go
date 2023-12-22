@@ -1,5 +1,7 @@
 package c2
 
+// THIS PACKAGE IS DEPRECATED, Use users as defined on definers and assign them apikeys to access the mothership.
+
 import (
   "fmt"
   "sync"

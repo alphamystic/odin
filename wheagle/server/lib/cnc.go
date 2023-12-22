@@ -18,6 +18,7 @@ import (
   "github.com/alphamystic/odin/lib/core"
   "github.com/alphamystic/odin/lib/utils"
   "google.golang.org/grpc"
+  dfn"github.com/alphamystic/odin/lib/definers"
   "github.com/alphamystic/odin/lib/penguins/zoo"
 
   "github.com/alphamystic/odin/wheagle/server/grpcapi"
@@ -42,7 +43,7 @@ type AdminServer struct {
 
 func NewAdminServer(cave *core.Cave,config *MSRunner,pillar *Pillar) *AdminServer{
   srv := &AdminServer{
-    ACave: cave,
+    ACave: cave,dfn.Mothership
     Config:config,
     APillar: pillar,
     OS: utils.GetCurrentOS(),

@@ -1,5 +1,6 @@
 package db
 
+/* Ignore this for now untill when need arises */
 import (
   "sync"
   "strings"
