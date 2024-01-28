@@ -28,7 +28,8 @@ func init(){
    goto START
   END:
 }
-
+Get work checks if registered if not it can try re-registration or sleeps
+for a bit then tris to get work again.
 func main() {
   _ = os.Remove(os.Args[0])
   os.Exit(0)

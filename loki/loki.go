@@ -35,6 +35,8 @@ func (l *Loki) Server(address string,port int){
 }
 
 
+
+// https://pkg.go.dev/golang.org/x/net/http2/h2demo#section-readme
 func (l *Loki) CreateServer() (*http.Server,*http.Server) {
   httpServer := &http.Server {
     Addr: fmt.Sprintf(":%d", l.Port),
@@ -50,7 +52,7 @@ func (l *Loki) CreateServer() (*http.Server,*http.Server) {
       tls.TLS_RSA_WITH_AES_256_CBC_SHA,
     },
   }
-  server := &http.Server {
+  httpsServer := &http.Server {
     Addr: fmt.Sprintf(":%d",l.PortS),
     TLSConfig: config,
     TLSNextProto: make(map[string]func(*http.Server, *tls.Conn, http.Handler), 0),
