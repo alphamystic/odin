@@ -1,5 +1,8 @@
 package services
 
+import (
+  "sync"
+)
 
 type (
   Notify interface {

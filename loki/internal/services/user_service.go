@@ -1,5 +1,9 @@
 package services
 
+import (
+  dfn"github.com/alphamystic/odin/lib/definers"
+)
+
 type (
   UserData interface {
     CreateUser() error
@@ -13,7 +17,7 @@ type (
 )
 
 func (usd *UserDtataService) CreateUser(user dfn.User) error {
-
+  return nil
 }
 
 

@@ -8,9 +8,9 @@ import (
   "syscall"
   "context"
   "os/signal"
-  "github.com/alphamystic/lib/utils"
-  dfn"github.com/alphamystic/lib/definers"
-  "github.com/alphamystic/loki/ui/handlers"
+  "github.com/alphamystic/odin/lib/utils"
+  dfn"github.com/alphamystic/odin/lib/definers"
+  "github.com/alphamystic/odin/loki/ui/handlers"
 )
 
 // A low Level router exposing the default http

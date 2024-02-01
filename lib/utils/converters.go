@@ -1,4 +1,4 @@
-package helpers
+package utils
 
 import (
   "errors"
@@ -13,7 +13,7 @@ const (
 
 var NotImplemented = errors.New("Requested data is not inmplemeted and set to null")
 
-var IsNI(s string) bool{
+var IsNI = func(s string) bool{
   if s == NI {
     return true
   }
@@ -55,7 +55,7 @@ func TokenToArray(token string)([]string,error){
 }
 
 func MultipleToToken(data interface{}) (string,error){
-  token: jwt.New(jwt.SigningMethodHS256)
+  token := jwt.New(jwt.SigningMethodHS256)
   claims := toke.Claims.(jwt.MapClaims)
   claims["data"] = data
   tokenString,err := token.SignedString(TOKENKEY)
@@ -105,7 +105,7 @@ func TokenToString(token string) (string,error){
 }
 
 
-func TokenToData(tokenString string)(data interface{},error){
+func TokenToData(tokenString string) (data interface{},err error){
   if IsNI(token){
     return nil,NotImplemented
   }

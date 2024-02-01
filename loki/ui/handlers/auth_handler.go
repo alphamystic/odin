@@ -3,9 +3,9 @@ package handlers
 import(
   "fmt"
   "net/http"
-  "github.com/alphamystic/odin/loki/lib/utils"
-  "github.com/alphamystic/odin/loki/lib/workers"
-  dfn"github.com/alphamystic/odin/loki/lib/definers"
+  "github.com/alphamystic/odin/lib/utils"
+  //"github.com/alphamystic/odin/loki/lib/workers"
+  dfn"github.com/alphamystic/odin/lib/definers"
   srvs"github.com/alphamystic/odin/loki/internal/services"
 )
 

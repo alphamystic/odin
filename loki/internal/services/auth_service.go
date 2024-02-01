@@ -6,7 +6,7 @@ type (
     Logout(string) error
   }
   AuthorizeService struct{
-    authDomain domain.
+    //authDomain domain.
   }
 )
 

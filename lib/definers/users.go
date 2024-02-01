@@ -5,7 +5,7 @@ package definers
 */
 
 import (
-  "github.com/alphamystic/lib/utils"
+  "github.com/alphamystic/odin/lib/utils"
 )
 
 type User struct{

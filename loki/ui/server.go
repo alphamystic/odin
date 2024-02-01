@@ -5,7 +5,7 @@ package main
 */
 
 import (
-  rtr"github.com/alphamystic/loki/ui/router"
+  rtr"github.com/alphamystic/odin/loki/ui/router"
 )
 
 func main(){

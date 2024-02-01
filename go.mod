@@ -27,7 +27,9 @@ require (
 	github.com/Binject/shellcode v0.0.0-20191101084904-a8a90e7d4563 // indirect
 	github.com/VividCortex/ewma v1.2.0 // indirect
 	github.com/aybabtme/rgbterm v0.0.0-20170906152045-cc83f3b3ce59 // indirect
+	github.com/dgrijalva/jwt-go v3.2.0+incompatible // indirect
 	github.com/gen2brain/shm v0.0.0-20230802011745-f2460f5984f7 // indirect
+	github.com/go-sql-driver/mysql v1.7.1 // indirect
 	github.com/gorilla/securecookie v1.1.1 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/jezek/xgb v1.1.0 // indirect
