@@ -271,10 +271,3 @@ func LogErrorToFile(name string,text ...interface{}) error{
   log.Println(text)
   return nil
 }
-
-//log error of errors
-func Logerror(e error){
-  if e != nil {
-    log.Println(e)
-  }
-}

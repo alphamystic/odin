@@ -7,11 +7,14 @@ import (
 
 
 const (
-  TOKENKEY = []byte("This is the token Key")
   NI = "NOT IMPLEMENTED"
 )
 
-var NotImplemented = errors.New("Requested data is not inmplemeted and set to null")
+var (
+  TOKENKEY = []byte("This is the token Key")
+  NotImplemented = errors.New("Requested data is not inmplemeted and set to null")
+)
+
 
 var IsNI = func(s string) bool{
   if s == NI {
