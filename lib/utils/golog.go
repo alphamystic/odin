@@ -51,7 +51,8 @@ func (rl *RequestLogger) openLogFile() {
 func (rl *RequestLogger) LogRequestDetails(req *http.Request, data string) {
 	rl.mu.Lock()
 	defer rl.mu.Unlock()
-	if time.Now().Day() != rl.file.Stat().ModTime().Day() {
+	mt, _ := rl.file.Stat()
+	if time.Now().Day() != mt.ModTime().Day() {
 		// If it's a new day, open a new log file
 		rl.file.Close()
 		rl.openLogFile()

@@ -21,7 +21,7 @@ import (
 	"encoding/base64"
   "github.com/google/uuid"
   "golang.org/x/crypto/bcrypt"
-  "github.com/dgrijalva/jwt-go"
+  //"github.com/dgrijalva/jwt-go"
 )
 
 func GenerateUUID() string {
@@ -240,7 +240,7 @@ func LogToFile(ldr Logger) error{
   date := time.Now().Format("2006-01-02")
 	name := fmt.Sprintf("./.data/logs/%s/%s.log",date,ldr.Name)
 	// Get or create a mutex for the specific log file name
-	mutex, _ := logMutexMap.LoadOrStore(name, new(sync.Mutex))
+	mutex, _ := logMutex.LoadOrStore(name, new(sync.Mutex))
 	mutex.(*sync.Mutex).Lock()
 	defer mutex.(*sync.Mutex).Unlock()
 
@@ -270,4 +270,8 @@ func LogErrorToFile(name string,text ...interface{}) error{
   log.SetOutput(writer)
   log.Println(text)
   return nil
+}
+
+func LogError(err error){
+  log.Println(err)
 }

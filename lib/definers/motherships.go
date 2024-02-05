@@ -47,7 +47,7 @@ type Server struct {
 // @TODO there is a  descripancy on a tunnel for http/s Use admin
 func GetServer(data string) (*Server,error) {
   token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-    return []byte(TOKENKEY), nil
+    return []byte(utils.TOKENKEY), nil
   })
   if err != nil {
     return nil,err
