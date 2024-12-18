@@ -12,6 +12,7 @@ package handlers
 
 import (
   "net"
+  "github.com/alphamystic/odin/lib/utils"
 )
 
 /*
@@ -63,7 +64,7 @@ type ReconData struct {
 type WebData struct {
   Directories []string
   Parameters []string// should also be associated with the directory it came from
-  Files []stringpyt
+  Files []string
 }
 
 type Service struct {

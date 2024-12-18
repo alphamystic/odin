@@ -7,7 +7,7 @@ package c2
 
 import(
   "github.com/alphamystic/odin/lib/utils"
-  dfn"githuib.com/alphamystic/odin/lib/definers"
+  dfn"github.com/alphamystic/odin/lib/definers"
 )
 
 func CreateMinion(msid,name,msAddress,lport,ops,description,msps,port,cmd string) (*dfn.Minion,error) {
@@ -16,22 +16,22 @@ func CreateMinion(msid,name,msAddress,lport,ops,description,msps,port,cmd string
     return nil,err
   }
   var tt utils.TimeStamps
-  tt.Touch
+  tt.Touch()
   return &dfn.Minion {
-    MinionId: utils.Md5Hash(utils.GenerateUUID()),
+    MinionID: utils.Md5Hash(utils.GenerateUUID()),
     Name: name,
     UName: "",
-    UserId: "",
-    GroupId: "",
+    UserID: "",
+    GroupID: "",
     HomeDir: "",
     Os: ops,
     Description: description,
     Installed: false,
     Address: lport,
     Port: port,
-    MotherShipId: msid,
+    MotherShipID: msid,
     Motherships: msps,
-    LastSeen: tt.CreatedAt,
+    LastSeen: tt.CreatedAt.String(),
     GenCommand: cmd,
     tt,
   },nil
@@ -66,7 +66,7 @@ func CreateMothership(hash,name,msid,addr,iProtocol,oProtocol,cert,keyCrt,cmd st
     },nil
   } else {
     return &dfn.Mothership {
-      OwnerId: uid,
+      OwnerID: uid,
       Name: name,
       Password: hash,
       MSId: msid,
@@ -79,6 +79,6 @@ func CreateMothership(hash,name,msid,addr,iProtocol,oProtocol,cert,keyCrt,cmd st
       AdminTunnel: "",
       GenCommand: cmd,
       tt,
-    }
-  },nil
+    }, nil
+  }
 }

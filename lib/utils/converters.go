@@ -69,26 +69,77 @@ func MultipleToToken(data interface{}) (string,error){
   return tokenString,nil
 }
 
-func TokenToMultiple(tokenString string) ([]map[string]string,error){
-  token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-    return []byte(TOKENKEY), nil
-  })
-  if err != nil {
-    return nil,err
-  }
-  var datum []map[string]string
-  // Extract the data from the JWT
-  if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-    data := claims["data"].([]interface{})
-    for _, d := range data {
-      for key,val := range d.(string) {
-        datum = append(datum,map[string]string{key,val})
-      }
-    }
-  }
-  return datum,nil
+
+func TokenToMultiple(tokenString string) ([]map[string]string, error) {
+	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+		return []byte(TOKENKEY), nil
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	var datum []map[string]string
+	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
+		if rawData, ok := claims["data"].([]interface{}); ok {
+			for _, item := range rawData {
+				if entry, ok := item.(map[string]interface{}); ok {
+					tempMap := make(map[string]string)
+					for key, val := range entry {
+						if valStr, ok := val.(string); ok {
+							tempMap[key] = valStr
+						}
+					}
+					datum = append(datum, tempMap)
+				}
+			}
+		}
+	}
+	return datum, nil
 }
 
+
+func TokenToString(tokenString string) (string, error) {
+	if IsNI(tokenString) {
+		return "", NotImplemented
+	}
+
+	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+		return []byte(TOKENKEY), nil
+	})
+	if err != nil {
+		return "", err
+	}
+
+	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
+		if data, ok := claims["data"].(string); ok {
+			return data, nil
+		}
+	}
+	return "", fmt.Errorf("invalid data format in token")
+}
+
+func TokenToData(tokenString string) (interface{}, error) {
+	if IsNI(tokenString) {
+		return nil, NotImplemented
+	}
+
+	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+		return []byte(TOKENKEY), nil
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
+		if data, ok := claims["data"]; ok {
+			return data, nil
+		}
+	}
+	return nil, fmt.Errorf("invalid data format in token")
+}
+
+
+/*
 func TokenToString(tokenString string) (string,error){
   if IsNI(tokenString){
     return "",NotImplemented
@@ -127,3 +178,4 @@ func TokenToData(tokenString string) (data interface{},err error){
   }
   return datum,nil
 }
+*/

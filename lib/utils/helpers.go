@@ -43,7 +43,39 @@ func (t *TimeStamps) Touch() {
   }
 }
 
+func IntToString(val int) string {
+	return strconv.Itoa(val)
+}
 
+// ArrayContainsInt checks if an integer exists in a slice of integers.
+func ArrayContainsInt(array []int, target int) bool {
+	for _, value := range array {
+		if value == target {
+			return true
+		}
+	}
+	return false
+}
+
+// RemoveStringDuplicates removes duplicate strings from a slice and returns a new slice with unique values.
+func RemoveStringDuplicates(array []string) []string {
+	uniqueMap := make(map[string]bool)
+	var result []string
+	for _, value := range array {
+		if _, exists := uniqueMap[value]; !exists {
+			uniqueMap[value] = true
+			result = append(result, value)
+		}
+	}
+
+	return result
+}
+
+func CheckIfStringIsDomainName(s string) bool {
+	domainRegex := `^([a-zA-Z0-9-]{1,63}\.)+[a-zA-Z]{2,}$`
+	re := regexp.MustCompile(domainRegex)
+	return re.MatchString(s)
+}
 
 func ContainsOnlyNumbers(s string) bool {
 	// Use a regular expression to check if the string contains only numbers

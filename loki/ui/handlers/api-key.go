@@ -1,11 +1,14 @@
 package handlers
 
 import(
-  //"fmt"
+  "fmt"
+  "time"
   "net/http"
-//  "loki/lib/utils"
+  "github.com/alphamystic/odin/lib/utils"
 //  "loki/lib/workers"
-  srvs"github.com/alphamystic/odin/loki/internal/services"
+  dfn"github.com/alphamystic/odin/lib/definers"
+
+	"github.com/dgrijalva/jwt-go"
 )
 
 func (hnd *Handler) Listapikeys(res http.ResponseWriter, req *http.Request){
@@ -18,7 +21,16 @@ func (hnd *Handler) Listapikeys(res http.ResponseWriter, req *http.Request){
     hnd.Tpl.ExecuteTemplate(res,"error.html",errPage)
     return
   }
-  ntfs,err := srvs.ListUserNotifications(ud.Uid)
+  ud,err := hnd.GetUDFromToken(req)
+  if err != nil{
+    if err == dfn.UserNotLoggedIn {
+      http.Redirect(res,req,"/mkubwa",http.StatusSeeOther)
+      return
+    }
+    http.Redirect(res,req,"/login",http.StatusSeeOther)
+    return
+  }
+  ntfs,err := hnd.SRVCS.NTFCNSvrs.ListUserNotifications(ud.UserId)
   if err != nil {
     utils.Warning(fmt.Sprintf("%s",err))
   }
@@ -29,8 +41,17 @@ func (hnd *Handler) Listapikeys(res http.ResponseWriter, req *http.Request){
 }
 
 func (hnd *Handler) Createapikeys(res http.ResponseWriter, req *http.Request){
+  ud,err := hnd.GetUDFromToken(req)
+  if err != nil{
+    if err == dfn.UserNotLoggedIn {
+      http.Redirect(res,req,"/mkubwa",http.StatusSeeOther)
+      return
+    }
+    http.Redirect(res,req,"/login",http.StatusSeeOther)
+    return
+  }
   if req.Method != "POST"{
-    ntfs,err := srvs.ListUserNotifications(ud.Uid)
+    ntfs,err := hnd.SRVCS.NTFCNSvrs.ListUserNotifications(ud.UserId)
     if err != nil {
       utils.Warning(fmt.Sprintf("%s",err))
     }
@@ -38,7 +59,7 @@ func (hnd *Handler) Createapikeys(res http.ResponseWriter, req *http.Request){
       "notifications": ntfs,
     })
   }
-  ntfs,err := srvs.ListUserNotifications(ud.Uid)
+  ntfs,err := hnd.SRVCS.NTFCNSvrs.ListUserNotifications(ud.UserId)
   if err != nil {
     utils.Warning(fmt.Sprintf("%s",err))
   }
@@ -51,7 +72,7 @@ func (hnd *Handler) Createapikeys(res http.ResponseWriter, req *http.Request){
 
 
 
-func GenerateToken(rt *Runtime) (string,error){
+func GenerateToken(rt *UserData) (string,error){
   expTime := time.Now().Add(time.Hour * 48)
   /*rt.StandardClaims = jwt.StandardClaims{
     ExpiresAt: expTime.Unix(),
@@ -67,7 +88,7 @@ func GenerateToken(rt *Runtime) (string,error){
   return sighnedToken,nil
 }
 
-func AuthMiddleware(next http.Handler) http.Handler{
+func (hnd *Handler) AuthMiddleware(next http.Handler) http.Handler{
   return http.HandlerFunc(func(res http.ResponseWriter,req *http.Request){
     //tokenString := req.Header.Get("Authorization")
     /*token,err := jwt.ParseWithClaims(tokenString, &Runtime{},func(token *jwt.Token) (interface{},error){
@@ -85,13 +106,13 @@ func AuthMiddleware(next http.Handler) http.Handler{
       fmt.Println("[-]ERROR: during  authneticating token. \n  ",err)
       res.WriteHeader(http.StatusUnauthorized)
       tmplError := ErrorPage {
-        Code: http.StatusUnauthorized,
+        ErrorCode: http.StatusUnauthorized,
         Data: "Login to interact with server.",
         Message: "You are not logged in. Please log in first",
         Back: "Login.",
         Direction: "/login",
       }
-      tpl.ExecuteTemplate(res,"error.html",tmplError)
+      hnd.Tpl.ExecuteTemplate(res,"error.html",tmplError)
       return
     }
     next.ServeHTTP(res,req)

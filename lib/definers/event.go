@@ -4,6 +4,7 @@ package definers
 */
 
 import (
+  "time"
   "github.com/alphamystic/odin/lib/utils"
 )
 

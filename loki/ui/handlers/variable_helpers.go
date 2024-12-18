@@ -1,17 +1,21 @@
-package handlers
+ package handlers
 
 import (
   "fmt"
-  "log"
+  //"log"
   "time"
-  //"database/sql"
+  "net/http"
+  "database/sql"
   "html/template"
   "github.com/alphamystic/odin/lib/utils"
-  "github.com/gorilla/sessions"
+  dfn"github.com/alphamystic/odin/lib/definers"
+  "github.com/dgrijalva/jwt-go"
 //  _ "github.com/go-sql-driver/mysql"
 )
 
 type LOKI map[string]interface{}
+
+type ErrorRes map[string]interface{}
 
 var Registration bool
 
@@ -22,8 +26,10 @@ var (
 
 type ErrorPage struct {
   ErrorCode int
+  Data string
   Message string
   Back string
+  Direction string
 }
 
 // Exposes all handlers to a db connection and the required template.
@@ -34,26 +40,28 @@ type Handler struct {
   RL *utils.RequestLogger
   CanWriteLogs bool
   ShutdownChan,DoneChan chan bool // channels to write into
+  SRVCS *Services
 }
 
 // Initiates new handler
 func NewHandler(db_connection *sql.DB, shutdownCh chan bool, doneCh chan bool,rl *utils.RequestLogger) (*Handler,error) {
-  tpl,err = template.ParseGlob("./templates/*.html")
+  tpl,err := template.ParseGlob("./loki/ui/templates/*.html")
   if err != nil{
     utils.Warning("[-]  Failed to load templates.")
     return nil,fmt.Errorf("[-]  This is not good like: ",err)
   }
   fmt.Println("[+]  Loaded all templates.")
-  utils.PrintTextInASpecificColorInBold("white",fmt.Sprintf(" Starting LOKI server at: %s",currentTime))
+  utils.PrintTextInASpecificColorInBold("white",fmt.Sprintf(" Starting LOKI server at: %s",GetCurrentTime()))
   // create db configurations
   return &Handler {
     Tpl: tpl,
-    Store: sessions.NewCookieStore([]byte(utils.RandNoLetter(30))),
+    //Store: sessions.NewCookieStore([]byte(utils.RandNoLetter(30))),
     Dbs: db_connection,
     CanWriteLogs: true,
     ShutdownChan: shutdownCh,
     DoneChan: doneCh,
     RL: rl,
+    SRVCS: InitializeServices(),
   },nil
 }
 
@@ -64,11 +72,17 @@ type DateTime struct {
 }
 
 func GetDateTime()(*DateTime){
+  var now = time.Now()
   return &DateTime{
     Day:now.Day(),
     Month:now.Month().String(),
     Year:now.Year(),
   }
+}
+
+func GetCurrentTime() string {
+  var now = time.Now()
+  return now.Format("2006-01-02 15:04:05")
 }
 
 type UserData struct {
@@ -91,16 +105,15 @@ func (hnd *Handler) GenerateJWT(ud *UserData) (string,error) {
   return sighnedToken,nil
 }
 
+
+// Find a way to encrypt the tokenString
 func (hnd *Handler) GetUDFromToken(req *http.Request) (*UserData,error) {
-  session,_ := hnd.Store.Get("cookie")
-  cookie,ok := session.Values["token"].(string)
-  if !ok {
-    return nil,dfn.UserNotLoggedIn
-  }
+  cookie,_ := req.Cookie("Authorization")
+  tokenString := cookie.Value
   // @TODO add functionality to check expiry for a jwt token and save it
-  token,err := jwt.Parse(cookie,func(tkn *jwt.Token)(interface{},error){
+  token,err := jwt.Parse(tokenString,func(tkn *jwt.Token)(interface{},error){
     if tkn.Method != jwt.SigningMethodHS256{
-      return nil,fmt.fmt.Errorf("Unexepcted signing method: %v",tkn.Header["alg"])
+      return nil,fmt.Errorf("Unexepcted signing method: %v",tkn.Header["alg"])
     }
     return store,nil
   })
@@ -108,12 +121,12 @@ func (hnd *Handler) GetUDFromToken(req *http.Request) (*UserData,error) {
     return nil,fmt.Errorf("Signing error. %q",err)
   }
   if claims,ok := token.Claims.(jwt.MapClaims); ok &&  token.Valid {
-    if runtimeMap,ok := claims["ud"].(map[string]iterface{}); ok {
+    if runtimeMap,ok := claims["ud"].(map[string]interface{}); ok {
       return &UserData{
-        UserId: runtimeMap["UserId"],
-        Admin: runtimeMap["Admin"],
+        UserId: runtimeMap["UserId"].(string),
+        Admin: runtimeMap["Admin"].(bool),
       },nil
     }
   }
-  return nil,dfn.NoCLaims
+  return nil,dfn.NoClaimsError
 }

@@ -29,7 +29,7 @@ const (
 
 func CreateNotifyer() *NotificationService {
   return &NotificationService{
-    Notifications: male(map[string]*Notification),
+    Notifications: make(map[string]*Notification),
     mu: sync.RWMutex{},
   }
 }

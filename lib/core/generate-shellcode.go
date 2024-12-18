@@ -10,7 +10,7 @@ type ShelcodeGen struct {
   SCFormat ShellCodeFormat
 }
 
-type ShellCodeFormatint
+type ShellCodeFormat int
 
 const (
   CType ShellCodeFormat = iota
@@ -42,5 +42,5 @@ func (sg *ShelcodeGen) SanitizeShellcode(shellcode []byte) []byte {
     }
   }
   sg.CleanedData = sanitizedShellcode
-  return
+  return sanitizedShellcode
 }

@@ -4,6 +4,7 @@ package utils
 */
 
 import (
+  "net"
   "net/http"
 )
 
@@ -13,6 +14,10 @@ func ServerAddHeaderVal(res http.ResponseWriter, name,val string) {
 
 func ClientAddHeaderVal(req *http.Request,name,val string){
   req.Header.Set(name,val)
+}
+
+func CheckIfStringIsIp(s string) bool {
+	return net.ParseIP(s) != nil
 }
 
 

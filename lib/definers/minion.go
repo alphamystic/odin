@@ -18,6 +18,7 @@ type Minion struct {
   Installed bool `json:"installed"`
   MothershipID string `json:"mothershipid"`
   Address string `json:"address"`// this is set to string just incase the address is a domain name
+  Port string `json:"port"`
   Motherships string  `json:"motherships"` // keep it as a bunch of strings and initialize it when needed
   TunnelAddress string `json:"tunnel_address"`
   Tls bool `json:"tls"`

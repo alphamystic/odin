@@ -75,7 +75,8 @@ func (s *Skipper) Attack(targets []string){
 
 // Save the exploits to a file (port this to db)
 func (s *Skipper) SaveExploit(exploit *handlers.Exploit) error {
-  driver,err := db.Old("../../.brain/scans/" + s.Name,0644)
+  //driver,err := db.Old("../../.brain/scans/" + s.Name,0644)
+  driver,err := db.Old(".brain/scans/" + s.Name,0644)
   if err != nil{
     return err
   }

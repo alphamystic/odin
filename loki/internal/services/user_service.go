@@ -6,21 +6,25 @@ import (
 
 type (
   UserData interface {
-    CreateUser() error
+    CreateUser(dfn.User) error
     ViewUsers()
     ListUsers()
     DeleteUser()
     IsAdmin()
     UpdateUser() error
   }
-  UserDtataService struct {}
+  UserDataService struct {}
 )
 
-func (usd *UserDtataService) CreateUser(user dfn.User) error {
+func (usd *UserDataService) CreateUser(user dfn.User) error {
   return nil
 }
 
+func NewUserService() *UserDataService{
+  return &UserDataService{}
+}
 
 
-func ViewUser(userId string)(*User,error){
+func ViewUser(userId string)(*dfn.User,error){
+  return nil,nil
 }

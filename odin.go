@@ -6,6 +6,8 @@ import (
   "bufio"
   "strings"
   "github.com/alphamystic/odin/cli"
+  "github.com/alphamystic/odin/loki"
+  "github.com/alphamystic/odin/loki/ui/router"
   "github.com/alphamystic/odin/lib/utils"
 
   "github.com/common-nighthawk/go-figure"
@@ -13,6 +15,21 @@ import (
 
 func main(){
   myFigure := figure.NewFigure("Odin", "isometric1", true)
+  // Start the server to write and read to
+  Loki := &loki.Loki {
+    Address: "0.0.0.0",
+    PortS: 3001,
+    Port: 3000,
+    TlsCert: "",
+    TlsKey: "",
+    Tls: false,
+    ApiKey: "", // servers api keey to chat service at main
+  }
+  svr,_ := Loki.CreateServer()
+  rtr := router.NewRouter(svr,svr)
+  go func(){
+    rtr.Run(false)
+  }()
   //myFigure := figure.NewFigure("Odin", "basic", true).Scroll(10000, 200, "right")
   myFigure.Print()
   utils.PrintTextInASpecificColorInBold("white","Initializing ODIN.....")

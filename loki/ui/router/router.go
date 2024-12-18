@@ -8,6 +8,7 @@ import (
   "syscall"
   "context"
   "os/signal"
+  "net/http"
   "github.com/alphamystic/odin/lib/utils"
   dfn"github.com/alphamystic/odin/lib/definers"
   "github.com/alphamystic/odin/loki/ui/handlers"
@@ -16,9 +17,10 @@ import (
 // A low Level router exposing the default http
 
 type Router struct {
-  Mux *http.ServerMux
+  Mux *http.ServeMux
   HTTPSvr *http.Server
   HTTPSSvr *http.Server
+  Tls bool
 }
 
 // should probably receive a server
@@ -32,12 +34,14 @@ func NewRouter(httpsSvr,httpSvr *http.Server) *Router {
 
 func (rtr *Router) Run(reg bool){
   handlers.Registration = reg
+  rtr.HTTPSvr.Handler = rtr.Mux
+  rtr.HTTPSSvr.Handler = rtr.Mux
   // start channels to write logs
   ShutdownCh := make(chan bool)
   DoneCh := make(chan bool)
   var err error
   // create a file server for the static files
-  fs := http.FileServer(http.Dir("./static"))
+  fs := http.FileServer(http.Dir("./loki/ui/static"))
   //rtr.Mux.Handle("/static/",http.StripPrefix("/static",fs))
   // Cache static files for 1 hour (adjust as needed)
   rtr.Mux.Handle("/static/", http.StripPrefix("/static", http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
@@ -124,12 +128,15 @@ func (rtr *Router) Run(reg bool){
       log.Fatalf("[-] Error starting server: %s\n",err.Error())
     }
   }()
-  go func(){
-    // we need to find a better way of supplying this
-    if err := rtr.HTTPSSvr.ListenAndServeTLS("../../../certs/server.crt", "../../../certs/server.key"); err != http.ErrServerClosed {
-      log.Fatalf("[-] Error starting HTTPS server: %s\n",err.Error())
-    }
+  if rtr.Tls {
+    go func(){
+      // we need to find a better way of supplying this
+      if err := rtr.HTTPSSvr.ListenAndServeTLS("../../../certs/server.crt", "../../../certs/server.key"); err != http.ErrServerClosed {
+        log.Fatalf("[-] Error starting HTTPS server: %s\n",err.Error())
+      }
+    }()
   }
+  fmt.Println("Servers are here running")
   interruptChan := make(chan os.Signal,1)
   signal.Notify(interruptChan,os.Interrupt, syscall.SIGTERM)
   //sedn a close channel to the handler
@@ -140,9 +147,16 @@ func (rtr *Router) Run(reg bool){
   <-interruptChan
   shutdownCtx,shutdownCancel := context.WithTimeout(context.Background(),5 * time.Second)
   defer shutdownCancel()
-  err = rtr.Svr.Shutdown(shutdownCtx)
+  err = rtr.HTTPSvr.Shutdown(shutdownCtx)
   if err != nil {
-    log.Fatalf("[-] Server shutdown error: %s\n",err.Error())
+    log.Fatalf("[-] HTTP Server shutdown error: %s\n",err.Error())
   }
+  if rtr.Tls {
+    new_err := rtr.HTTPSSvr.Shutdown(shutdownCtx)
+    if new_err != nil {
+      log.Fatalf("[-] HTTPS Server shutdown error: %s\n",new_err.Error())
+    }
+  }
+  fmt.Println("Server are off")
   log.Println("[+] Server gracefully stopped.")
 }

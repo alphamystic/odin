@@ -8,7 +8,7 @@ package definers
 
 const (
   ServerIssues = "We are experiencing internal server issues. Please try again later."
-  NoCLaims = "No claims to return"
+  NoClaims = "No claims to return"
   UndefinedReconWebData = "Requested for an undefined web data type, use 1 for directories,2 for parameters and 3 for files."
   InstallDirectory = "/.odin/"
   bin = InstallDirectory + "bin/" // binary files

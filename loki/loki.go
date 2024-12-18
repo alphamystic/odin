@@ -6,7 +6,10 @@ package loki
 */
 
 import (
-  rtr"github.com/alphamystic/odin/loki/ui/router"
+  "fmt"
+  "net/http"
+  "crypto/tls"
+  //"github.com/alphamystic/odin/loki/ui/router"
 )
 
 type Loki struct {
@@ -19,7 +22,7 @@ type Loki struct {
   ApiKey string // servers api keey to chat service at main
 }
 
-// we'll orbably need a struct to hold if HTTP/HTTPS
+/* we'll orbably need a struct to hold if HTTP/HTTPS
 func (l *Loki) Server(address string,port int){
   // start the main server or the api server.
   //"0.0.0.0:9000"
@@ -33,7 +36,7 @@ func (l *Loki) Server(address string,port int){
   rtr := router.NewRouter(addr)
   rtr.Run(true)
 }
-
+*/
 
 
 // https://pkg.go.dev/golang.org/x/net/http2/h2demo#section-readme

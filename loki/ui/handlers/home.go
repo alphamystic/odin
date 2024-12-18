@@ -8,12 +8,12 @@ import(
 )
 
 
-func Blank(res http.ResponseWriter, req *http.Request){
+func (hnd *Handler) Blank(res http.ResponseWriter, req *http.Request){
   hnd.Tpl.ExecuteTemplate(res,"blank.html",nil)
   return
 }
 
-func Home(res http.ResponseWriter, req *http.Request){
+func (hnd *Handler) Home(res http.ResponseWriter, req *http.Request){
   /*if !IsAuthenticated(req){
     http.Redirect(res,req,"/mkubwa",http.StatusFound)//302
     return

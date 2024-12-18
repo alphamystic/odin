@@ -2,18 +2,17 @@ package handlers
 
 import(
   "fmt"
+  "errors"
   "net/http"
   "github.com/alphamystic/odin/lib/utils"
   //"github.com/alphamystic/odin/loki/lib/workers"
   dfn"github.com/alphamystic/odin/lib/definers"
-  srvs"github.com/alphamystic/odin/loki/internal/services"
 )
 
 
 func (hnd *Handler) IsAuthenticated(req *http.Request) bool{
-  session,_ := hnd.Store.Get(req,"session")
-  _,ok := session.Values["token"].(string)
-  if !ok {
+  _,err := hnd.GetUDFromToken(req)
+  if err != nil{
     return false
   }
   return true
@@ -21,14 +20,14 @@ func (hnd *Handler) IsAuthenticated(req *http.Request) bool{
 
 func (hnd *Handler) Register(res http.ResponseWriter, req *http.Request){
   if !Registration {
-    hnd.TPl.ExecuteTemplate(res,"register.html","Sorry no user registration allowed for now. contact the admin. :)")
+    hnd.Tpl.ExecuteTemplate(res,"register.html","Sorry no user registration allowed for now. contact the admin. :)")
     return
   }
   if _,err := hnd.GetUDFromToken(req); err != nil {
     if errors.Is(err,dfn.UserNotLoggedIn){
       goto END
     }
-    if errors.Is(err,dfn.NoCLaims){
+    if errors.Is(err,dfn.NoClaimsError){
       http.Redirect(res,req,"/",http.StatusSeeOther)
       return
     }
@@ -66,9 +65,9 @@ func (hnd *Handler) Register(res http.ResponseWriter, req *http.Request){
     pass,err := utils.HashPassword(pass)
     if err != nil{
       hnd.Tpl.ExecuteTemplate(res,"error.html",ErrorRes{
-        ErrorCode: 500,
-        ErrorMessage: "We are experiencing internal server issues. Please try again later",
-        PrevUrl: "/register",
+        "ErrorCode": 500,
+        "Data": "We are experiencing internal server issues. Please try again later",
+        "Direction": "/register",
       })
     }
     user := dfn.User{
@@ -81,14 +80,12 @@ func (hnd *Handler) Register(res http.ResponseWriter, req *http.Request){
       Anonymous:  false,//utils.Md5Hash( id + utils.RandNoLetter(5))
       Verify: true,
       Admin: true,
-      CreatedAt: currentTime,
-      UpdatedAt: currentTime,
     }
-    userService := &srvs.UserDtataService{}
-    err = userService.CreateUser(user)
+    user.Touch()
+    err = hnd.SRVCS.UserSrvs.CreateUser(user)
     if err != nil{
       utils.Danger(fmt.Errorf("%q",err))
-      tpl.ExecuteTemplate(res,"register.html","There was an internal error. Try again later.")
+      hnd.Tpl.ExecuteTemplate(res,"register.html","There was an internal error. Try again later.")
       return
     }
     http.Redirect(res,req,"/mkubwa",http.StatusSeeOther)
@@ -116,7 +113,7 @@ func (hnd *Handler) Signin(res http.ResponseWriter, req *http.Request){
       hnd.Tpl.ExecuteTemplate(res,"login.html","Password can not be empty.")
       return
     }
-    user,err := services.Login(pass,email)
+    user,err := hnd.SRVCS.AuthSrvs.Login(pass,email)
     if err != nil {
       utils.Logerror(err)
       if errors.Is(err,dfn.WrongPassword) {
@@ -128,8 +125,8 @@ func (hnd *Handler) Signin(res http.ResponseWriter, req *http.Request){
       return
     }
     ud := &UserData {
-      UserID: ud.UserID,
-      Admin: ud.Admin
+      UserId: user.UserID,
+      Admin: user.Admin,
     }
     token,err := hnd.GenerateJWT(ud)
     if err != nil {
@@ -142,21 +139,39 @@ func (hnd *Handler) Signin(res http.ResponseWriter, req *http.Request){
       hnd.Tpl.ExecuteTemplate(res,"error.html",errPage)
       return
     }
-    session,_ := hnd.Store.Get(req,"session")
-    session.Values["token"] = token
-    session.Save(req,res)
+    cookie := http.Cookie{
+        Name:     "Authorization",
+        Value:    token,
+        Path:     "/",
+        MaxAge:   3600,
+        HttpOnly: true,
+        Secure:   true,
+        SameSite: http.SameSiteLaxMode,
+    }
+    http.SetCookie(res,&cookie)
     //redirect to dashboard or get the dash data and execute dash
     http.Redirect(res,req,"/",http.StatusSeeOther)
     return
   }
-  tpl.hnd.Tpl.ExecuteTemplate(res,"login.html",nil)
+  hnd.Tpl.ExecuteTemplate(res,"login.html",nil)
   return
 }
 
+// Find a way to store the cookie
 func (hnd *Handler) Logout(res http.ResponseWriter, req *http.Request){
-  session,_ := hnd.Store.Get(req,"session")
-  delete(session.Values,"token")
-  session.Save(req,res)
-  hnd.Tpl.ExecuteTemplate(res,"login.html","Logged Out ADIOS!!!")
+  _,err := req.Cookie("Authorization")
+  if err == http.ErrNoCookie {
+    hnd.Tpl.ExecuteTemplate(res,"login.html","Please login first.")
+    return
+  } else if err != nil {
+      fmt.Println("[+]  Some internal error. \nERROR: ",err)
+      hnd.Tpl.ExecuteTemplate(res,"login.html","Internal error, try again later.")
+      return
+  }
+  //tokenString := cookie.Value
+  req.Header.Del("Authorization")
+  res.Header().Del("Authorization")
+  //InvalidTokens = append(InvalidTokens,tokenString)
+  hnd.Tpl.ExecuteTemplate(res,"signin.html","Logged Out. ADIOS!!!")
   return
 }
