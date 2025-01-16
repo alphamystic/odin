@@ -16,7 +16,7 @@ import (
 )
 
 /*
-// taking every aaddress as a subdomain, the recon therefore has a rocess of:
+// taking every aaddress as a subdomain, the recon therefore has a process of:
   1.Get the target.
   2. Check if it's a domain or IP
   3. If it's an IP, get the recon data straight, if not?
@@ -38,6 +38,7 @@ import (
 */
 
 type Scans struct {
+  OwnerID string
   ScanID string
   Name string
   ScanType string

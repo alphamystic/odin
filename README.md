@@ -6,11 +6,15 @@ Odin is also made with Detection in mind in that it will provide detection capab
 In the long run it comes in handy as a purple teaming toolkit and suitable for small organizations/SME's with a zero budget on cyber security. Hope you get to enjoy it or tweak it as per your needs and it helps you out.
 All sessions,connectors are stored into the db, runtime data is called through api calls to your currently running c2(default at 55677,55678)
 At the very least, Odin is meant for an organization to run it by themselves single handedly.
+
+
 ## Getting Started
 
 > go to installation https://github.com/alphamystic/odin/setup
 
 ## How Odin,Wheagle and Loki work
+
+k
 ### Start odin
 Odin by itself is a stand alone enumeration tooolkit that takes in a target does basic recon and store the data into a mysql/maria db for you.
 On start up, run the cli with ./odin while at thie root direcctory

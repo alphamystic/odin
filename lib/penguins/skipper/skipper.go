@@ -40,7 +40,8 @@ func (s *Skipper) Attack(targets []string){
   go kwsk.Kowalski_Analysis(exploits,exploitsDone)
   //ltg := len(targets)
   //time.Sleep(ltg * time.Minute)// change to a more ideal time
-  time.Sleep(100 * time.Millisecond)
+  time.Sleep(1000 * time.Millisecond)
+  utils.Notice("Started waiting for exploits......")
   /*if 0 >= len(exploits) {
     utils.PrintTextInASpecificColorInBold("cyan","*******************************************************************************************************************************")
     utils.PrintTextInASpecificColorInBold("white","Sorry ........ No exploit was found for your targets. Try finding another plugin for vulnerability scanning.")

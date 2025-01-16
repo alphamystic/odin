@@ -1,8 +1,11 @@
 package domain
 
 import (
+  "fmt"
+  "errors"
   "context"
   "database/sql"
+  _ "github.com/go-sql-driver/mysql"
   "github.com/alphamystic/odin/lib/utils"
   png_hnd"github.com/alphamystic/odin/lib/handlers"
 )
@@ -15,8 +18,8 @@ const (
 
 // service_id 	target_id 	service_name 	port 	protocol 	state 	version 	AT 	created_at 	updated_at data
 // this should be a statement
-func (d *Domain) CreateService(targetId int,data string,srvc png_hnd.Service) error {
-  var data string
+func (d *Domain) CreateService(ctx context.Context,targetId int,data string,srvc png_hnd.Service) error {
+  //var data string
   var err error
   conn,err := d.GetConnection(ctx)
   if err != nil {
@@ -28,23 +31,23 @@ func (d *Domain) CreateService(targetId int,data string,srvc png_hnd.Service) er
     return fmt.Errorf("Error creating token output: %q",err)
   }
   var ins *sql.Stmt
-  ins,err := conn.PrepareContext(ctx,createServiceStmt)
+  ins,err = conn.PrepareContext(ctx,createServiceStmt)
   if err !=  nil{
-    _ = utils.LogToFile(utils.Logger{Name:"recon_sql",Text:fmt.Sprintf("Error preparing to create service: %s"),})
+    d.LogToFile(utils.Logger{Name:"recon_sql",Text:fmt.Sprintf("Error preparing to create service: %s"),})
     return errors.New("Server encountered an error while preparing to create service. Try again later :).")
   }
   defer ins.Close()
-  res,err := ins.ExecContext(&crvc.ServiceID,&srvc.TargetID,&srvc.ServiceName,&srvc.Port,&srvc.Protocol,&srvc.State,&srvc.Version,&srvc.CreatedAt,&srvc.UpdatedAt,&data)
+  res,err := ins.ExecContext(ctx,&srvc.ServiceID,&srvc.TargetID,&srvc.ServiceName,&srvc.Port,&srvc.Protocol,&srvc.State,&srvc.Version,&srvc.CreatedAt,&srvc.UpdatedAt,&data)
   rowsAffec, _  := res.RowsAffected()
   if err != nil || rowsAffec != 1{
-    _ = utils.LogToFile(utils.Logger{Name:"recon_sql",Text:fmt.Sprintf("Error executing create service: %s",err),})
+    d.LogToFile(utils.Logger{Name:"recon_sql",Text:fmt.Sprintf("Error executing create service: %s",err),})
     return errors.New("Server encountered an error while creating service.")
   }
   return nil
 }
 
-func (d *Domain) GetService(targetId,serviceId int) (*png_hnd.Service,error){
-  var svc *png_hnd.Service
+func (d *Domain) GetService(ctx context.Context,targetId,serviceId int) (*png_hnd.Service,error){
+  var srvc *png_hnd.Service
   var token string
   conn,err := d.GetConnection(ctx)
   if err != nil {
@@ -53,21 +56,21 @@ func (d *Domain) GetService(targetId,serviceId int) (*png_hnd.Service,error){
   defer conn.Close()
   type output []png_hnd.Output
   row := conn.QueryRowContext(ctx,getServiceStmt,serviceId,targetId)
-  err := row.Scan(&crvc.ServiceID,&srvc.TargetID,&srvc.ServiceName,&srvc.Port,&srvc.Protocol,&srvc.State,&srvc.Version,&srvc.CreatedAt,&srvc.UpdatedAt,&token)
+  err = row.Scan(&srvc.ServiceID,&srvc.TargetID,&srvc.ServiceName,&srvc.Port,&srvc.Protocol,&srvc.State,&srvc.Version,&srvc.CreatedAt,&srvc.UpdatedAt,&token)
   if err != nil{
     if err == sql.ErrNoRows {
-      _ = utils.LogToFile(utils.Logger{Name:"recon_sql",Text:fmt.Sprintf("Hash for userid %s does not exist: ERROR: %",serviceId,err),})
-      return nil,errors.New(fmt.Sprintf("Userid of %s is non existance.",userId))
+      d.LogToFile(utils.Logger{Name:"recon_sql",Text:fmt.Sprintf("Hash for userid %s does not exist: ERROR: %",serviceId,err),})
+      return nil,errors.New(fmt.Sprintf("Service id of %s is non existance.",serviceId))
     }
-    _ = utils.LogToFile(utils.Logger{Name:"recon_sql",Text:fmt.Sprintf("Error viewing service %s. ERROR: %s",serviceId,err),})
+    d.LogToFile(utils.Logger{Name:"recon_sql",Text:fmt.Sprintf("Error viewing service %s. ERROR: %s",serviceId,err),})
     return nil,errors.New(fmt.Sprintf("Server encountered an error while viewing service with id of %s",serviceId))
   }
   data,_ := utils.TokenToData(token)
-  &srvc.Data = data.(output)
-  return &svc,nil
+  srvc.Data = data.(output)
+  return srvc,nil
 }
 
-func GetServices(targetId string) ([]*png_hnd.Service,error) {
+func (d *Domain) GetServices(ctx context.Context,targetId string) ([]*png_hnd.Service,error) {
   conn,err := d.GetConnection(ctx)
   if err != nil {
     return nil,fmt.Errorf("Error getting db connection: %q",err)
@@ -77,21 +80,21 @@ func GetServices(targetId string) ([]*png_hnd.Service,error) {
   type output []png_hnd.Output
   rows,err := conn.QueryContext(ctx,listServicesStmt,targetId)
   if err != nil{
-    _ = utils.LogToFile(utils.Logger{Name:"recon_sql",Text:fmt.Sprintf("Error listing api keys: %s",err),})
+    d.LogToFile(utils.Logger{Name:"recon_sql",Text:fmt.Sprintf("Error listing api keys: %s",err),})
     return nil,errors.New("Server encountered an error while listing all targets services.")
   }
   defer rows.Close()
   for rows.Next() {
     var srvc png_hnd.Service
     var token string
-    err = rows.Scan(&crvc.ServiceID,&srvc.TargetID,&srvc.ServiceName,&srvc.Port,&srvc.Protocol,&srvc.State,&srvc.Version,&srvc.CreatedAt,&srvc.UpdatedAt,&token)
+    err = rows.Scan(&srvc.ServiceID,&srvc.TargetID,&srvc.ServiceName,&srvc.Port,&srvc.Protocol,&srvc.State,&srvc.Version,&srvc.CreatedAt,&srvc.UpdatedAt,&token)
     if err != nil {
-      _ = utils.LogToFile(utils.Logger{Name:"recon_sql",Text:fmt.Sprintf("Error scanning for targets services: %s",err),})
+      d.LogToFile(utils.Logger{Name:"recon_sql",Text:fmt.Sprintf("Error scanning for targets services: %s",err),})
       return nil,errors.New("Error listing targets services.")
     }
     data,_ := utils.TokenToData(token)
-    &srvc.Data = data.(output)
-    svcs = append(svcs,&crvc)
+    srvc.Data = data.(output)
+    svcs = append(svcs,&srvc)
   }
   return svcs,nil
 }

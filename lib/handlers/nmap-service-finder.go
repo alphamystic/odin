@@ -17,6 +17,7 @@ import(
 //read from it, n append to data, close when done
 //do the same for services
 func  NmapScanForOpenPorts(name string,trg *Target) []*Service{
+  utils.PrintInformation(fmt.Sprintf("Scanning open ports for %s on host %s",trg.TargetIp,trg.Host))
   datas := make(chan *Output)
   svcs := make(chan *Service)
   var services []*Service
@@ -30,7 +31,7 @@ func  NmapScanForOpenPorts(name string,trg *Target) []*Service{
    //defer wg.Done()
     go func(cmnd string){
       defer wg.Done()
-      fmt.Println("Scanning command ",cmnd)
+      utils.Notice(fmt.Sprintf("Scanning command ",cmnd))
       output, err := exec.Command("sh", "-c", cmnd).Output()
       if err != nil {
         utils.Warning(fmt.Sprintf("NMAP: Error scanning for open ports: %s",err))
@@ -73,7 +74,7 @@ func  NmapScanForOpenPorts(name string,trg *Target) []*Service{
           svcs <- &service
         }
       }
-      fmt.Println("Done with ",cmnd)
+      utils.PrintTextInASpecificColor("green",fmt.Sprintf("Done with %s",cmnd))
     }(cmd)
   }
   go func() {

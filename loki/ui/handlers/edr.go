@@ -1,13 +1,18 @@
 package handlers
 
 import(
-  //"fmt"
+  "fmt"
   "net/http"
-//  "loki/lib/utils"
-//  "loki/lib/workers"
+  "github.com/alphamystic/odin/lib/utils"
 )
 
 func (hnd *Handler) Edr(res http.ResponseWriter, req *http.Request){
-  hnd.Tpl.ExecuteTemplate(res,"edr.html",nil)
+  tpl,err := hnd.Pages.GetATemplate("edr","edr.tmpl")
+  if err != nil {
+    utils.Warning(fmt.Sprintf("%s", err))
+    hnd.Internalserverror(res, req)
+		return
+  }
+  tpl.ExecuteTemplate(res,"edr",nil)
   return
 }

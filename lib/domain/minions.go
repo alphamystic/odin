@@ -27,7 +27,7 @@ const (
 )
 
 func (d *Domain) CreateMinion(m dfn.Minion,ctx context.Context) error {
-  if CheckIfMinonIsRegistered(m.MinionID,ctx){
+  if d.CheckIfMinonIsRegistered(m.MinionID,ctx){
     return errors.New("Minon is already registered")
   }
   conn,err := d.GetConnection(ctx)
@@ -38,14 +38,14 @@ func (d *Domain) CreateMinion(m dfn.Minion,ctx context.Context) error {
   var ins *sql.Stmt
   ins,err = conn.PrepareContext(ctx,createMinionStmt)
   if err !=  nil{
-    _  = utils.LogToFile(utils.Logger{Name:"minion_sql",Text:fmt.Sprintf("Error preparing to create minion: %s",err),})
+    d.LogToFile(utils.Logger{Name:"minion_sql",Text:fmt.Sprintf("Error preparing to create minion: %s",err),})
     return errors.New("Server encountered an error while creating minion, Try again later :).")
   }
   defer ins.Close()
-  res,err := ins.ExecContext(&m.MinionID,&m.Name,&m.UName,&m.UserID,&m.GroupID,&m.HomeDir,&m.Os,&m.Description,&m.Installed,&m.MotherShipID,&m.Address,&m.Motherships,&m.TunnelAddress,&m.Tls,&m.OwnerID,&m.LastSeen,&m.IsDropper,&m.GenCommand,&m.CreatedAt,&m.UpdatedAt)
+  res,err := ins.ExecContext(ctx,&m.MinionID,&m.Name,&m.UName,&m.UserID,&m.GroupID,&m.HomeDir,&m.Os,&m.Description,&m.Installed,utils.GetCurrentTime(),&m.Address,&m.Motherships,&m.TunnelAddress,&m.Tls,&m.OwnerID,&m.LastSeen,&m.IsDropper,&m.GenCommand,&m.CreatedAt,&m.UpdatedAt)
   rowsAffec, _  := res.RowsAffected()
   if err != nil || rowsAffec != 1{
-    _  = utils.LogToFile(utils.Logger{Name:"minion_sql",Text:fmt.Sprintf("Error executing create minion: %s",err),})
+    d.LogToFile(utils.Logger{Name:"minion_sql",Text:fmt.Sprintf("Error executing create minion: %s",err),})
     return errors.New("Server encountered an error while creating minion.")
   }
   return nil
@@ -68,37 +68,36 @@ func (d *Domain) CheckIfMinonIsRegistered(minionId string,ctx context.Context) b
   defer conn.Close()
   var mid string
   row := conn.QueryRowContext(ctx,checkMinionRegStmt,minionId)
-  err := row.Scan(&mid)
+  err = row.Scan(&mid)
   if err != nil{
     if err == sql.ErrNoRows{
       return false
     }
     utils.NoticeError(fmt.Sprintf("%s",err))
-    _  = utils.LogToFile(utils.Logger{Name:"minion_sql",Text:fmt.Sprintf("Error checking if minion is registered: %s",err),})
+    d.LogToFile(utils.Logger{Name:"minion_sql",Text:fmt.Sprintf("Error checking if minion is registered: %s",err),})
     // there's an error so we default to true that way It should be redone
     return true
   }
   return true
 }
 
-func (d *Domain) ListInstalledMinions(mine bool,ownerId strinng,ctx context.Context) ([]dfn.Minion,error) {
+func (d *Domain) ListInstalledMinions(mine bool,ownerId string,ctx context.Context) ([]dfn.Minion,error) {
   conn,err := d.GetConnection(ctx)
   if err != nil {
     return nil,fmt.Errorf("Error getting db connection: %q",err)
   }
   defer conn.Close()
   var rows *sql.Rows
-  var err error
   if mine {
     rows,err = conn.QueryContext(ctx,listMyInstalledMinionsStmt,true,ownerId)
     if err != nil{
-      _  = utils.LogToFile(utils.Logger{Name:"minion_sql",Text:fmt.Sprintf("Error listing installed minions: %s",err),})
+      d.LogToFile(utils.Logger{Name:"minion_sql",Text:fmt.Sprintf("Error listing installed minions: %s",err),})
       return nil,errors.New("Server encountered an error while listing all installed minions.")
     }
   } else {
     rows,err = conn.QueryContext(ctx,listInstalledMinionsStmt,true)
     if err != nil{
-      _  = utils.LogToFile(utils.Logger{Name:"minion_sql",Text:fmt.Sprintf("Error listing installed minions: %s",err),})
+      d.LogToFile(utils.Logger{Name:"minion_sql",Text:fmt.Sprintf("Error listing installed minions: %s",err),})
       return nil,errors.New("Server encountered an error while listing all installed minions.")
     }
   }
@@ -106,15 +105,15 @@ func (d *Domain) ListInstalledMinions(mine bool,ownerId strinng,ctx context.Cont
   var minions []dfn.Minion
   for rows.Next(){
     var m dfn.Minion
-    err = rows.Scan(&m.MinionID,&m.Name,&m.UName,&m.UserID,&m.GroupID,&m.HomeDir,&m.Os,&m.Description,&m.Installed,&m.MotherShipID,&m.Address,&m.Motherships,&m.TunnelAddress,&m.Tls,&m.OwnerID,&m.LastSeen,&m.IsDropper,&m.GenCommand,&m.CreatedAt,&m.UpdatedAt)
+    err = rows.Scan(&m.MinionID,&m.Name,&m.UName,&m.UserID,&m.GroupID,&m.HomeDir,&m.Os,&m.Description,&m.Installed,utils.GetCurrentTime(),&m.Address,&m.Motherships,&m.TunnelAddress,&m.Tls,&m.OwnerID,&m.LastSeen,&m.IsDropper,&m.GenCommand,&m.CreatedAt,&m.UpdatedAt)
     if err != nil{
-      _  = utils.LogToFile(utils.Logger{Name:"minion_sql",Text:fmt.Sprintf("Error scanning for installed minions: %s",err),})
+      d.LogToFile(utils.Logger{Name:"minion_sql",Text:fmt.Sprintf("Error scanning for installed minions: %s",err),})
       return nil,errors.New("Server encountered an error while listing all installed minions.")
     }
     minions = append(minions,m)
   }
   return minions,nil
-}z,
+}
 
 func (d *Domain) ListAllMinionsFromASpecificMotherShip(msid string,ctx context.Context)([]dfn.Minion,error){
   conn,err := d.GetConnection(ctx)
@@ -124,16 +123,16 @@ func (d *Domain) ListAllMinionsFromASpecificMotherShip(msid string,ctx context.C
   defer conn.Close()
   rows,err := conn.QueryContext(ctx,listAllMinionByMS,msid)
   if err != nil{
-    _  = utils.LogToFile(utils.Logger{Name:"minion_sql",Text:fmt.Sprintf("Error listing minions from a specific mothership: %s",err),})
+    d.LogToFile(utils.Logger{Name:"minion_sql",Text:fmt.Sprintf("Error listing minions from a specific mothership: %s",err),})
     return nil,errors.New("Server encountered an error while listing all minions from specified mother ship.")
   }
   defer rows.Close()
   var minions []dfn.Minion
   for rows.Next(){
     var m dfn.Minion
-    err = rows.Scan(&m.MinionID,&m.Name,&m.UName,&m.UserID,&m.GroupID,&m.HomeDir,&m.Os,&m.Description,&m.Installed,&m.MotherShipID,&m.Address,&m.Motherships,&m.TunnelAddress,&m.Tls,&m.OwnerID,&m.LastSeen,&m.IsDropper,&m.GenCommand,&m.CreatedAt,&m.UpdatedAt)
+    err = rows.Scan(&m.MinionID,&m.Name,&m.UName,&m.UserID,&m.GroupID,&m.HomeDir,&m.Os,&m.Description,&m.Installed,utils.GetCurrentTime(),&m.Address,&m.Motherships,&m.TunnelAddress,&m.Tls,&m.OwnerID,&m.LastSeen,&m.IsDropper,&m.GenCommand,&m.CreatedAt,&m.UpdatedAt)
     if err != nil{
-      _  = utils.LogToFile(utils.Logger{Name:"minion_sql",Text:fmt.Sprintf("Error scanning minions from a specific mothership id %S.ERROR: %s",msid,err),})
+      d.LogToFile(utils.Logger{Name:"minion_sql",Text:fmt.Sprintf("Error scanning minions from a specific mothership id %S.ERROR: %s",msid,err),})
       return nil,errors.New("Server encountered an error while listing all minions from specified mothership.")
     }
     minions = append(minions,m)
@@ -149,16 +148,16 @@ func (d *Domain) ListInstalledMinionsFromAMotherShip(msid string,ctx context.Con
   defer conn.Close()
   rows,err := conn.QueryContext(ctx,listIsntalledMinionFromMS,msid,true)
   if err != nil{
-    _  = utils.LogToFile(utils.Logger{Name:"minion_sql",Text:fmt.Sprintf("Error listing for installed minions from a ms %s. ERROR: %s",msid,err),})
+    d.LogToFile(utils.Logger{Name:"minion_sql",Text:fmt.Sprintf("Error listing for installed minions from a ms %s. ERROR: %s",msid,err),})
     return nil,errors.New("Server encountered an error while listing all my minions from the specified mother ship.")
   }
   defer rows.Close()
   var minions []dfn.Minion
   for rows.Next(){
     var m dfn.Minion
-    err = rows.Scan(&m.MinionID,&m.Name,&m.UName,&m.UserID,&m.GroupID,&m.HomeDir,&m.Os,&m.Description,&m.Installed,&m.MotherShipID,&m.Address,&m.Motherships,&m.TunnelAddress,&m.Tls,&m.OwnerID,&m.LastSeen,&m.IsDropper,&m.GenCommand,&m.CreatedAt,&m.UpdatedAt)
+    err = rows.Scan(&m.MinionID,&m.Name,&m.UName,&m.UserID,&m.GroupID,&m.HomeDir,&m.Os,&m.Description,&m.Installed,utils.GetCurrentTime(),&m.Address,&m.Motherships,&m.TunnelAddress,&m.Tls,&m.OwnerID,&m.LastSeen,&m.IsDropper,&m.GenCommand,&m.CreatedAt,&m.UpdatedAt)
     if err != nil{
-      _  = utils.LogToFile(utils.Logger{Name:"minion_sql",Text:fmt.Sprintf("Error scanning for installed minions from a ms %s. ERROR: %s",msid,err),})
+      d.LogToFile(utils.Logger{Name:"minion_sql",Text:fmt.Sprintf("Error scanning for installed minions from a ms %s. ERROR: %s",msid,err),})
       return nil,errors.New("Server encountered an error while listing all minions from the specified mothership.")
     }
     minions = append(minions,m)
@@ -174,15 +173,15 @@ func (d *Domain) MarkMinionAsInstalled(minionId string,ctx context.Context) erro
   defer conn.Close()
   stmt,err := conn.PrepareContext(ctx,markMinionAsInstalled)
   if err != nil{
-    _  = utils.LogToFile(utils.Logger{Name:"minion_sql",Text:fmt.Sprintf("Error marking minion id %s as installed: %s",minionId,err),})
+    d.LogToFile(utils.Logger{Name:"minion_sql",Text:fmt.Sprintf("Error marking minion id %s as installed: %s",minionId,err),})
     return errors.New("Server encountered an error while marking minion as installed.")
   }
   defer stmt.Close()
   var res sql.Result
-  res,err = stmt.ExecContext(ctx,true,currentTime,minionId)
+  res,err = stmt.ExecContext(ctx,true,utils.GetCurrentTime(),minionId)
   rowsAffec,_ := res.RowsAffected()
   if err != nil || rowsAffec != 1 {
-    _  = utils.LogToFile(utils.Logger{Name:"minion_sql",Text:fmt.Sprintf("Error marking minion %s as installed. ERROR: %s",minionId,err),})
+    d.LogToFile(utils.Logger{Name:"minion_sql",Text:fmt.Sprintf("Error marking minion %s as installed. ERROR: %s",minionId,err),})
     return errors.New("Server encountered an error while making marking minion as installed.")
   }
   return nil
@@ -196,16 +195,16 @@ func (d *Domain) ListAllMinions(ctx context.Context)([]dfn.Minion,error){
   defer conn.Close()
   rows,err := conn.QueryContext(ctx,listAllMinionStmt)
   if err != nil{
-    _  = utils.LogToFile(utils.Logger{Name:"minion_sql",Text:fmt.Sprintf("Error listing all minions: %s",err),})
+    d.LogToFile(utils.Logger{Name:"minion_sql",Text:fmt.Sprintf("Error listing all minions: %s",err),})
     return nil,errors.New("Server encountered an error while listing all my minions.")
   }
   defer rows.Close()
   var minions []dfn.Minion
   for rows.Next(){
     var m dfn.Minion
-    err = rows.Scan(&m.MinionID,&m.Name,&m.UName,&m.UserID,&m.GroupID,&m.HomeDir,&m.Os,&m.Description,&m.Installed,&m.MotherShipID,&m.Address,&m.Motherships,&m.TunnelAddress,&m.Tls,&m.OwnerID,&m.LastSeen,&m.IsDropper,&m.GenCommand,&m.CreatedAt,&m.UpdatedAt)
+    err = rows.Scan(&m.MinionID,&m.Name,&m.UName,&m.UserID,&m.GroupID,&m.HomeDir,&m.Os,&m.Description,&m.Installed,utils.GetCurrentTime(),&m.Address,&m.Motherships,&m.TunnelAddress,&m.Tls,&m.OwnerID,&m.LastSeen,&m.IsDropper,&m.GenCommand,&m.CreatedAt,&m.UpdatedAt)
     if err != nil{
-      _  = utils.LogToFile(utils.Logger{Name:"minion_sql",Text:fmt.Sprintf("Error listing all minions: %s",err),})
+      d.LogToFile(utils.Logger{Name:"minion_sql",Text:fmt.Sprintf("Error listing all minions: %s",err),})
       return nil,errors.New("Server encountered an error while listing all my minions.")
     }
     minions = append(minions,m)
@@ -221,10 +220,31 @@ func (d *Domain) ViewMinion(minionId string,ctx context.Context)(*dfn.Minion,err
   defer conn.Close()
   var m dfn.Minion
   row := conn.QueryRowContext(ctx,viewMinionStmt,minionId)
-  err := row.Scan(&m.MinionID,&m.Name,&m.UName,&m.UserID,&m.GroupID,&m.HomeDir,&m.Os,&m.Description,&m.Installed,&m.MotherShipID,&m.Address,&m.Motherships,&m.TunnelAddress,&m.Tls,&m.OwnerID,&m.LastSeen,&m.IsDropper,&m.GenCommand,&m.CreatedAt,&m.UpdatedAt)
+  err = row.Scan(&m.MinionID,&m.Name,&m.UName,&m.UserID,&m.GroupID,&m.HomeDir,&m.Os,&m.Description,&m.Installed,utils.GetCurrentTime(),&m.Address,&m.Motherships,&m.TunnelAddress,&m.Tls,&m.OwnerID,&m.LastSeen,&m.IsDropper,&m.GenCommand,&m.CreatedAt,&m.UpdatedAt)
   if err != nil{
-    _  = utils.LogToFile(utils.Logger{Name:"minion_sql",Text:fmt.Sprintf("Error viewing minon %s %s",minionId,err),})
+    d.LogToFile(utils.Logger{Name:"minion_sql",Text:fmt.Sprintf("Error viewing minon %s %s",minionId,err),})
     return nil,errors.New(fmt.Sprintf("Server encountered an error while viewing minon with id of %s",minionId))
   }
   return &m,nil
 }
+
+/*
+func (d *Domain) CheckIfMinonIsRegistered(minionId string,ctx context.Context)(*dfn.Minion,error){
+  conn,err := d.GetConnection(ctx)
+  if err != nil {
+    return nil,fmt.Errorf("Error getting db connection: %q",err)
+  }
+  defer conn.Close()
+  var m dfn.Minion
+  row := conn.QueryRowContext(ctx,viewMinionStmt,minionId)
+  err := row.Scan(&m.MinionID,&m.Name,&m.UName,&m.UserID,&m.GroupID,&m.HomeDir,&m.Os,&m.Description,&m.Installed,utils.GetCurrentTime(),&m.Address,&m.Motherships,&m.TunnelAddress,&m.Tls,&m.OwnerID,&m.LastSeen,&m.IsDropper,&m.GenCommand,&m.CreatedAt,&m.UpdatedAt)
+  if err != nil{
+    if err == sql.ErrNoRows {
+      return nil,dfn.ErrNoMinion
+    }
+    d.LogToFile(utils.Logger{Name:"minion_sql",Text:fmt.Sprintf("Error viewing minon %s %s",minionId,err),})
+    return nil,errors.New(fmt.Sprintf("Server encountered an error while viewing minon with id of %s",minionId))
+  }
+  return &m,nil
+}
+*/

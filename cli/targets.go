@@ -13,26 +13,39 @@ import (
 
 
 var cmdCreateTarget = &cobra.Command{
-  Use: "attack",
-  Short: "Specify a specfic target to attack",
-  Long: "Specify a specfici target to attack",
-  Run:func(cmd *cobra.Command,args []string){
-    var targets []string
-    target,_ := cmd.Flags().GetString("t")
-    name,_ := cmd.Flags().GetString("name")
-    if !utils.CheckifStringIsEmpty(name) {
-      utils.Warning("Name of scan can not be empty.");return
+  Use:   "attack",
+  Short: "Specify a specific target to attack",
+  Long:  "Specify a specific target to attack using the -t flag",
+  Run: func(cmd *cobra.Command, args []string) {
+    // Retrieve the target flag
+    target, err := cmd.Flags().GetString("t")
+    if err != nil {
+      utils.Warning(fmt.Sprintf("Error retrieving target flag: %v", err))
+      return
     }
-    targets = append(targets,target)
+    // Check if the target flag is set or has default value
+    if target == "" || target == "domain.com" {
+      utils.Warning("Target not provided or default value used. Use --t to specify a target.")
+      return
+    }
+    // Retrieve the name flag
+    name, _ := cmd.Flags().GetString("scansname")
+    if !utils.CheckifStringIsEmpty(name) {
+      utils.Warning(fmt.Sprintf("Name of scan cannot be empty, use --name \"name_of_scan\": %s",name))
+      return
+    }
+    // Proceed with the scan
+    utils.Warning(fmt.Sprintf("Target is %s", target))
+    targets := []string{target}
     fmt.Println(targets)
     skp := &skipper.Skipper{
       Name: name,
     }
     t0 := time.Now()
-    utils.PrintTextInASpecificColorInBold("white",fmt.Sprintf("Starting scan %s at %s",name,t0.String()))
+    utils.PrintTextInASpecificColorInBold("white", fmt.Sprintf("Starting scan %s at %s", name, t0.String()))
     skp.Attack(targets)
     t1 := time.Now()
-    utils.PrintTextInASpecificColorInBold("white",fmt.Sprintf("The scan %s took %v to run.\n",name,t1.Sub(t0)))
+    utils.PrintTextInASpecificColorInBold("white", fmt.Sprintf("The scan %s took %v to run.\n", name, t1.Sub(t0)))
     /*ticker := time.NewTicker(time.Second)
     done := make(chan bool)
     var YES = func(){
@@ -54,8 +67,8 @@ var cmdCreateTarget = &cobra.Command{
 
 var cmdCreateTargets = &cobra.Command {
   Use: "targets",
-  Short: "Specify a specfici target to attack",
-  Long: "Specify a specfici target to attack",
+  Short: "Specify a specfic target to attack",
+  Long: "Specify a specfic target to attack",
   Run:func(cmd *cobra.Command,args []string){
     var targets []string
     var err error
@@ -110,9 +123,10 @@ func GetTargetsFromFile(fileName string)([]string,error){
 func init(){
   cmdCreateTargets.Flags().String("tF","tf","target-filename")
   cmdCreateTargets.Flags().String("tL","tL","A list of targets")
-  cmdCreateTarget.Flags().String("t","was.com","A specific target to attack")
+  cmdCreateTarget.Flags().String("t", "domain.com", "A specific target to attack (e.g., `attack --t domain.com --name \"ExampleScan\"`)")
   cmdCreateTargets.Flags().String("name","target","Name for this particular scan say target_one if it's scan for target_one systems")
-  cmdCreateTarget.Flags().String("name","target","Name for this particular scan say target_one if it's scan for target_one systems")
+  cmdCreateTarget.Flags().String("scansname","target","Name for this particular scan say target_one if it's scan for target_one systems")
+  cmdCreateTarget.MarkFlagRequired("scansname")
   RootCmd.AddCommand(cmdCreateTarget)
   RootCmd.AddCommand(cmdCreateTargets)
 }

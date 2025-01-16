@@ -11,14 +11,6 @@ import (
   "github.com/alphamystic/odin/lib/penguins/ph"
 )
 
-/*
-  * Kowalsi does all the persistance
-    1. Scans
-    2. Targets
-    3. Vulnerabilities
-    4. Exploits
-*/
-
 type KOWALSKI struct{
   Targets []string
   RMode ph.Mode // should be running modeor something like that
@@ -27,8 +19,6 @@ type KOWALSKI struct{
   ScanID string
 }
 
-// this channels should be modified to handle certain  number of buffers or be locked until theyve been written into/out
-// alternatively use context and also pass it to the db writer
 func (k *KOWALSKI) Kowalski_Analysis(exploits chan<- *handlers.Exploit,exploitsDone chan<- bool){
   var targets = []*handlers.Target{}
   for _,t := range k.Targets{
@@ -60,20 +50,36 @@ func (k *KOWALSKI) Kowalski_Analysis(exploits chan<- *handlers.Exploit,exploitsD
           default: //again do nothing
           }
         }*/
-        for dt,ok := <-targetChan;ok; dt,ok = <-targetChan {
-          if !ok {
-            <- done
-            close(targetChan)
-          }
-          fmt.Printf("Reading from targets channel. Received %+v\n",dt.TargetIp)
-          targets = append(targets,dt)
+        for {
+          select {
+            case dt, ok := <-targetChan:
+              if !ok {
+                targetChan = nil // Avoid using closed channel in future iterations
+                continue
+              }
+              utils.PrintInformation(fmt.Sprintf("Reading from targets channel. Received %+v\n", dt.TargetIp))
+              targets = append(targets, dt)
+            case <-done:
+              if targetChan == nil { // Check if targetChan is already closed
+                  break
+              }
+              fmt.Println("clossing target channel")
+              close(targetChan)
+              targetChan = nil
+            }
+            if targetChan == nil {
+              fmt.Println("Breaking out of target loop")
+                break
+            }
         }
       } else {
         utils.NoticeError(fmt.Sprintf("Invalid target: %s",t))
       }
     }
   }
+  println("got targets.... %d.. sanitizing them",len(targets))
   targets = sanitizeTargets(targets)
+  println("Sanitizing targets...... Found... %d",len(targets))
   //write the targets t db
   err := SaveTargetsTODB(k.Name,targets)
   if err != nil{
@@ -340,7 +346,7 @@ var Sorter = func(vlns []*handlers.Vulnerability)[]Vuln{
 }
 */
 var SaveTargetsTODB = func(name string,targets []*handlers.Target)error{
-  driver,err := db.Old("../.brain/scans/" + name,0644)
+  driver,err := db.Old(".brain/scans/" + name,0644)
   if err != nil{
     return err
   }

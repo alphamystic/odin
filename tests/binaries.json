@@ -1,0 +1,52 @@
+[
+  {
+    "name": "poncupine.so",
+    "hash": "67ca37d94dee5289d5adc235b33c7d3446a9f88094b82670166d76fe76e9ff53",
+    "directory": "/home/sam/Documents/3l0racle/odin/bin/plugin"
+  },
+  {
+    "name": "tomcat-checker.so",
+    "hash": "4b274b4daa025251c511f2f1e596c70191ab8dd8620606517332cceccf1e82a3",
+    "directory": "/home/sam/Documents/3l0racle/odin/bin/plugin"
+  },
+  {
+    "name": "bb_exe_test_minion.exe",
+    "hash": "0818d8f59e30e72f19801487617a28f42b0d5bf8cc66dee9c30f83bb63bc2b2e",
+    "directory": "/home/sam/Documents/3l0racle/odin/bin/temp"
+  },
+  {
+    "name": "bd.exe",
+    "hash": "28ee0c1c845c9cf36bc89804baa15e40aa2c54477d4fd11fefa954a207572bcf",
+    "directory": "/home/sam/Documents/3l0racle/odin/bin/temp"
+  },
+  {
+    "name": "bd_modified.exe",
+    "hash": "02f9259a8032665e22fb6a37589ddee24537c61b189022edcf08cabaf8ab587c",
+    "directory": "/home/sam/Documents/3l0racle/odin/bin/temp"
+  },
+  {
+    "name": "done.dll",
+    "hash": "1a97219656e8dbf879dc8b106cead839dccdf4b34f4615b5eb1942d66c5c9163",
+    "directory": "/home/sam/Documents/3l0racle/odin/bin/temp"
+  },
+  {
+    "name": "groot.so",
+    "hash": "8ecf655f01034636e02427272a85f707cdc97fabb2f44677b957e40e75b2528b",
+    "directory": "/home/sam/Documents/3l0racle/odin/bin/temp"
+  },
+  {
+    "name": "injector.exe",
+    "hash": "7d67676694e4d48c905cefc21dca435610fcc2e6d305f4b786e0dc519dcb11c3",
+    "directory": "/home/sam/Documents/3l0racle/odin/bin/temp"
+  },
+  {
+    "name": "packed.exe",
+    "hash": "4194b702e4223fa910d4981cefc544e90aeebacd6e72305b4c0a02c29fa4221d",
+    "directory": "/home/sam/Documents/3l0racle/odin/bin/temp"
+  },
+  {
+    "name": "sliver_test.exe",
+    "hash": "ec7d520f46de7884d78e72b6560d339e7797a41553920731a4b872e86534d1b8",
+    "directory": "/home/sam/Documents/3l0racle/odin/bin/temp"
+  }
+]

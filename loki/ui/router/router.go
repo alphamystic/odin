@@ -101,11 +101,17 @@ func (rtr *Router) Run(reg bool){
   rtr.Mux.HandleFunc("/phishinglinks",hnd.Phishinglinks)
   rtr.Mux.HandleFunc("/zerodays",hnd.Zerodays)
 
+  rtr.Mux.HandleFunc("/listfiles",hnd.ListFiles)
+
   rtr.Mux.HandleFunc("/events",hnd.Events)
   rtr.Mux.HandleFunc("/regulars",hnd.RegularUsers)
   rtr.Mux.HandleFunc("/admins",hnd.Admins)
   rtr.Mux.HandleFunc("/activeprojects",hnd.Activeprojects)
   rtr.Mux.HandleFunc("/archivedprojects",hnd.Archivedprojects)
+
+  /* Yara Handlers */
+  rtr.Mux.HandleFunc("/listyararules",hnd.ListYaraRule)
+  rtr.Mux.HandleFunc("/createyararule",hnd.CreateYaraRule)
 
   rtr.Mux.HandleFunc("/bds",hnd.Backdoors)
   rtr.Mux.HandleFunc("/bd-generator",hnd.Backdoorgenerator)

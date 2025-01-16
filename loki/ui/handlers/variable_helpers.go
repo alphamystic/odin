@@ -8,6 +8,7 @@ import (
   "database/sql"
   "html/template"
   "github.com/alphamystic/odin/lib/utils"
+  dom"github.com/alphamystic/odin/lib/domain"
   dfn"github.com/alphamystic/odin/lib/definers"
   "github.com/dgrijalva/jwt-go"
 //  _ "github.com/go-sql-driver/mysql"
@@ -34,34 +35,59 @@ type ErrorPage struct {
 
 // Exposes all handlers to a db connection and the required template.
 type Handler struct {
-  Tpl *template.Template
+  //Tpl *template.Template  //Deprecating this to a template loader
+  Pages *PagesHolder // A loader for the pages
   Store *http.Cookie
   Dbs *sql.DB
   RL *utils.RequestLogger
   CanWriteLogs bool
   ShutdownChan,DoneChan chan bool // channels to write into
   SRVCS *Services
+  InvalidTokens []string // You would want to have this cached ina caching sytem
+}
+
+type PagesHolder struct {
+  Tpl *template.Template
+  Base string // the base template
+  TemplatesDir string // templates directory
+  InvalidTokens []string // You would want to have this cached ina caching sytem
+}
+
+func NewPagesHolder() (*PagesHolder,error) {
+  var pagesHolder = new(PagesHolder)
+  pagesHolder.TemplatesDir = "./loki/ui/tmplt/"
+  err := pagesHolder.LoadBase()
+  if err != nil {
+    utils.Warning(fmt.Sprintf("%s", err))
+    return pagesHolder,err
+  }
+  return pagesHolder,nil
 }
 
 // Initiates new handler
 func NewHandler(db_connection *sql.DB, shutdownCh chan bool, doneCh chan bool,rl *utils.RequestLogger) (*Handler,error) {
-  tpl,err := template.ParseGlob("./loki/ui/templates/*.html")
-  if err != nil{
-    utils.Warning("[-]  Failed to load templates.")
-    return nil,fmt.Errorf("[-]  This is not good like: ",err)
-  }
-  fmt.Println("[+]  Loaded all templates.")
+  // tpl,err := template.ParseGlob("./loki/ui/templates/*.html")
+  // if err != nil{
+  //   utils.Warning("[-]  Failed to load templates.")
+  //   return nil,fmt.Errorf("[-]  This is not good like: ",err)
+  // }
+  // fmt.Println("[+]  Loaded all templates.")
   utils.PrintTextInASpecificColorInBold("white",fmt.Sprintf(" Starting LOKI server at: %s",GetCurrentTime()))
   // create db configurations
+  dom := dom.NewDomain(db_connection,10,5)
+  pages,err := NewPagesHolder()
+  if err != nil {
+    return nil,err
+  }
   return &Handler {
-    Tpl: tpl,
+    Pages: pages,
     //Store: sessions.NewCookieStore([]byte(utils.RandNoLetter(30))),
     Dbs: db_connection,
     CanWriteLogs: true,
     ShutdownChan: shutdownCh,
     DoneChan: doneCh,
     RL: rl,
-    SRVCS: InitializeServices(),
+    SRVCS: InitializeServices(dom),
   },nil
 }
 
@@ -87,6 +113,7 @@ func GetCurrentTime() string {
 
 type UserData struct {
   UserId string
+  UserName string
   Admin bool
 }
 
@@ -108,7 +135,10 @@ func (hnd *Handler) GenerateJWT(ud *UserData) (string,error) {
 
 // Find a way to encrypt the tokenString
 func (hnd *Handler) GetUDFromToken(req *http.Request) (*UserData,error) {
-  cookie,_ := req.Cookie("Authorization")
+  cookie,err := req.Cookie("Authorization")
+  if err != nil{
+    return nil,err
+  }
   tokenString := cookie.Value
   // @TODO add functionality to check expiry for a jwt token and save it
   token,err := jwt.Parse(tokenString,func(tkn *jwt.Token)(interface{},error){
@@ -125,6 +155,7 @@ func (hnd *Handler) GetUDFromToken(req *http.Request) (*UserData,error) {
       return &UserData{
         UserId: runtimeMap["UserId"].(string),
         Admin: runtimeMap["Admin"].(bool),
+        UserName: runtimeMap["Username"].(string),
       },nil
     }
   }

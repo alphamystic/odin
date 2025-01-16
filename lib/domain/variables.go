@@ -2,6 +2,7 @@ package domain
 
 
 import (
+  "context"
   "database/sql"
   "github.com/alphamystic/odin/lib/utils"
 )
@@ -16,19 +17,21 @@ import (
 
 type Domain struct {
   Dbs *sql.DB
-  LogChan chan *utils.Logger
+  *utils.ErrorLogger
 }
 
-func NewDomain(dbs *sql.DB, logChan *utils.Logger,max,min int) *Domain {
+func NewDomain(dbs *sql.DB,max,min int) *Domain {
   dbs.SetMaxOpenConns(max)
 	dbs.SetMaxIdleConns(min)
+  errorFiles := []string{"users_sql", "minions_sql", "auth_sql", "api_sql", "assets_sql", "ms_sql", "recon_sql"}
+  errorLogger := utils.NewErrorLogger("./.brain/logs/sql", 066, errorFiles)
   return &Domain {
     Dbs: dbs,
-    Logger: logChan,
+    ErrorLogger: errorLogger,
   }
 }
 
 
 func (d *Domain) GetConnection(ctx context.Context) (*sql.Conn,error){
-  return  conn.Conn(ctx)
+  return  d.Dbs.Conn(ctx)
 }

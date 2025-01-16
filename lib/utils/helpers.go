@@ -57,6 +57,11 @@ func ArrayContainsInt(array []int, target int) bool {
 	return false
 }
 
+func GetCurrentTime() string {
+  var now = time.Now()
+  return now.Format("2006-01-02 15:04:05")
+}
+
 // RemoveStringDuplicates removes duplicate strings from a slice and returns a new slice with unique values.
 func RemoveStringDuplicates(array []string) []string {
 	uniqueMap := make(map[string]bool)
@@ -258,10 +263,12 @@ func RandNo(length int) string{
   return id
 }
 
+/*
 type Logger struct {
   Name string
   Text  interface{}
 }
+*/
 
 var ErrorFileNames = []string{"users_sql","apikey_sql","auth_sql","auth_danger_sql","auth_danger"}
 

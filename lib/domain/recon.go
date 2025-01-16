@@ -1,11 +1,14 @@
 package domain
 
 import (
+  "fmt"
   "sync"
+  "errors"
   "context"
   "database/sql"
   "github.com/alphamystic/odin/lib/utils"
   png_hnd"github.com/alphamystic/odin/lib/handlers"
+  dfn"github.com/alphamystic/odin/lib/definers"
 )
 
 const (
@@ -26,24 +29,24 @@ func (d *Domain) CreateScan(name,scan_type /*domIp*/ string,ctx context.Context)
     return fmt.Errorf("Error getting db connection: %q",err)
   }
   defer conn.Close()
-  ins,err := conn.PrepareContext(ctx,createScanStmt)
+  ins,err = conn.PrepareContext(ctx,createScanStmt)
   if err !=  nil{
-    _ = utils.LogToFile(utils.Logger{Name:"recon_sql",Text:fmt.Sprintf("Error preparing to create scan: %s",err),})
+    d.LogToFile(utils.Logger{Name:"recon_sql",Text:fmt.Sprintf("Error preparing to create scan: %s",err),})
     return errors.New("Server encountered an error while preparing to create scan. Try again later :).")
   }
   defer ins.Close()
-  res,err := ins.ExecContext(utils.Md5Hash(utils.GenerateUUID()),scan_type,name,&tt.CreatedAt,&tt.UpdatedAt)
+  res,err := ins.ExecContext(ctx,utils.Md5Hash(utils.GenerateUUID()),scan_type,name,&tt.CreatedAt,&tt.UpdatedAt)
   rowsAffec, _  := res.RowsAffected()
   if err != nil || rowsAffec != 1{
-    _ = utils.LogToFile(utils.Logger{Name:"recon_sql",Text:fmt.Sprintf("Error executing create user hash: %s",err),})
+    d.LogToFile(utils.Logger{Name:"recon_sql",Text:fmt.Sprintf("Error executing create user hash: %s",err),})
     return errors.New("Server encountered an error while creating hash.")
   }
   return nil
 }
 
-func (d *Domain) ListScan(scan_type string) ([]png_hnd.Scans,error) {
+func (d *Domain) ListScan(ctx context.Context,scan_type string) ([]png_hnd.Scans,error) {
   var rows *sql.Rows
-  var err errors
+  var err error
   conn,err := d.GetConnection(ctx)
   if err != nil {
     return nil,fmt.Errorf("Error getting db connection: %q",err)
@@ -52,13 +55,13 @@ func (d *Domain) ListScan(scan_type string) ([]png_hnd.Scans,error) {
   if scan_type == "ALL"{
     rows,err = conn.QueryContext(ctx,listScansStmt)
     if err != nil{
-      _ = utils.LogToFile(utils.Logger{Name:"recon_sql",Text:fmt.Sprintf("Error listing all scans: %s",err),})
+      d.LogToFile(utils.Logger{Name:"recon_sql",Text:fmt.Sprintf("Error listing all scans: %s",err),})
       return nil,errors.New("Server encountered an error while listing all scans.")
     }
   } else {
     rows,err = conn.QueryContext(ctx,listScanByTypeStmt,scan_type)
     if err != nil{
-      _ = utils.LogToFile(utils.Logger{Name:"recon_sql",Text:fmt.Sprintf("ELAU: %s",err),})
+      d.LogToFile(utils.Logger{Name:"recon_sql",Text:fmt.Sprintf("ELAU: %s",err),})
       return nil,errors.New("Server encountered an error while listing all specified users.")
     }
   }
@@ -68,7 +71,7 @@ func (d *Domain) ListScan(scan_type string) ([]png_hnd.Scans,error) {
     var scan png_hnd.Scans
     err = rows.Scan(&scan.ScanID,&scan.Name,&scan.ScanType,&scan.CreatedAt,&scan.UpdatedAt)
     if err != nil{
-      _ = utils.LogToFile(utils.Logger{Name:"recon_sql",Text:fmt.Sprintf("Error scanning list scans: %s",err),})
+      d.LogToFile(utils.Logger{Name:"recon_sql",Text:fmt.Sprintf("Error scanning list scans: %s",err),})
       continue
     }
     scans = append(scans,scan)
@@ -77,7 +80,7 @@ func (d *Domain) ListScan(scan_type string) ([]png_hnd.Scans,error) {
 }
 
 
-func (d *Domain) DoesScanExists(scanId string,ctx context.Context) bool {
+func (d *Domain) DoesScanExists(scanId,userId string,ctx context.Context) bool {
   conn,err := d.GetConnection(ctx)
   if err != nil {
     utils.Warning(fmt.Sprintf("Error getting db connection: %q",err))
@@ -86,34 +89,34 @@ func (d *Domain) DoesScanExists(scanId string,ctx context.Context) bool {
   defer conn.Close()
   var scan png_hnd.Scans
   row := conn.QueryRowContext(ctx,getHash,userId)
-  err := row.Scan(&scan.ScanID,&scan.Name,&scan.ScanType,&scan.CreatedAt,&scan.UpdatedAt)
+  err = row.Scan(&scan.ScanID,&scan.Name,&scan.ScanType,&scan.CreatedAt,&scan.UpdatedAt)
   if err != nil{
     if err == sql.ErrNoRows {
       return false
     }
-    _ = utils.LogToFile(utils.Logger{Name:"recon_sql",Text:fmt.Sprintf("Error viewing scan %s. ERROR: %s",scanId,err),})
-    return nil,errors.New(fmt.Sprintf("Server encountered an error while viewing scan with id of %s",scanId))
-    return true
+    d.LogToFile(utils.Logger{Name:"recon_sql",Text:fmt.Sprintf("Error viewing scan %s. ERROR: %s",scanId,err),})
+    utils.Warning(fmt.Sprintf("Server encountered an error while viewing scan with id of %s",scanId))
+    return false
   }
   return true
 }
 
 // should return a scan and any data availble on it(recon data,vulnerabilities and exploits)
-func (d *Domain) ViewScan(scanId string,ctx context.Context) (*png_hnd.Scans,error) {
+func (d *Domain) ViewScan(scanId,userId string,ctx context.Context) (*png_hnd.Scans,error) {
   conn,err := d.GetConnection(ctx)
   if err != nil {
-    return fmt.Errorf("Error getting db connection: %q",err)
+    return nil,fmt.Errorf("Error getting db connection: %q",err)
   }
   defer conn.Close()
   var scan png_hnd.Scans
   row := conn.QueryRowContext(ctx,getHash,userId)
-  err := row.Scan(&scan.ScanID,&scan.Name,&scan.ScanType,&scan.CreatedAt,&scan.UpdatedAt)
+  err = row.Scan(&scan.ScanID,&scan.Name,&scan.ScanType,&scan.CreatedAt,&scan.UpdatedAt)
   if err != nil {
     if err == sql.ErrNoRows {
-      _ = utils.LogToFile(utils.Logger{Name:"recon_sql",Text:fmt.Sprintf("Scan %s does not exist: ERROR: %",scanId,err),})
+      d.LogToFile(utils.Logger{Name:"recon_sql",Text:fmt.Sprintf("Scan %s does not exist: ERROR: %",scanId,err),})
       return nil,errors.New(fmt.Sprintf("Scan id %s is non existant.",scanId))
     }
-    _ = utils.LogToFile(utils.Logger{Name:"recon_sql",Text:fmt.Sprintf("Error viewing scan %s. ERROR: %s",scanId,err),})
+    d.LogToFile(utils.Logger{Name:"recon_sql",Text:fmt.Sprintf("Error viewing scan %s. ERROR: %s",scanId,err),})
     return nil,errors.New(fmt.Sprintf("Server encountered an error while viewing scan with id of %s",scanId))
   }
   return &scan,nil
@@ -121,7 +124,7 @@ func (d *Domain) ViewScan(scanId string,ctx context.Context) (*png_hnd.Scans,err
 
 
 // target_id 	directory_path 	parameter_path 	file_path 	created_at 	updated_at
-func (d *Domain)  GetWebData(targetID atring) ([]string,error) {
+func (d *Domain)  GetWebData(ctx context.Context,targetID string) (*png_hnd.WebData,error) {
   var dirUnsn,parUnsn,filesUnsn string
   conn,err := d.GetConnection(ctx)
   if err != nil {
@@ -132,13 +135,13 @@ func (d *Domain)  GetWebData(targetID atring) ([]string,error) {
   err = row.Scan(dirUnsn,parUnsn,filesUnsn)
   if err != nil{
     if err == sql.ErrNoRows {
-      _ = utils.LogToFile(utils.Logger{Name:"recon_sql",Text:fmt.Sprintf("Target %s does not exist: ERROR: %",targetID,err),})
+      d.LogToFile(utils.Logger{Name:"recon_sql",Text:fmt.Sprintf("Target %s does not exist: ERROR: %",targetID,err),})
       return nil,errors.New(fmt.Sprintf("Target id %s is non existance.",targetID))
     }
-    _ = utils.LogToFile(utils.Logger{Name:"recon_sql",Text:fmt.Sprintf("Error viewing webdata for target %s. ERROR: %s",targetID,err),})
-    return nil,errors.New(fmt.Sprintf("Server encountered an error while viewing target with id of %s",userId))
+    d.LogToFile(utils.Logger{Name:"recon_sql",Text:fmt.Sprintf("Error viewing webdata for target %s. ERROR: %s",targetID,err),})
+    return nil,errors.New(fmt.Sprintf("Server encountered an error while viewing target with id of %s",targetID))
   }
-  var dir,par,files []string
+  var dir,par,fls []string
   var wg sync.WaitGroup
   go func(){
     dir,err = utils.TokenToArray(dirUnsn)
@@ -207,24 +210,23 @@ func (d *Domain) GetSpecificWebData(targetId,wdType int,ctx context.Context) ([]
   case 3:
     stmt = "statement for files"
   default:
-    return data,png_hnd.UndefinedReconWebData
+    return data,dfn.Undefined
   }
   conn,err := d.GetConnection(ctx)
   if err != nil {
     return nil,fmt.Errorf("Error getting db connection: %q",err)
   }
   defer conn.Close()
-  var h png_hnd.UserHash
-  row := conn.QueryRowContext(ctx,getHash,userId)
-  err := row.Scan(&h.UserId,&h.Hash,&h.CreatedAt,&h.UpdatedAt)
+  var h dfn.UserHash
+  row := conn.QueryRowContext(ctx,stmt,targetId)
+  err = row.Scan(&h.UserID,&h.Hash,&h.CreatedAt,&h.UpdatedAt)
   if err != nil{
     if err == sql.ErrNoRows {
-      _ = utils.LogToFile(utils.Logger{Name:"recon_sql",Text:fmt.Sprintf("Hash for userid %s does not exist: ERROR: %",userId,err),})
-      return nil,errors.New(fmt.Sprintf("Userid of %s is non existance.",userId))
+      d.LogToFile(utils.Logger{Name:"recon_sql",Text:fmt.Sprintf("Web Data %s does not exist: ERROR: %",targetId,err),})
+      return nil,errors.New(fmt.Sprintf("Target ID of %s is non existance.",targetId))
     }
-    _ = utils.LogToFile(utils.Logger{Name:"recon_sql",Text:fmt.Sprintf("Error viewing user hash %s. ERROR: %s",userId,err),})
-    return nil,errors.New(fmt.Sprintf("Server encountered an error while viewing user with id of %s",userId))
+    d.LogToFile(utils.Logger{Name:"recon_sql",Text:fmt.Sprintf("Error viewing Web Data  %s. ERROR: %s",targetId,err),})
+    return nil,errors.New(fmt.Sprintf("Server encountered an error while viewing web data with id of %s",targetId))
   }
-  return &h,nil
   return data,nil
 }

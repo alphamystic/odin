@@ -50,8 +50,8 @@ func DoReconOnDomain(host string,dtrgs chan<- *Target,done chan<- bool)  {
   // persist reconDataOnSubd to db
   reconDataOnSubd := DoReconDataOnSubdomain(host)
   var wg sync.WaitGroup
-  wg.Add(len(reconDataOnSubd.FindSubdomainData.Subdomains))
-  fmt.Println("Creating domain targets")
+  wg.Add(len(reconDataOnSubd.FindSubdomainData.SD))
+  utils.PrintInformation(fmt.Sprintf("Creating domain targets for %s",host))
   for _,trg := range reconDataOnSubd.FindSubdomainData.SD {
     fmt.Sprintf("Creating target: %s",trg.Address)
     go func(t *SubDomainData){
@@ -65,13 +65,13 @@ func DoReconOnDomain(host string,dtrgs chan<- *Target,done chan<- bool)  {
         Decoys: reconDataOnSubd.TheHarvesterData.AssociateIps,
         FireWallName: firewallName,
       }
-      fmt.Sprintf("Created target %s",target.TargetIp)
+      utils.PrintInformation(fmt.Sprintf("Created target %s",target.TargetIp))
       // write the traget into the channel
       select {
         case dtrgs <- &target:
-            fmt.Println("Sent target to channel:", target.TargetIp)
+            utils.PrintInformation(fmt.Sprintf("Sent target to channel: %s", target.TargetIp))
         default:
-            fmt.Println("Could not send target to channel:", target.TargetIp)
+            utils.PrintInformation(fmt.Sprintf("Could not send target to channel: %s", target.TargetIp))
         }
     }(trg)
   }
@@ -87,7 +87,7 @@ func DoReconOnDomain(host string,dtrgs chan<- *Target,done chan<- bool)  {
   }
   dtrgs<-&hostTarget
   done<-true
-  fmt.Println("Done creating domain targets")
+  utils.PrintInformation(fmt.Sprintf("Done creating domain targets for domain %s",host))
 }
 
 // returns an ipv4 Address

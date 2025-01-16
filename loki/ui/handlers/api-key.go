@@ -18,24 +18,38 @@ func (hnd *Handler) Listapikeys(res http.ResponseWriter, req *http.Request){
       Message: "Get a life dummy, anyway if you find a vulnerablity fix it or email us vulnerablity.odin@eloracle.africa",
       Back:"/logout",
     }
-    hnd.Tpl.ExecuteTemplate(res,"error.html",errPage)
+    tpl,err := hnd.Pages.GetATemplate("tmpl_error","templated_error.tmpl")
+    if err != nil {
+      utils.Warning(fmt.Sprintf("%s", err))
+      hnd.Internalserverror(res, req)
+  		return
+    }
+    tpl.ExecuteTemplate(res,"tmpl_error",errPage)
     return
   }
   ud,err := hnd.GetUDFromToken(req)
   if err != nil{
+    utils.Warning(fmt.Sprintf("%s",err))
     if err == dfn.UserNotLoggedIn {
       http.Redirect(res,req,"/mkubwa",http.StatusSeeOther)
       return
     }
-    http.Redirect(res,req,"/login",http.StatusSeeOther)
+    http.Redirect(res,req,"/mkubwa",http.StatusSeeOther)
     return
   }
   ntfs,err := hnd.SRVCS.NTFCNSvrs.ListUserNotifications(ud.UserId)
   if err != nil {
     utils.Warning(fmt.Sprintf("%s",err))
   }
-  hnd.Tpl.ExecuteTemplate(res,"list-apikey.html",LOKI{
-    "notifications": ntfs,
+
+  tpl,err := hnd.Pages.GetATemplate("listapikey","listapikey.tmpl")
+  if err != nil {
+    utils.Warning(fmt.Sprintf("%s", err))
+    hnd.Internalserverror(res, req)
+		return
+  }
+  tpl.ExecuteTemplate(res,"listapikey",LOKI{
+    "notifications":ntfs,
   })
   return
 }
@@ -43,11 +57,12 @@ func (hnd *Handler) Listapikeys(res http.ResponseWriter, req *http.Request){
 func (hnd *Handler) Createapikeys(res http.ResponseWriter, req *http.Request){
   ud,err := hnd.GetUDFromToken(req)
   if err != nil{
+    utils.Warning(fmt.Sprintf("%s",err))
     if err == dfn.UserNotLoggedIn {
       http.Redirect(res,req,"/mkubwa",http.StatusSeeOther)
       return
     }
-    http.Redirect(res,req,"/login",http.StatusSeeOther)
+    http.Redirect(res,req,"/mkubwa",http.StatusSeeOther)
     return
   }
   if req.Method != "POST"{
@@ -55,16 +70,28 @@ func (hnd *Handler) Createapikeys(res http.ResponseWriter, req *http.Request){
     if err != nil {
       utils.Warning(fmt.Sprintf("%s",err))
     }
-    hnd.Tpl.ExecuteTemplate(res,"create-apikey.html",LOKI{
-      "notifications": ntfs,
+    tpl,err := hnd.Pages.GetATemplate("createapikey","createapikey.tmpl")
+    if err != nil {
+      utils.Warning(fmt.Sprintf("%s", err))
+      hnd.Internalserverror(res, req)
+  		return
+    }
+    tpl.ExecuteTemplate(res,"createapikey",LOKI{
+      "Notifications": ntfs,
     })
+  }
+  tpl,err := hnd.Pages.GetATemplate("createapikey","createapikey.tmpl")
+  if err != nil {
+    utils.Warning(fmt.Sprintf("%s", err))
+    hnd.Internalserverror(res, req)
+		return
   }
   ntfs,err := hnd.SRVCS.NTFCNSvrs.ListUserNotifications(ud.UserId)
   if err != nil {
     utils.Warning(fmt.Sprintf("%s",err))
   }
-  hnd.Tpl.ExecuteTemplate(res,"create-apikey.html",LOKI{
-    "notifications": ntfs,
+  tpl.ExecuteTemplate(res,"create-apikey.html",LOKI{
+    "Notifications": ntfs,
   })
   return
 }
@@ -88,12 +115,15 @@ func GenerateToken(rt *UserData) (string,error){
   return sighnedToken,nil
 }
 
+
+
+/*
 func (hnd *Handler) AuthMiddleware(next http.Handler) http.Handler{
   return http.HandlerFunc(func(res http.ResponseWriter,req *http.Request){
     //tokenString := req.Header.Get("Authorization")
     /*token,err := jwt.ParseWithClaims(tokenString, &Runtime{},func(token *jwt.Token) (interface{},error){
       return store,nil
-    })*/
+    })
     cookie,_ := req.Cookie("Authorization")
     tokenString := cookie.Value
     token,err := jwt.Parse(tokenString,func(tkn *jwt.Token)(interface{},error){
@@ -110,11 +140,12 @@ func (hnd *Handler) AuthMiddleware(next http.Handler) http.Handler{
         Data: "Login to interact with server.",
         Message: "You are not logged in. Please log in first",
         Back: "Login.",
-        Direction: "/login",
+        Direction: "/mkubwa",
       }
-      hnd.Tpl.ExecuteTemplate(res,"error.html",tmplError)
+      tpl.ExecuteTemplate(res,"error.html",tmplError)
       return
     }
     next.ServeHTTP(res,req)
   })
 }
+*/

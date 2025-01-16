@@ -1,5 +1,6 @@
 package main
 
+
 import (
   "os"
   "fmt"
@@ -19,7 +20,7 @@ func main(){
   Loki := &loki.Loki {
     Address: "0.0.0.0",
     PortS: 3001,
-    Port: 3000,
+    Port: 4000,
     TlsCert: "",
     TlsKey: "",
     Tls: false,
@@ -28,7 +29,7 @@ func main(){
   svr,_ := Loki.CreateServer()
   rtr := router.NewRouter(svr,svr)
   go func(){
-    rtr.Run(false)
+    rtr.Run(true)
   }()
   //myFigure := figure.NewFigure("Odin", "basic", true).Scroll(10000, 200, "right")
   myFigure.Print()

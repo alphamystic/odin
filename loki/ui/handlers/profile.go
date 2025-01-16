@@ -1,28 +1,51 @@
 package handlers
 
 import(
-  //"fmt"
+  "fmt"
   "net/http"
-//  "loki/lib/utils"
-//  "loki/lib/workers"
+  "github.com/alphamystic/odin/lib/utils"
 )
 
 func (hnd *Handler) Profile(res http.ResponseWriter, req *http.Request){
-  hnd.Tpl.ExecuteTemplate(res,"profile.html",nil)
+  tpl,err := hnd.Pages.GetATemplate("profile","profile.tmpl")
+  if err != nil {
+    utils.Warning(fmt.Sprintf("%s", err))
+    hnd.Internalserverror(res, req)
+    return
+  }
+  tpl.ExecuteTemplate(res,"profile",nil)
   return
 }
 
 func (hnd *Handler) Updateprofile(res http.ResponseWriter, req *http.Request){
-  hnd.Tpl.ExecuteTemplate(res,"profile-update.html",nil)
+  tpl,err := hnd.Pages.GetATemplate("profile-update","profile-update.tmpl")
+  if err != nil {
+    utils.Warning(fmt.Sprintf("%s", err))
+    hnd.Internalserverror(res, req)
+    return
+  }
+  tpl.ExecuteTemplate(res,"profile-update",nil)
   return
 }
 
 func (hnd *Handler) Securityprofile(res http.ResponseWriter, req *http.Request){
-  hnd.Tpl.ExecuteTemplate(res,"profile-security.html",nil)
+  tpl,err := hnd.Pages.GetATemplate("profile-security","profile-security.tmpl")
+  if err != nil {
+    utils.Warning(fmt.Sprintf("%s", err))
+    hnd.Internalserverror(res, req)
+    return
+  }
+  tpl.ExecuteTemplate(res,"profile-security",nil)
   return
 }
 
 func (hnd *Handler) Notificationsprofile(res http.ResponseWriter, req *http.Request){
-  hnd.Tpl.ExecuteTemplate(res,"profile-notifications.html",nil)
+  tpl,err := hnd.Pages.GetATemplate("profile-notifications","profile-notifications.tmpl")
+  if err != nil {
+    utils.Warning(fmt.Sprintf("%s", err))
+    hnd.Internalserverror(res, req)
+    return
+  }
+  tpl.ExecuteTemplate(res,"profile-notifications",nil)
   return
 }

@@ -22,7 +22,7 @@ type User struct{
 }
 
 type UserHash struct {
-  UserId string `json: userid`
+  UserID string `json: userid`
   Hash string `json: "hash"`
   utils.TimeStamps
 }

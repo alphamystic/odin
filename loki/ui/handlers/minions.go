@@ -1,13 +1,18 @@
 package handlers
 
 import(
-  //"fmt"
+  "fmt"
   "net/http"
-//  "github.com/alphamystic/odin/loki/lib/utils"
-//  "github.com/alphamystic/odin/loki/lib/workers"
+  "github.com/alphamystic/odin/lib/utils"
 )
 
 func (hnd *Handler) Minions(res http.ResponseWriter, req *http.Request){
-  hnd.Tpl.ExecuteTemplate(res,"blank.html",nil)
+  tpl,err := hnd.Pages.GetATemplate("blank","blank.tmpl")
+  if err != nil {
+    utils.Warning(fmt.Sprintf("%s", err))
+    hnd.Internalserverror(res, req)
+		return
+  }
+  tpl.ExecuteTemplate(res,"blank",nil)
   return
 }

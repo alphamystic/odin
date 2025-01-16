@@ -21,6 +21,8 @@ Features in Pipeline oder.
             2. live analyze network traffic and report if anything(should probably poll MS certain IOC's and RMM's)
 
 
+## WHY Domain Driven Design
+A DDD allows a service to cal unto another service without changing the DB Connection or making a new API Call. Furthermore, changes in one side can be replicated all over the code base allowing for proper modularity.
 
 Process injection and droper
 Packet analyser

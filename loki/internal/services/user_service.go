@@ -1,30 +1,33 @@
 package services
 
+
 import (
+  "context"
+  dom"github.com/alphamystic/odin/lib/domain"
   dfn"github.com/alphamystic/odin/lib/definers"
 )
 
 type (
   UserData interface {
-    CreateUser(dfn.User) error
-    ViewUsers()
-    ListUsers()
-    DeleteUser()
-    IsAdmin()
-    UpdateUser() error
+    CreateUser(ctx context.Context, u dfn.User) error
+    ViewUsers(ctx context.Context)
+    ListUsers(ctx context.Context)
+    DeleteUser(ctx context.Context)
+    IsAdmin(ctx context.Context)
+    UpdateUser(ctx context.Context) error
   }
-  UserDataService struct {}
+  UserDataService struct {Dom *dom.Domain}
 )
 
-func (usd *UserDataService) CreateUser(user dfn.User) error {
-  return nil
+func NewUserService(domain *dom.Domain) *UserDataService{
+  return &UserDataService{Dom: domain}
 }
 
-func NewUserService() *UserDataService{
-  return &UserDataService{}
+func (usd *UserDataService) CreateUser(ctx context.Context,user dfn.User) error {
+  return usd.Dom.CreateUser(ctx, user)
 }
 
 
-func ViewUser(userId string)(*dfn.User,error){
+func (usd *UserDataService) ViewUser(userId string)(*dfn.User,error){
   return nil,nil
 }
