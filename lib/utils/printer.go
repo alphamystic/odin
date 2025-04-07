@@ -85,6 +85,7 @@ func Interactor(text string,admin bool){
   interactor := color.New(color.FgCyan,color.Bold).PrintfFunc()
   interactor("   |--  " + text + ":> ")
 }
+
 func PrintTextInASpecificColorInBold(colorName,text string){
   switch strings.ToLower(colorName) {
   case "yellow":

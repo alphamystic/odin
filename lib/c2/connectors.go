@@ -17,18 +17,17 @@ import (
 
 	"github.com/alphamystic/odin/lib/db"
   "github.com/alphamystic/odin/lib/utils"
+  dfn"github.com/alphamystic/odin/lib/definers"
 )
 
 const ConnectorsPath = "../.brain/"
 
 type Connector struct{
-  SessionId string
-  IAddress string
-  OAddress string
-  Name string
-  Tls bool
-  Protocol string /// Limit to grpc,http/s,dns,tls
-  CreatedAt string
+  *dfn.Mothership
+  SessionId string //coockie/password t connect to the MS/C2
+  //If IAddress and OAddress are provided the grpc is theprotocol
+  //If Tls then itis SGRPC if not thne regular GRPC
+  //Add a custom error such that if one fails it defaults/assumes the other to be true
 }
 
 type ConnMan struct{
@@ -54,7 +53,7 @@ func (cm *ConnMan) GetAllConnectors()[]*Connector{
 }
 
 
-func (cm *ConnMan) NewConnector(msid,iaddr,oaddr,name string,driver *db.Driver)*Connector{
+func (cm *ConnMan) NewConnector(ms *dfn.Mothership,driver *db.Driver) error {
   cm.mu.Lock()
 	defer cm.mu.Unlock()
   /*if _, ok := cm.Connections[msid]; !ok {
@@ -62,35 +61,35 @@ func (cm *ConnMan) NewConnector(msid,iaddr,oaddr,name string,driver *db.Driver)*
     return nil
   }*/
   for _,cn := range cm.Connections {
-    if cn.SessionId == msid {
-      utils.Logerror(fmt.Errorf("Connection with ID %s already exists",msid))
-      return nil
+    if cn.MSId == ms.MSId {
+      utils.Logerror(fmt.Errorf("Connection with ID %s already exists",ms.MSId))
+      return fmt.Errorf("Connection with ID %s already exists",ms.MSId)
     }
   }
-  cnct := &Connector{
-    SessionId: msid,// reverting to msid as the indicator for conn to it
-    IAddress: iaddr,
-    OAddress: oaddr,
-    Name: name,
+  con := &Connector{
+    Mothership: ms,
+    SessionId:  "", // Provide a default value or some meaningful initialization
   }
-  cm.Connections[cnct.SessionId] = cnct
-  err := cm.SaveConnection(cnct,driver)
-  if err != nil{
+  cm.Connections[ms.MSId] = con
+  // Change this to save to main
+  err := cm.SaveConnection(con,driver)
+  if err != nil {
     utils.Warning("This is really not good, just save your connector manualy (save --con khjkhkjhlklj) or probably won't be able to connect to your C2")
     utils.Logerror(err)
+    return err
   }
-  return cnct
+  return nil
 }
 
-func (cm *ConnMan) DoesConnectionExist(id string) (string,bool){
+func (cm *ConnMan) DoesConnectionExist(id string) (*Connector,bool){
   cm.mu.Lock()
   defer cm.mu.Unlock()
   for _,con := range cm.Connections {
-    if con.SessionId == id {
-      return con.OAddress,true
+    if con.MSId == id {
+      return con,true
     }
   }
-  return "",false
+  return nil,false
 }
 
 func (cm *ConnMan) SearchConnection(name string){
@@ -100,9 +99,13 @@ func (cm *ConnMan) SearchConnection(name string){
     if strings.Contains(cn.Name,name){
       utils.PrintTextInASpecificColorInBold("magenta","***********************************************************************")
       utils.PrintTextInASpecificColorInBold("cyan",fmt.Sprintf("   Name: %s",cn.Name))
-      utils.PrintTextInASpecificColorInBold("cyan",fmt.Sprintf("   SessionID: %s",cn.SessionId))
-      utils.PrintTextInASpecificColorInBold("cyan",fmt.Sprintf("   Operator Address:   %s",cn.OAddress))
-      utils.PrintTextInASpecificColorInBold("cyan",fmt.Sprintf("   Implant Address:   %s",cn.IAddress))
+      utils.PrintTextInASpecificColorInBold("cyan",fmt.Sprintf("   SessionID: %s",cn.MSId))
+      if cn.OAddress != ""{
+        utils.PrintTextInASpecificColorInBold("cyan",fmt.Sprintf("   Operator Address:   %s",cn.OAddress))
+        utils.PrintTextInASpecificColorInBold("cyan",fmt.Sprintf("   Implant Address:   %s",cn.IAddress))
+      } else {
+        utils.PrintTextInASpecificColorInBold("cyan",fmt.Sprintf("   HTTP/HTTPS Server: %s",cn.Address))
+      }
       utils.PrintTextInASpecificColorInBold("magenta","***********************************************************************")
     }
   }
@@ -111,34 +114,35 @@ func (cm *ConnMan) SearchConnection(name string){
 func (cm *ConnMan) AddConn(cnct *Connector) error{
   cm.mu.Lock()
   defer cm.mu.Unlock()
-  /*if _, ok := cm.Connections[cnct.SessionId]; !ok {
-    return fmt.Errorf(fmt.Sprintf("Connection with ID %s already exists",cnct.SessionId))
+  /*if _, ok := cm.Connections[cnct.MSId]; !ok {
+    return fmt.Errorf(fmt.Sprintf("Connection with ID %s already exists",cnct.MSId))
   }*/
   for _,cn := range cm.Connections {
-    if cn.SessionId == cnct.SessionId {
-      utils.Logerror(fmt.Errorf("Connection with ID %s already exists",cnct.SessionId))
-      return nil
+    if cn.MSId == cnct.MSId {
+      utils.Logerror(fmt.Errorf("Connection with ID %s already exists",cnct.MSId))
+      return fmt.Errorf("Connection with ID %s already exists",cnct.MSId)
     }
   }
-  cm.Connections[cnct.SessionId] = cnct
+  cm.Connections[cnct.MSId] = cnct
   return nil
 }
 
+// Redundant and should probably just change the session ID
 func (cm *ConnMan) UpdateConnection(cnct *Connector,driver *db.Driver) error{
   cm.mu.Lock()
   //defer cm.mu.Unlock()
-  prevId := cnct.SessionId
-  if _, ok := cm.Connections[cnct.SessionId]; !ok {
-    return fmt.Errorf(fmt.Sprintf("Connection with ID %s does not exists",cnct.SessionId))
+  prevId := cnct.MSId
+  if _, ok := cm.Connections[cnct.MSId]; !ok {
+    return fmt.Errorf(fmt.Sprintf("Connector with ID %s does not exists",cnct.MSId))
   }
   for _,con := range cm.Connections {
-    if con.SessionId == cnct.SessionId {
-      cm.Connections[cnct.SessionId] = cnct
+    if con.MSId == cnct.MSId {
+      cm.Connections[cnct.MSId] = cnct
       cm.mu.Unlock()
       //remove connection from db
       err := cm.RemoveConnection(prevId,driver)
       if err != nil{
-        return fmt.Errorf("Updated connection but not deleted previous values from db. %v",err)
+        return fmt.Errorf("Updated connection but not deleted previous values from local db. %v",err)
       }
       return cm.SaveConnection(cnct,driver)//same as returning nil (bad progamming dude.)
     }
@@ -167,9 +171,13 @@ func (cm *ConnMan) ListConnectors(){
   for _,cn := range cm.Connections {
     utils.PrintTextInASpecificColorInBold("magenta","***********************************************************************")
     utils.PrintTextInASpecificColorInBold("cyan",fmt.Sprintf("   Name: %s",cn.Name))
-    utils.PrintTextInASpecificColorInBold("cyan",fmt.Sprintf("   SessionID: %s",cn.SessionId))
-    utils.PrintTextInASpecificColorInBold("cyan",fmt.Sprintf("   Operator Address:   %s",cn.OAddress))
-    utils.PrintTextInASpecificColorInBold("cyan",fmt.Sprintf("   Implant Address:   %s",cn.IAddress))
+    utils.PrintTextInASpecificColorInBold("cyan",fmt.Sprintf("   SessionID: %s",cn.MSId))
+    if cn.OAddress != "" {
+      utils.PrintTextInASpecificColorInBold("cyan",fmt.Sprintf("   Operator Address:   %s",cn.OAddress))
+      utils.PrintTextInASpecificColorInBold("cyan",fmt.Sprintf("   Implant Address:   %s",cn.IAddress))
+    } else {
+      utils.PrintTextInASpecificColorInBold("cyan",fmt.Sprintf("   HTTP/HTTPS Server: %s",cn.Address))
+    }
     utils.PrintTextInASpecificColorInBold("magenta","***********************************************************************")
   }
 }
@@ -184,10 +192,12 @@ func (cm *ConnMan) GetConn(cid string) (*Connector,error){
   return con,nil
 }
 
+// change this to be written to online DB/Server
 func (cm *ConnMan) SaveConnection(cnct *Connector,driver *db.Driver) error{
-  return driver.Write("connectors",cnct.SessionId,cnct)
+  return driver.Write("connectors",cnct.MSId,cnct)
 }
 
+// Load this from the online server
 func (cm *ConnMan) LoadConnectors(driver *db.Driver)(error){
   connections,err := driver.ReadAll("connectors")
   if err != nil { return err }

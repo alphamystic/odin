@@ -12,10 +12,11 @@ package handlers
 
 import (
   "net"
+  "github.com/alphamystic/odin/lib/utils"
 )
 
 /*
-// taking every aaddress as a subdomain, the recon therefore has a rocess of:
+// taking every aaddress as a subdomain, the recon therefore has a process of:
   1.Get the target.
   2. Check if it's a domain or IP
   3. If it's an IP, get the recon data straight, if not?
@@ -36,37 +37,48 @@ import (
     *In a way this has skipper written all over it but only time will answer it*
 */
 
+type Scans struct {
+  OwnerID string
+  ScanID string
+  Name string
+  ScanType string
+  utils.TimeStamps
+}
+
 type Target struct{
+  TargetID string
+  ScanID string
   Host string //can be null if not specified as a subdomain
   HostIp net.IP
   TargetIp net.IP
-  Decoys []net.IP
   FireWallName string
-  //RoSD *ReconDataOnSubdomain persist this to DB When done
+  Decoys []net.IP
+  utils.TimeStamps
 }
 
-type ReconData struct{
+type ReconData struct {
   Trg *Target
-  /*CommandUsed string
-  CommandOutput string*/
   Services []*Service
   WD  *WebData
 }
 
-type WebData struct{
+type WebData struct {
   Directories []string
   Parameters []string// should also be associated with the directory it came from
-  Files string
+  Files []string
 }
 
-type Service struct{
+type Service struct {
+  ServiceID int
+  TargetID string
   ServiceName string
   Port int
   Protocol string
 	State   bool // open or closed
 	Version string
   AT AttackType
-  //Data []*Output
+  utils.TimeStamps
+  Data []Output // we store this as it could be any service and we might need to reply it or enumerate further
 }
 
 type ServiceData []*Output

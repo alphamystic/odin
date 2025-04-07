@@ -1,0 +1,930 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="favicon.ico">
+    <title>ODIN | Odin - blank</title>
+    <!-- Simple bar CSS -->
+    <link rel="stylesheet" href="/static/css/simplebar.css">
+    <!-- Fonts CSS -->
+    <link href="https://fonts.googleapis.com/css2?family=Overpass:ital,wght@0,100;0,200;0,300;0,400;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+    <!-- Icons CSS -->
+    <link rel="stylesheet" href="/static/css/feather.css">
+    <!-- Date Range Picker CSS -->
+    <link rel="stylesheet" href="/static/css/daterangepicker.css">
+    <!-- App CSS -->
+    <link rel="stylesheet" href="/static/css/app-light.css" id="lightTheme">
+    <link rel="stylesheet" href="/static/css/app-dark.css" id="darkTheme" disabled>
+  </head>
+  <body class="vertical  light  ">
+    <div class="wrapper">
+      <nav class="topnav navbar navbar-light">
+        <button type="button" class="navbar-toggler text-muted mt-2 p-0 mr-3 collapseSidebar">
+          <i class="fe fe-menu navbar-toggler-icon"></i>
+        </button>
+        <form class="form-inline mr-auto searchform text-muted">
+          <input class="form-control mr-sm-2 bg-transparent border-0 pl-4 text-muted" type="search" placeholder="Type something..." aria-label="Search">
+        </form>
+        <ul class="nav">
+          <li class="nav-item">
+            <a class="nav-link text-muted my-2" href="#" id="modeSwitcher" data-mode="light">
+              <i class="fe fe-sun fe-16"></i>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link text-muted my-2" href="./#" data-toggle="modal" data-target=".modal-shortcut">
+              <span class="fe fe-grid fe-16"></span>
+            </a>
+          </li>
+          <li class="nav-item nav-notif">
+            <a class="nav-link text-muted my-2" href="./#" data-toggle="modal" data-target=".modal-notif">
+              <span class="fe fe-bell fe-16"></span>
+              <span class="dot dot-md bg-success"></span>
+            </a>
+          </li>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle text-muted pr-0" href="#" id="navbarDropdownMenuLink" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              <span class="avatar avatar-sm mt-2">
+                <img src="/static/assets/avatars/face-1.jpg" alt="..." class="avatar-img rounded-circle">
+              </span>
+            </a>
+            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownMenuLink">
+              <a class="dropdown-item" href="/profile">Profile</a>
+              <a class="dropdown-item" href="/signout">Logout</a>
+              <!--<a class="dropdown-item" href="#">Activities</a>-->
+            </div>
+          </li>
+        </ul>
+      </nav>
+      <aside class="sidebar-left border-right bg-white shadow" id="leftSidebar" data-simplebar>
+        <a href="#" class="btn collapseSidebar toggle-btn d-lg-none text-muted ml-2 mt-3" data-toggle="toggle">
+          <i class="fe fe-x"><span class="sr-only"></span></i>
+        </a>
+        <nav class="vertnav navbar navbar-light">
+          <!-- nav bar -->
+          <div class="w-100 mb-4 d-flex">
+            <a class="navbar-brand mx-auto mt-2 flex-fill text-center" href="./index.html">
+              <svg version="1.1" id="logo" class="navbar-brand-img brand-sm" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 120 120" xml:space="preserve">
+                <g>
+                  <polygon class="st0" points="78,105 15,105 24,87 87,87 	" />
+                  <polygon class="st0" points="96,69 33,69 42,51 105,51 	" />
+                  <polygon class="st0" points="78,33 15,33 24,15 87,15 	" />
+                </g>
+              </svg>
+            </a>
+          </div>
+          <ul class="navbar-nav flex-fill w-100 mb-2">
+            <li class="nav-item dropdown">
+              <a href="#dashboard" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle nav-link">
+                <i class="fe fe-home fe-16"></i>
+                <span class="ml-3 item-text">Dashboard</span><span class="sr-only">(current)</span>
+              </a>
+              <ul class="collapse list-unstyled pl-4 w-100" id="dashboard">
+                <li class="nav-item active">
+                  <a class="nav-link pl-3" href="/"><span class="ml-1 item-text">Home</span></a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link pl-3" href="/edr"><span class="ml-1 item-text">EDR/XDR</span></a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link pl-3" href="/odin-net"><span class="ml-1 item-text">Odin Net</span></a>
+                </li>
+              </ul>
+            </li>
+          </ul>
+          <p class="text-muted nav-heading mt-4 mb-1">
+            <span>Odin Vulnerability Scanner</span>
+          </p>
+          <ul class="navbar-nav flex-fill w-100 mb-2">
+            <li class="nav-item dropdown">
+              <a href="#ui-elements" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle nav-link">
+                <i class="fe fe-box fe-16"></i>
+                <span class="ml-3 item-text">Targets</span>
+              </a>
+              <ul class="collapse list-unstyled pl-4 w-100" id="ui-elements">
+                <li class="nav-item">
+                  <a class="nav-link pl-3" href="/bb"><span class="ml-1 item-text">Bug Bounty</span>
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link pl-3" href="/pentests"><span class="ml-1 item-text">Pentests</span></a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link pl-3" href="/bo"><span class="ml-1 item-text">Black Ops</span></a>
+                </li>
+              </ul>
+            </li>
+            <li class="nav-item w-100">
+              <a class="nav-link" href="/ms">
+                <i class="fe fe-layers fe-16"></i>
+                <span class="ml-3 item-text">Mother Ships</span>
+                <!--<span class="badge badge-pill badge-primary">New</span>-->
+              </a>
+            </li>
+            <li class="nav-item dropdown">
+              <a href="#forms" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle nav-link">
+                <i class="fe fe-credit-card fe-16"></i>
+                <span class="ml-3 item-text">Assets</span>
+              </a>
+              <ul class="collapse list-unstyled pl-4 w-100" id="forms">
+                <li class="nav-item">
+                  <a class="nav-link pl-3" href="/agents"><span class="ml-1 item-text">Desktops</span></a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link pl-3" href="/iot"><span class="ml-1 item-text">IOT / Routers</span></a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link pl-3" href="/phone"><span class="ml-1 item-text">Adroid/IOs</span></a>
+                </li>
+              </ul>
+            </li>
+            <li class="nav-item dropdown">
+              <a href="#tables" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle nav-link">
+                <i class="fe fe-grid fe-16"></i>
+                <span class="ml-3 item-text">OVS Reports</span>
+              </a>
+              <ul class="collapse list-unstyled pl-4 w-100" id="tables">
+                <li class="nav-item">
+                  <a class="nav-link pl-3" href="/bbreports"><span class="ml-1 item-text">Bug Bounty</span></a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link pl-3" href="/pentestsreport"><span class="ml-1 item-text">Pentests</span></a>
+                </li>
+              </ul>
+            </li>
+            <li class="nav-item dropdown">
+              <a href="#charts" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle nav-link">
+                <i class="fe fe-pie-chart fe-16"></i>
+                <span class="ml-3 item-text">Reporting</span>
+              </a>
+              <ul class="collapse list-unstyled pl-4 w-100" id="charts">
+                <li class="nav-item">
+                  <a class="nav-link pl-3" href="/pendingscans"><span class="ml-1 item-text">Pending Scans</span></a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link pl-3" href="/phishinglinks"><span class="ml-1 item-text">Phishig links</span></a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link pl-3" href="/zerodays"><span class="ml-1 item-text">Zero Day's</span></a>
+                </li>
+              </ul>
+            </li>
+          </ul>
+          <p class="text-muted nav-heading mt-4 mb-1">
+            <span>EDR</span>
+          </p>
+          <ul class="navbar-nav flex-fill w-100 mb-2">
+            <li class="nav-item w-100">
+              <a class="nav-link" href="/events">
+                <i class="fe fe-calendar fe-16"></i>
+                <span class="ml-3 item-text">Events</span>
+              </a>
+            </li>
+            <li class="nav-item dropdown">
+              <a href="#profile" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle nav-link">
+                <i class="fe fe-user fe-16"></i>
+                <span class="ml-3 item-text">Users</span>
+              </a>
+              <ul class="collapse list-unstyled pl-4 w-100" id="profile">
+                <a class="nav-link pl-3" href="/regulars"><span class="ml-1">Regular</span></a>
+                <a class="nav-link pl-3" href="/admins"><span class="ml-1">Admins</span></a>
+              </ul>
+            </li>
+            <li class="nav-item dropdown">
+              <a href="#fileman" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle nav-link">
+                <i class="fe fe-folder fe-16"></i>
+                <span class="ml-3 item-text">Projects</span>
+              </a>
+              <ul class="collapse list-unstyled pl-4 w-100" id="fileman">
+                <a class="nav-link pl-3" href="/activeprojects"><span class="ml-1">Active</span></a>
+                <a class="nav-link pl-3" href="/archivedprojects"><span class="ml-1">Archived</span></a>
+              </ul>
+            </li>
+            <li class="nav-item dropdown">
+              <a href="#support" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle nav-link">
+                <i class="fe fe-compass fe-16"></i>
+                <span class="ml-3 item-text">Extras</span>
+              </a>
+              <ul class="collapse list-unstyled pl-4 w-100" id="support">
+                <a class="nav-link pl-3" href="/bds"><span class="ml-1">Backdoors</span></a>
+                <a class="nav-link pl-3" href="/bd-generator"><span class="ml-1">BD-Generator</span></a>
+              </ul>
+            </li>
+          </ul>
+          <p class="text-muted nav-heading mt-4 mb-1">
+            <span>CRM</span>
+          </p>
+          <!--
+          <li class="nav-item dropdown">
+            <a href="#contact" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle nav-link">
+              <i class="fe fe-book fe-16"></i>
+              <span class="ml-3 item-text">Recruitment</span>
+            </a>
+            <ul class="collapse list-unstyled pl-4 w-100" id="contact">
+              <a class="nav-link pl-3" href="/candidates"><span class="ml-1">Contact List</span></a>
+              <a class="nav-link pl-3" href="./interviews"><span class="ml-1">Contact Grid</span></a>
+              <a class="nav-link pl-3" href="./contacts-new.html"><span class="ml-1">New Contact</span></a>
+            </ul>
+          </li>-->
+          <ul class="navbar-nav flex-fill w-100 mb-2">
+            <li class="nav-item dropdown">
+              <a href="#pages" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle nav-link">
+                <i class="fe fe-file fe-16"></i>
+                <span class="ml-3 item-text">Contacts</span>
+              </a>
+              <ul class="collapse list-unstyled pl-4 w-100 w-100" id="pages">
+                <li class="nav-item">
+                  <a class="nav-link pl-3" href="/listcontacts">
+                    <span class="ml-1 item-text">List Contacts</span>
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link pl-3" href="/createcontact">
+                    <span class="ml-1 item-text">Create Contact</span>
+                  </a>
+                </li>
+                </li>
+              </ul>
+            </li>
+            <li class="nav-item dropdown">
+              <a href="#auth" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle nav-link">
+                <i class="fe fe-shield fe-16"></i>
+                <span class="ml-3 item-text">API</span>
+              </a>
+              <ul class="collapse list-unstyled pl-4 w-100" id="auth">
+                <a class="nav-link pl-3" href="/listapikeys"><span class="ml-1"> List API Keys</span></a>
+                <a class="nav-link pl-3" href="/createapikeys"><span class="ml-1">Create API Key</span></a>
+              </ul>
+            </li>
+            <li class="nav-item dropdown">
+              <a href="#layouts" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle nav-link">
+                <i class="fe fe-layout fe-16"></i>
+                <span class="ml-3 item-text">Appointments</span>
+              </a>
+              <ul class="collapse list-unstyled pl-4 w-100" id="layouts">
+                <li class="nav-item">
+                  <a class="nav-link pl-3" href="/issues"><span class="ml-1 item-text">Issues</span></a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link pl-3" href="/appointments"><span class="ml-1 item-text">Appointments</span></a>
+                </li>
+              </ul>
+            </li>
+          </ul>
+          <p class="text-muted nav-heading mt-4 mb-1">
+            <span>OVS Documentation</span>
+          </p>
+          <ul class="navbar-nav flex-fill w-100 mb-2">
+            <li class="nav-item w-100">
+              <a class="nav-link" href="/docs">
+                <i class="fe fe-help-circle fe-16"></i>
+                <span class="ml-3 item-text">Help</span>
+              </a>
+            </li>
+          </ul>
+          <div class="btn-box w-100 mt-4 mb-1">
+            <a  href="mailto:sodhis001@gmail.com." target="_blank" class="btn mb-2 btn-primary btn-lg btn-block">
+              <i class="fe fe-shopping-cart fe-12 mx-2"></i><span class="small">Contact Me</span>
+            </a>
+          </div>
+        </nav>
+      </aside>
+      <main role="main" class="main-content">
+
+        <!-- Body goes here -->
+        <div class="container-fluid">
+          <div class="row justify-content-center">
+            <div class="col-12">
+              <div class="row align-items-center mb-2">
+                <div class="col">
+                  <h2 class="h5 page-title">Welcome!</h2>
+                </div>
+                <div class="col-auto">
+                  <form class="form-inline">
+                    <div class="form-group d-none d-lg-inline">
+                      <label for="reportrange" class="sr-only">Date Ranges</label>
+                      <div id="reportrange" class="px-2 py-2 text-muted">
+                        <span class="small"></span>
+                      </div>
+                    </div>
+                    <div class="form-group">
+                      <button type="button" class="btn btn-sm"><span class="fe fe-refresh-ccw fe-16 text-muted"></span></button>
+                      <button type="button" class="btn btn-sm mr-2"><span class="fe fe-filter fe-16 text-muted"></span></button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-md-4">
+                  <div class="card shadow mb-4">
+                    <div class="card-body">
+                      <div class="py-5 text-center">
+                        <p class="text-muted mb-2">Real Tme Events</p>
+                        <h2 class="mb-1">1,254</h2>
+                        <span class="small text-success">+2%</span>
+                      </div>
+                      <div class="row align-items-center mb-1">
+                        <div class="col-auto">
+                          <div class="my-2 text-center">
+                            <small class="text-danger pr-2 mr-2">High</small>
+                            <span class="text-warning px-2 mx-2">Medium</span>
+                            <span class="text-success px-2 mx-2">Low</span>
+                          </div>
+                        </div>
+                        <div class="col">
+                          <small class="h6 mb-0 text-muted">Statistics</small>
+                        </div>
+                      </div>
+                      <div class="progress rounded mb-3" style="height:14px">
+                        <div class="progress-bar bg-danger" role="progressbar" style="width: 15%" aria-valuenow="15" aria-valuemin="0" aria-valuemax="100">15%</div>
+                        <div class="progress-bar bg-warning" role="progressbar" style="width: 30%" aria-valuenow="30" aria-valuemin="0" aria-valuemax="100">30%</div>
+                        <div class="progress-bar bg-success" role="progressbar" style="width: 20%" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100">20%</div>
+                      </div>
+                    </div> <!-- .card-body -->
+                  </div> <!-- .card -->
+                  <div class="card shadow mb-4">
+                    <div class="card-body">
+                      <div class="chart-box">
+                        <div id="gradientRadial"></div>
+                      </div>
+                      <div class="row items-align-center">
+                        <div class="col-4 text-center">
+                          <p class="text-muted mb-1">Zero Days</p>
+                          <h6 class="mb-1">3</h6>
+                          <p class="text-muted mb-0">+12%</p>
+                        </div>
+                        <div class="col-4 text-center">
+                          <p class="text-muted mb-1">Vulnerabiliies</p>
+                          <h6 class="mb-1">10</h6>
+                          <p class="text-muted mb-0">+8%</p>
+                        </div>
+                        <div class="col-4 text-center">
+                          <p class="text-muted mb-1">Phishing links</p>
+                          <h6 class="mb-1">25</h6>
+                          <p class="text-muted mb-0">+8%</p>
+                        </div>
+                      </div>
+                    </div> <!-- .card-body -->
+                  </div> <!-- .card -->
+                  <div class="card shadow mb-4">
+                    <div class="card-body">
+                      <div id="radialbar"></div>
+                      <div class="row">
+                        <div class="col-6 text-center">
+                          <p class="small text-uppercase text-muted mb-0">Windows</p>
+                          <strong class="text-uppercase">126</strong>
+                          <p class="small text-muted mb-2">+5.5%</p>
+                        </div>
+                        <div class="col-6 text-center">
+                          <p class="small text-uppercase text-muted mb-0">Linux</p>
+                          <strong class="text-uppercase">89</strong>
+                          <p class="small text-muted mb-2">-5.5%</p>
+                        </div>
+                      </div>
+                    </div> <!-- .card-body -->
+                  </div> <!-- .card -->
+                  <div class="card shadow mb-4">
+                    <div class="card-header">
+                      <strong class="card-title mb-0">False Positives</strong>
+                    </div>
+                    <div class="card-body">
+                      <div class="row">
+                        <div class="col-6 text-center">
+                          <p class="small text-muted mb-0">Maximum</p>
+                          <strong class="text-uppercase">126</strong>
+                          <p class="small text-muted mb-0">+5.5%</p>
+                        </div>
+                        <div class="col-6 text-center">
+                          <p class="small text-muted mb-0">Minimum</p>
+                          <strong class="text-uppercase">89</strong>
+                          <p class="small text-muted mb-0">-5.5%</p>
+                        </div>
+                      </div>
+                      <div class="chart-box">
+                        <div id="heatmapChartWidget"></div>
+                      </div>
+                    </div> <!-- /.card-body -->
+                  </div> <!-- /.card -->
+                  <div class="card shadow mb-4">
+                    <div class="card-header">
+                      <strong class="card-title">Recent Notification</strong>
+                      <a class="float-right small text-muted" href="#!">View all</a>
+                    </div>
+                    <div class="card-body scrollable">
+                      <div class="list-group list-group-flush my-n3">
+                        <div class="list-group-item">
+                          <div class="row align-items-center">
+                            <div class="col-auto">
+                              <span class="fe fe-link fe-24"></span>
+                            </div>
+                            <div class="col">
+                              <small><strong>Link was attached to menu</strong></small>
+                              <div class="my-0 text-muted small">New layout has been attached to the menu</div>
+                            </div>
+                            <div class="col-auto">
+                              <small class="badge badge-pill badge-light text-muted">1h ago</small>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="list-group-item">
+                          <div class="row align-items-center">
+                            <div class="col-auto">
+                              <span class="fe fe-box fe-24"></span>
+                            </div>
+                            <div class="col">
+                              <small><strong>Package has uploaded successfull</strong></small>
+                              <div class="my-0 text-muted small">Package is zipped and uploaded</div>
+                            </div>
+                            <div class="col-auto">
+                              <small class="badge badge-pill badge-light text-muted">1m ago</small>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="list-group-item">
+                          <div class="row align-items-center">
+                            <div class="col-auto">
+                              <span class="fe fe-download fe-24"></span>
+                            </div>
+                            <div class="col">
+                              <small><strong>Widgets are updated successfull</strong></small>
+                              <div class="my-0 text-muted small">Just create new layout Index, form, table</div>
+                            </div>
+                            <div class="col-auto">
+                              <small class="badge badge-pill badge-light text-muted">2m ago</small>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="list-group-item mb-2">
+                          <div class="row align-items-center">
+                            <div class="col-auto">
+                              <span class="fe fe-inbox fe-24"></span>
+                            </div>
+                            <div class="col">
+                              <small><strong>Notifications have been sent</strong></small>
+                              <div class="my-0 text-muted small">Fusce dapibus, tellus ac cursus commodo</div>
+                            </div>
+                            <div class="col-auto">
+                              <small class="badge badge-pill badge-light text-muted">30m ago</small>
+                            </div>
+                          </div> <!-- / .row -->
+                        </div>
+                      </div> <!-- / .list-group -->
+                    </div> <!-- / .card-body -->
+                  </div> <!-- / .card -->
+                </div> <!-- ./col -->
+                <div class="col-md-8">
+                  <div class="row">
+                    <div class="col-md-4 mb-4">
+                      <div class="card shadow">
+                        <div class="card-body">
+                          <div class="row align-items-center">
+                            <div class="col">
+                              <h4 class="mb-0">15</h4>
+                              <p class="small text-muted mb-0">Blocked Threats</p>
+                            </div>
+                            <div class="col-5">
+                              <div id="gauge1" class="gauge-container"></div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-md-4 mb-4">
+                      <div class="card shadow">
+                        <div class="card-body">
+                          <div class="row align-items-center">
+                            <div class="col">
+                              <h4 class="mb-0">+6%</h4>
+                              <p class="small text-muted mb-0">Threat Activity Rates</p>
+                            </div>
+                            <div class="col-5">
+                              <div id="gauge2" class="gauge-container"></div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-md-4 mb-4">
+                      <div class="card shadow">
+                        <div class="card-body">
+                          <div class="row align-items-center">
+                            <div class="col">
+                              <p class="small text-muted mb-0">New Sightings.</p>
+                              <h4 class="mb-0">2</h4>
+                            </div>
+                            <div class="col-5">
+                              <div id="gauge3" class="gauge-container"></div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div> <!-- end section -->
+                  <div class="mb-4 align-items-center" style="position: relative;">
+                    <div class="map-box" style="height:450px; overflow:hidden">
+                      <div id="dataMapWorld" style="min-height:450px;"></div>
+                    </div>
+                  </div> <!-- .col-md -->
+                  <div class="row">
+                    <div class="col-md-6">
+                      <div class="card shadow mb-4">
+                        <div class="card-header">
+                          <div class="row align-items-center">
+                            <div class="col">
+                              <h3 class="h6 mb-0">New Internal Threats</h3>
+                            </div>
+                            <div class="col-auto">
+                              <a class="small text-muted" href="#!">View all</a>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="card-body my-n2">
+                          <div class="row align-items-center my-2">
+                            <div class="col">
+                              <strong>Bot (Banking Trojan)</strong>
+                              <div class="my-0 text-muted small">QakBot</div>
+                            </div>
+                            <div class="col-auto">
+                              <strong>+85%</strong>
+                            </div>
+                            <div class="col-3">
+                              <div class="progress" style="height: 4px;">
+                                <div class="progress-bar" role="progressbar" style="width: 85%" aria-valuenow="85" aria-valuemin="0" aria-valuemax="100"></div>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="row align-items-center my-2">
+                            <div class="col">
+                              <strong>Rootkit</strong>
+                              <div class="my-0 text-muted small">Black Lotus</div>
+                            </div>
+                            <div class="col-auto">
+                              <strong>+75%</strong>
+                            </div>
+                            <div class="col-3">
+                              <div class="progress" style="height: 4px;">
+                                <div class="progress-bar" role="progressbar" style="width: 75%" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"></div>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="row align-items-center my-2">
+                            <div class="col">
+                              <strong>Bot</strong>
+                              <div class="my-0 text-muted small">LockBit</div>
+                            </div>
+                            <div class="col-auto">
+                              <strong>+62%</strong>
+                            </div>
+                            <div class="col-3">
+                              <div class="progress" style="height: 4px;">
+                                <div class="progress-bar" role="progressbar" style="width: 62%" aria-valuenow="62" aria-valuemin="0" aria-valuemax="100"></div>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="row align-items-center my-2">
+                            <div class="col">
+                              <strong>Ransomware</strong>
+                              <div class="my-0 text-muted small">Medusa</div>
+                            </div>
+                            <div class="col-auto">
+                              <strong>+24%</strong>
+                            </div>
+                            <div class="col-3">
+                              <div class="progress" style="height: 4px;">
+                                <div class="progress-bar" role="progressbar" style="width: 24%" aria-valuenow="24" aria-valuemin="0" aria-valuemax="100"></div>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="row align-items-center my-2">
+                            <div class="col">
+                              <strong>RAT</strong>
+                              <div class="my-0 text-muted small">AsyncRAT</div>
+                            </div>
+                            <div class="col-auto">
+                              <strong>+20%</strong>
+                            </div>
+                            <div class="col-3">
+                              <div class="progress" style="height: 4px;">
+                                <div class="progress-bar" role="progressbar" style="width: 20%" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100"></div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div> <!-- .card -->
+                    </div> <!-- .col-md -->
+                    <div class="col-md-6">
+                      <div class="card shadow mb-4">
+                        <div class="card-header">
+                          <div class="row align-items-center">
+                            <div class="col">
+                              <h3 class="h6 mb-0">Active Malwares</h3>
+                            </div>
+                            <div class="col-auto">
+                              <a class="small text-muted" href="#!">View all</a>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="card-body">
+                          <div class="d-flex mb-2">
+                            <div class="flex-fill pt-2">
+                              <p class="mb-0 text-muted">Total</p>
+                              <h4 class="mb-0">108</h4>
+                              <span class="small text-muted">+37.7%</span>
+                            </div>
+                            <div class="flex-fill chart-box mb-n1">
+                              <div id="barChartWidget"></div>
+                            </div>
+                          </div> <!-- .d-flex -->
+                          <div class="row border-top">
+                            <div class="col-md-6 pt-4">
+                              <h6 class="mb-0">108 <span class="small text-muted">+37.7%</span></h6>
+                              <p class="mb-0 text-muted">Cost</p>
+                            </div>
+                            <div class="col-md-6 pt-4">
+                              <h6 class="mb-0">1168 <span class="small text-muted">-18.9%</span></h6>
+                              <p class="mb-0 text-muted">Revenue</p>
+                            </div>
+                          </div> <!-- .row -->
+                        </div> <!-- .card-body -->
+                      </div> <!-- .card -->
+                    </div> <!-- .col-md -->
+                    <div class="col-md-12">
+                      <div class="d-flex align-items-center mx-3 mb-3">
+                        <div class="flex-fill">
+                          <h3 class="h6 mb-0">Actively Used CVEs</h3>
+                        </div>
+                        <div class="flex-fill text-right">
+                          <a class="small text-muted" href="#!">View all</a>
+                        </div>
+                      </div>
+                      <table class="table table-striped table-borderless mb-4">
+                        <thead class="thead-white d-none">
+                          <tr>
+                            <th colspan="2">Data</th>
+                            <th>Center</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                            <td class="text-muted text-center w-25">
+                              <span class="fe fe-database fe-24"></span><br /> CVE-2018-13379 </td>
+                            <th scope="row" class="w-50">  Fortinet FortiOS & FortiProxy<br />
+                              <small class="text-muted">Barcelona, Spain</small>
+                            </th>
+                            <td class="text-muted w-25">
+                              <div class="progress mt-3 mb-1" style="height:4px">
+                                <div class="progress-bar bg-danger" role="progressbar" style="width: 100%" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+                              </div>
+                              <small>May 23, 2018</small>
+                            </td>
+                          </tr>
+                          <tr>
+                            <td class="text-muted text-center w-25">
+                              <span class="fe fe-cpu fe-24"></span><br /> CVE-2021-34473, CVE-2021-31207, CVE-2021-34523 </td>
+                            <th scope="row" class="w-50"> Microsoft Exchange Server<br />
+                              <small class="text-muted">Sydney, Australia</small>
+                            </th>
+                            <td class="text-muted w-25">
+                              <div class="progress mt-3 mb-1" style="height:4px">
+                                <div class="progress-bar bg-warning" role="progressbar" style="width: 80%" aria-valuenow="80" aria-valuemin="0" aria-valuemax="100"></div>
+                              </div>
+                              <small>Nov 4, 2021</small>
+                            </td>
+                          </tr>
+                          <tr>
+                            <td class="text-muted text-center w-25">
+                              <span class="fe fe-globe fe-24"></span><br /> CVE-2022-30190 </td>
+                            <th scope="row" class="w-50"> Microsoft Various Products<br />
+                              <small class="text-muted">Amsterdam, Netherlands</small>
+                            </th>
+                            <td class="text-muted w-25">
+                              <div class="progress mt-3 mb-1" style="height:4px">
+                                <div class="progress-bar bg-success" role="progressbar" style="width: 8%" aria-valuenow="8" aria-valuemin="0" aria-valuemax="100"></div>
+                              </div>
+                              <small>Mar 27, 2022</small>
+                            </td>
+                          </tr>
+                          <tr>
+                            <td class="text-muted text-center w-25">
+                              <span class="fe fe-database fe-24"></span><br /> CVE-2021-40539 </td>
+                            <th scope="row" class="w-50"> Zoho ManageEngine ADSelfService Plus <br />
+                              <small class="text-muted">Paris, France</small>
+                            </th>
+                            <td class="text-muted w-25">
+                              <div class="progress mt-3 mb-1" style="height:4px">
+                                <div class="progress-bar bg-warning" role="progressbar" style="width: 55%" aria-valuenow="55" aria-valuemin="0" aria-valuemax="100"></div>
+                              </div>
+                              <small>Jan 13, 2021</small>
+                            </td>
+                          </tr>
+                          <tr>
+                            <td class="text-muted text-center w-25">
+                              <span class="fe fe-cpu fe-24"></span><br /> CVE-2021-26084, CVE-2022-26134 </td>
+                            <th scope="row" class="w-50"> Atlassian Confluence Server & Data Center <br />
+                              <small class="text-muted">London, United Kingdom</small>
+                            </th>
+                            <td class="text-muted w-25">
+                              <div class="progress mt-3 mb-1" style="height:4px">
+                                <div class="progress-bar bg-success" role="progressbar" style="width: 25%" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
+                              </div>
+                              <small>Jan 01, 2022</small>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                      <!-- Log -->
+                      <div class="card shadow">
+                        <div class="card-header">
+                          <strong class="card-title">Reports</strong>
+                          <a class="float-right small text-muted" href="#!">View all</a>
+                        </div>
+                        <div class="card-body">
+                          <div class="list-group list-group-flush my-n3">
+                            <div class="list-group-item">
+                              <div class="row align-items-center">
+                                <div class="col-auto">
+                                  <span class="circle circle-sm bg-warning"><i class="fe fe-shield-off fe-16 text-white"></i></span>
+                                </div>
+                                <div class="col">
+                                  <small><strong>Submited at 11:00 April 16, 2020</strong></small>
+                                  <div class="mb-2 text-muted small">You have <strong> two</strong>  pending security reports to go  though. </div>
+                                  <span class="badge badge-pill badge-warning">Security</span>
+                                </div>
+                                <div class="col-auto pr-0">
+                                  <small class="fe fe-more-vertical fe-16 text-muted"></small>
+                                </div>
+                              </div> <!-- / .row -->
+                            </div><!-- / .list-group-item -->
+                            <div class="list-group-item">
+                              <div class="row align-items-center">
+                                <div class="col-auto">
+                                  <span class="circle circle-sm bg-success"><i class="fe fe-database fe-16 text-white"></i></span>
+                                </div>
+                                <div class="col">
+                                  <small><strong>RED Team Phishing links 17:00 April 15, 2020</strong></small>
+                                  <div class="mb-2 text-muted small">Two successfull phishinglinks. Check them at <a href="#!">Phishing reports</a> from previous engagements.</div>
+                                  <span class="badge badge-pill badge-success">System Update</span>
+                                </div>
+                                <div class="col-auto pr-0">
+                                  <small class="fe fe-more-vertical fe-16 text-muted"></small>
+                                </div>
+                              </div> <!-- / .row -->
+                            </div><!-- / .list-group-item -->
+                            <div class="list-group-item">
+                              <div class="row align-items-center">
+                                <div class="col-auto">
+                                  <span class="circle circle-sm bg-secondary"><i class="fe fe-user-plus fe-16 text-white"></i></span>
+                                </div>
+                                <div class="col">
+                                  <small><strong>New Users 17:00 April 10, 2020</strong></small>
+                                  <div class="mb-2 text-muted small"> Two newly created users. Check <strong>New Users</strong> and asign API key.</div>
+                                  <span class="badge badge-pill badge-secondary">Users</span>
+                                </div>
+                                <div class="col-auto pr-0">
+                                  <small class="fe fe-more-vertical fe-16 text-muted"></small>
+                                </div>
+                              </div> <!-- / .row -->
+                            </div><!-- / .list-group-item -->
+                          </div> <!-- / .list-group -->
+                        </div> <!-- / .card-body -->
+                      </div> <!-- / .card -->
+                    </div>
+                  </div> <!-- /. row -->
+                </div> <!-- /. col -->
+              </div> <!-- end section -->
+            </div>
+          </div> <!-- .row -->
+        </div> <!-- .container-fluid -->
+        <!-- body ends here -->
+
+        <div class="modal fade modal-notif modal-slide" tabindex="-1" role="dialog" aria-labelledby="defaultModalLabel" aria-hidden="true">
+          <div class="modal-dialog modal-sm" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="defaultModalLabel">Notifications</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              {{with .Notifications}}
+              {{range .}}
+              <div class="modal-body">
+                <div class="list-group list-group-flush my-n3">
+                  <div class="list-group-item bg-transparent">
+                    <div class="row align-items-center">
+                      <div class="col-auto">
+                        <span class="fe fe-box fe-24"></span>
+                      </div>
+                      <div class="col">
+                        <small><strong>{{.Title}}</strong></small>
+                        <div class="my-0 text-muted small">{{.Data}}</div>
+                        <small class="badge badge-pill badge-light text-muted">{{.Time}} ago.</small>
+                        <a href="/viewntfcn/?ntfcnId={{.NotificationId}}" class="badge badge-pill badge-light text-muted">view more...</a>
+                      </div>
+                    </div>
+                  </div>
+                </div> <!-- / .list-group -->
+              </div>
+              {{end}}
+              {{end}}
+              <div class="modal-footer">
+                <a href="/clearallnotifications" type="button" class="btn btn-secondary btn-block" data-dismiss="modal">Clear All</a>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal fade modal-shortcut modal-slide" tabindex="-1" role="dialog" aria-labelledby="defaultModalLabel" aria-hidden="true">
+          <div class="modal-dialog" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="defaultModalLabel">Shortcuts</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body px-5">
+                <div class="row align-items-center">
+                  <div class="col-6 text-center">
+                    <div class="squircle bg-success justify-content-center">
+                      <i class="fe fe-cpu fe-32 align-self-center text-white"></i>
+                    </div>
+                    <p><a class="nav-link" href="/">Dashboard</a></p>
+                  </div>
+                  <div class="col-6 text-center">
+                    <div class="squircle bg-primary justify-content-center">
+                      <i class="fe fe-activity fe-32 align-self-center text-white"></i>
+                    </div>
+                    <p><a class="nav-link" href="/activities">Activity</a></p>
+                  </div>
+                </div>
+                <div class="row align-items-center">
+                  <div class="col-6 text-center">
+                    <div class="squircle bg-primary justify-content-center">
+                      <i class="fe fe-droplet fe-32 align-self-center text-white"></i>
+                    </div>
+                    <p><a class="nav-link" href="/droplet">Droplet</a></p>
+                  </div>
+                  <div class="col-6 text-center">
+                    <div class="squircle bg-primary justify-content-center">
+                      <i class="fe fe-upload-cloud fe-32 align-self-center text-white"></i>
+                    </div>
+                    <p><a class="nav-link" href="/backup">Upload</a></p>
+                  </div>
+                </div>
+                <div class="row align-items-center">
+                  <div class="col-6 text-center">
+                    <div class="squircle bg-primary justify-content-center">
+                      <i class="fe fe-users fe-32 align-self-center text-white"></i>
+                    </div>
+                    <p><a class="nav-link" href="/listusers">Users</a></p>
+                  </div>
+                  <div class="col-6 text-center">
+                    <div class="squircle bg-primary justify-content-center">
+                      <i class="fe fe-settings fe-32 align-self-center text-white"></i>
+                    </div>
+                    <p><a class="nav-link" href="/settings">Settings</a></p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main> <!-- main -->
+    </div> <!-- .wrapper -->
+    <script src="/static/js/jquery.min.js"></script>
+    <script src="/static/js/popper.min.js"></script>
+    <script src="/static/js/moment.min.js"></script>
+    <script src="/static/js/bootstrap.min.js"></script>
+    <script src="/static/js/simplebar.min.js"></script>
+    <script src='/static/js/daterangepicker.js'></script>
+    <script src='/static/js/jquery.stickOnScroll.js'></script>
+    <script src="/static/js/tinycolor-min.js"></script>
+    <script src="/static/js/config.js"></script>
+    <script src="/static/js/d3.min.js"></script>
+    <script src="/static/js/topojson.min.js"></script>
+    <script src="/static/js/datamaps.all.min.js"></script>
+    <script src="/static/js/datamaps-zoomto.js"></script>
+    <script src="/static/js/datamaps.custom.js"></script>
+    <script src="/static/js/Chart.min.js"></script>
+    <script>
+      /* defind global options */
+      Chart.defaults.global.defaultFontFamily = base.defaultFontFamily;
+      Chart.defaults.global.defaultFontColor = colors.mutedColor;
+    </script>
+    <script src="/static/js/gauge.min.js"></script>
+    <script src="/static/js/jquery.sparkline.min.js"></script>
+    <script src="/static/js/apexcharts.min.js"></script>
+    <script src="/static/js/apexcharts.custom.js"></script>
+    <script src='/static/js/jquery.mask.min.js'></script>
+    <script src='/static/js/select2.min.js'></script>
+    <script src='/static/js/jquery.steps.min.js'></script>
+    <script src='/static/js/jquery.validate.min.js'></script>
+    <script src='/static/js/jquery.timepicker.js'></script>
+    <script src='/static/js/dropzone.min.js'></script>
+    <script src='/static/js/uppy.min.js'></script>
+    <script src='/static/js/quill.min.js'></script>
+  </body>
+</html>

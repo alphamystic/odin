@@ -1,5 +1,6 @@
 package c2
 
+// this package is deprecated, use the minions on definers
 import(
   "net"
   "time"
@@ -35,6 +36,7 @@ func (m *Minion) Populate()error{
   return nil
 }
 
+// we don't have to register a mutant just use droppers instead
 type Mutant struct {
   MutantId string
   Name string

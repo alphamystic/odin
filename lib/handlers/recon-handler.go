@@ -31,7 +31,7 @@ func (trg *Target) Recon(name string,outRecon chan<- *ReconData){
       // set the firewall name
       utils.PrintInformation(fmt.Sprintf("Firewall present on %s Name: %s",trg.TargetIp,name))
       //ignore if  cloudflare or akamai
-      if name == "Akamai" || name =="Cloudflare" {
+      if name == "Akamai" || name =="Cloudflare" || name == "Cloudfront" || name ==  "AWS/Cloudfront" {
         //find the parameters,directories and files
         wd := CreateWebData()
         rd := &ReconData {

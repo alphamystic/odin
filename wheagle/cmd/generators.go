@@ -215,6 +215,7 @@ var cmdAdminGenerate = &cobra.Command{
   // EMD
   gen-admin --iprotocol tcp --oprotocol tcp --oport 45565  --iport  44566 --arch x64 --os lin --f elf --addr 0.0.0.0 --pass Qwerty --name try
   gen-admin --name groot --iprotocol tcp --oprotocol tcp --oport 45567  --iport  44568 --arch x64 --os lin --f so --addr 0.0.0.0 --pass Qwerty
+  gen-admin --name sam --iprotocol tcp --oprotocol tcp --oport 45567  --iport  44568 --arch x64 --os lin --f so --addr 0.0.0.0 --pass Qwerty
   SHELLCODE(Unsurported for now) Just use hunter and spike your arrows
   gen-admin --name groot --iprotocol tcp --oprotocol tcp --oport 45567  --iport  44568 --arch x64 --os lin --f bin --addr 0.0.0.0 --pass Qwerty
 

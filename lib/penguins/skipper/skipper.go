@@ -33,13 +33,15 @@ func (s *Skipper) Attack(targets []string){
   kwsk := &kowalski.KOWALSKI{
     Targets: targets,
     Name: s.Name,
+    ScanID: utils.GenerateUUID(),
   }
   exploits := make(chan *handlers.Exploit)
   exploitsDone := make(chan bool)
   go kwsk.Kowalski_Analysis(exploits,exploitsDone)
   //ltg := len(targets)
   //time.Sleep(ltg * time.Minute)// change to a more ideal time
-  time.Sleep(100 * time.Millisecond)
+  time.Sleep(1000 * time.Millisecond)
+  utils.Notice("Started waiting for exploits......")
   /*if 0 >= len(exploits) {
     utils.PrintTextInASpecificColorInBold("cyan","*******************************************************************************************************************************")
     utils.PrintTextInASpecificColorInBold("white","Sorry ........ No exploit was found for your targets. Try finding another plugin for vulnerability scanning.")
@@ -74,7 +76,8 @@ func (s *Skipper) Attack(targets []string){
 
 // Save the exploits to a file (port this to db)
 func (s *Skipper) SaveExploit(exploit *handlers.Exploit) error {
-  driver,err := db.Old("../../.brain/scans/" + s.Name,0644)
+  //driver,err := db.Old("../../.brain/scans/" + s.Name,0644)
+  driver,err := db.Old(".brain/scans/" + s.Name,0644)
   if err != nil{
     return err
   }

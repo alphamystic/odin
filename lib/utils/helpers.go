@@ -1,88 +1,171 @@
 package utils
+
 /*
   * Contains helper functions
 */
+
 
 import (
   "os"
   "io"
   "log"
   "fmt"
-  "net"
   "time"
-  "os/user"
+  "sync"
   "errors"
   "regexp"
-  "strings"
   "strconv"
-  "runtime"
-	"unicode"
+  "strings"
   "math/rand"
+  cr"crypto/rand"
+	"encoding/base64"
   "github.com/google/uuid"
+  "golang.org/x/crypto/bcrypt"
+  //"github.com/dgrijalva/jwt-go"
 )
 
 func GenerateUUID() string {
   return uuid.New().String()
 }
 
-func ReturnErrorPlusMessage( e error,text string) error{
-  if e != nil{
-    return fmt.Errorf(text + fmt.Sprintf("%s",e))
-  }
-  return fmt.Errorf("Error can not be nil")
+type TimeStamps struct {
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
 }
 
-func RemoveElementFromArray(arr []string, val string) []string {
-  index := -1
-  for i, v := range arr {
-    if v == val {
-      index = i
-      break
-    }
+func (t *TimeStamps) Touch() {
+  currentTime := time.Now()
+  formattedTime := currentTime.Format("2006-01-02 15:04:05")
+  parsedTime, _ := time.Parse("2006-01-02 15:04:05", formattedTime)
+  t.UpdatedAt = parsedTime.UTC()
+  if t.CreatedAt.IsZero() {
+    t.CreatedAt = t.UpdatedAt
   }
-  if index == -1 {
-    return arr // value not found
-  }
-  return append(arr[:index], arr[index+1:]...)
 }
 
-func GetCurrentOS() string{ return runtime.GOOS }
-
-func GetUser()(*user.User,error){
-  cur,err := user.Current()
-  if err != nil{ return nil,err}
-  return cur,nil
+func IntToString(val int) string {
+	return strconv.Itoa(val)
 }
 
-func StringToInt(str string)(int){
-  val,err := strconv.Atoi(str)
+// ArrayContainsInt checks if an integer exists in a slice of integers.
+func ArrayContainsInt(array []int, target int) bool {
+	for _, value := range array {
+		if value == target {
+			return true
+		}
+	}
+	return false
+}
+
+func GetCurrentTime() string {
+  var now = time.Now()
+  return now.Format("2006-01-02 15:04:05")
+}
+
+// RemoveStringDuplicates removes duplicate strings from a slice and returns a new slice with unique values.
+func RemoveStringDuplicates(array []string) []string {
+	uniqueMap := make(map[string]bool)
+	var result []string
+	for _, value := range array {
+		if _, exists := uniqueMap[value]; !exists {
+			uniqueMap[value] = true
+			result = append(result, value)
+		}
+	}
+
+	return result
+}
+
+func CheckIfStringIsDomainName(s string) bool {
+	domainRegex := `^([a-zA-Z0-9-]{1,63}\.)+[a-zA-Z]{2,}$`
+	re := regexp.MustCompile(domainRegex)
+	return re.MatchString(s)
+}
+
+func ContainsOnlyNumbers(s string) bool {
+	// Use a regular expression to check if the string contains only numbers
+	match, _ := regexp.MatchString("^[\\p{N}]+$", s)
+	return match
+}
+
+func HashPassPin(pin string)(string,error) {
+  var hash []byte
+  hash,err := bcrypt.GenerateFromPassword([]byte(pin),bcrypt.DefaultCost)
   if err != nil{
-    Logerror(err)
-    return 0
+    return "",fmt.Errorf("Error generating password hash: %q",err)
   }
-  return val
+  return string(hash),nil
 }
 
-// learn go generics and avoid such issues
-//check if int is in array
-func ArrayContainsInt(arr []int,element int) bool{
-  for _,e := range arr {
-    if e == element{
-      return true
-    }
-  }
-  return false
+var invalidUsernameRe = regexp.MustCompile("[^A-Za-z0-9]")
+
+func ValidateUsername(username string) error {
+	username = strings.TrimSpace(username)
+
+	if len(username) < 4 || len(username) > 15 {
+		return errors.New("invalid username length")
+	}
+
+	loc := invalidUsernameRe.FindStringIndex(username)
+	if loc != nil {
+		return errors.New("invalid username")
+	}
+	return nil
 }
 
-func ArrayContainsString(arr []string, element string) bool{
-  for _,e := range arr {
-    if e == element{
-      return true
-    }
-  }
-  return false
+
+func GenerateBusinessNumber() string {
+  var (
+  	mu      sync.Mutex
+  	counter int
+  )
+	mu.Lock()
+	defer mu.Unlock()
+	// Generate a UUID and convert it to a simpler string format
+	id := uuid.New()
+	uuidStr := id.String()[0:8]
+	// Remove '0' and 'O' characters from the UUID
+	uuidStr = strings.ReplaceAll(uuidStr, "0", "")
+	uuidStr = strings.ReplaceAll(uuidStr, "O", "")
+	// Increment the counter
+	counter++
+	// Capitalize non-digit characters
+	result := make([]byte, 0, len(uuidStr))
+	for _, ch := range uuidStr {
+		if ch >= '0' && ch <= '9' {
+			result = append(result, byte(ch))
+		} else {
+			result = append(result, byte(ch-32)) // Convert to uppercase
+		}
+	}
+	// Combine UUID and counter to create the business number
+	businessNumber := fmt.Sprintf("%s-%d", string(result), counter)
+	return businessNumber
 }
-func IntToString(val int) string{  return strconv.Itoa(val) }
+
+func IsValidEmail(email string) bool {
+	// Check if the email has consecutive dots in the domain part
+	if strings.Contains(email, "..") {
+		return false
+	}
+	// Regular expression to validate email addresses
+	emailPattern := `^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`
+	// Compile the regular expression
+	re := regexp.MustCompile(emailPattern)
+	// Use MatchString method to check if the email matches the pattern
+	return re.MatchString(email)
+}
+
+func GenerateCSRFToken(csrfTokenLength int) (string, error) {
+	tokenBytes := make([]byte, csrfTokenLength)
+	_, err := cr.Read(tokenBytes)
+	if err != nil {
+		return "", err
+	}
+	return base64.RawURLEncoding.EncodeToString(tokenBytes), nil
+}
+//create a strings comparer function
+//create a convert to lowercase and uppercase function
 
 //Check if a string is empty returns True if string is a string
 func CheckifStringIsEmpty(data string) bool{
@@ -95,21 +178,22 @@ func CheckifStringIsEmpty(data string) bool{
   return true
 }
 
-func TrueRand(len int) string{
-  bytes := make([]byte,len)
-  for i := 0; i < len; i++{
-    bytes[i] = byte(randInt(97,122))
-  }
-  if !CheckifStringIsEmpty(string(bytes)){
-    TrueRand(len)
-  }
-  return string(bytes)
+func GetPhone(input string) (bool) {
+  if strings.Contains(input, ".") {
+		return false
+	}
+  // Regular expression to match only numeric characters
+	numericPattern := `^[0-9]+$`
+	// Compile the regular expression
+	re := regexp.MustCompile(numericPattern)
+	// Use MatchString method to check if the input matches the pattern
+	return re.MatchString(input)
 }
 
-func randInt(min int, max int) int {
-  return min + rand.Intn(max-min)
+func StringToInt(data string) int{
+  dt,_ := strconv.Atoi(data)
+  return dt
 }
-
 func RandString(length int) string{
   var output strings.Builder
   rand.Seed(time.Now().Unix())
@@ -179,6 +263,40 @@ func RandNo(length int) string{
   return id
 }
 
+/*
+type Logger struct {
+  Name string
+  Text  interface{}
+}
+*/
+
+var ErrorFileNames = []string{"users_sql","apikey_sql","auth_sql","auth_danger_sql","auth_danger"}
+
+// no need to block if  the file to log to is of a different name hence we use a map
+var logMutex sync.Map
+
+func LogToFile(ldr Logger) error{
+  date := time.Now().Format("2006-01-02")
+	name := fmt.Sprintf("./.data/logs/%s/%s.log",date,ldr.Name)
+	// Get or create a mutex for the specific log file name
+	mutex, _ := logMutex.LoadOrStore(name, new(sync.Mutex))
+	mutex.(*sync.Mutex).Lock()
+	defer mutex.(*sync.Mutex).Unlock()
+
+	f, err := os.OpenFile(name, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	if err != nil {
+		LogError(err)
+		return err
+	}
+	defer f.Close()
+	writer := io.MultiWriter(os.Stdout, f)
+	log.SetOutput(writer)
+	log.Println(ldr.Text)
+	return nil
+}
+
+
+// This log can cause an error when running multiple go routines (solve it with Logger :) i.e LogToFile(Logger)
 //Log and error to file Allows format string input
 func LogErrorToFile(name string,text ...interface{}) error{
   name = "./.data/logs/"+name+".log"
@@ -193,145 +311,6 @@ func LogErrorToFile(name string,text ...interface{}) error{
   return nil
 }
 
-func CheckIfStringIsIp(name string) bool{
-  ip := net.ParseIP(name)
-  if ip != nil{
-    return true
-  }
-  return false
-}
-
-func CheckIfStringIsDomainName(name string)bool{
-	// Regular expression to match domain names
-	domainRegex := regexp.MustCompile(`^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$`)
-	if domainRegex.MatchString(name) {
-		return true
-	}
-	return false
-}
-
-func RemoveStringDuplicates(strings []string) []string {
-	// Create a map to store unique strings
-	unique := make(map[string]bool)
-	// Iterate through the input array
-	for _, s := range strings {
-		unique[s] = true
-	}
-	// Create a new slice to store the unique strings
-	result := []string{}
-	// Iterate through the map and append the keys (unique strings) to the result slice
-	for key := range unique {
-		result = append(result, key)
-	}
-	return result
-}
-
-
-func checkEmailValid(email string) error {
-	// check email syntax is valid
-	//func MustCompile(str string) *Regexp
-	emailRegex, err := regexp.Compile("^[a-zA-Z0-9.!#$%&'*+\\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")
-	if err != nil {
-		fmt.Println(err)
-		return errors.New("sorry, something went wrong")
-	}
-	rg := emailRegex.MatchString(email)
-	if rg != true {
-		return errors.New("Email address is not a valid syntax, please check again")
-	}
-	// check email length
-	if len(email) < 4 {
-		return errors.New("Email length is too short")
-	}
-	if len(email) > 253 {
-		return errors.New("Email length is too long")
-	}
-	return nil
-}
-
-func checkEmailDomain(email string) error {
-	i := strings.Index(email, "@")
-	host := email[i+1:]
-	// func LookupMX(name string) ([]*MX, error)
-	_, err := net.LookupMX(host)
-	if err != nil {
-		err = errors.New("Could not find email's domain server, please chack and try again")
-		return err
-	}
-	return nil
-}
-
-
-func checkUsernameCriteria(username string) error {
-	// check username for only alphaNumeric characters
-	var nameAlphaNumeric = true
-	for _, char := range username {
-		// func IsLetter(r rune) bool, func IsNumber(r rune) bool
-		if !unicode.IsLetter(char) && !unicode.IsNumber(char) {
-			nameAlphaNumeric = false
-		}
-	}
-	if nameAlphaNumeric != true {
-		// func New(text string) error
-		return errors.New("Username must only contain letters and numbers")
-	}
-	// check username length
-	var nameLength bool
-	if 5 <= len(username) && len(username) <= 50 {
-		nameLength = true
-	}
-	if nameLength != true {
-		return errors.New("Username must be longer than 4 characters and less than 51")
-	}
-	return nil
-}
-
-func checkPasswordCriteria(password string) error {
-	var err error
-	// variables that must pass for password creation criteria
-	var pswdLowercase, pswdUppercase, pswdNumber, pswdSpecial, pswdLength, pswdNoSpaces bool
-	pswdNoSpaces = true
-	for _, char := range password {
-		switch {
-		// func IsLower(r rune) bool
-		case unicode.IsLower(char):
-			pswdLowercase = true
-		// func IsUpper(r rune) bool
-		case unicode.IsUpper(char):
-			pswdUppercase = true
-			err = errors.New("Pa")
-		// func IsNumber(r rune) bool
-		case unicode.IsNumber(char):
-			pswdNumber = true
-		// func IsPunct(r rune) bool, func IsSymbol(r rune) bool
-		case unicode.IsPunct(char) || unicode.IsSymbol(char):
-			pswdSpecial = true
-		// func IsSpace(r rune) bool, type rune = int32
-		case unicode.IsSpace(int32(char)):
-			pswdNoSpaces = false
-		}
-	}
-	// check password length
-	if 11 < len(password) && len(password) < 60 {
-		pswdLength = true
-	}
-	// create error for any criteria not passed
-	if !pswdLowercase || !pswdUppercase || !pswdNumber || !pswdSpecial || !pswdLength || !pswdNoSpaces {
-		switch false {
-		case pswdLowercase:
-			err = errors.New("Password must contain atleast one lower case letter")
-		case pswdUppercase:
-			err = errors.New("Password must contain atleast one uppercase letter")
-		case pswdNumber:
-			err = errors.New("Password must contain atleast one number")
-		case pswdSpecial:
-			err = errors.New("Password must contain atleast one special character")
-		case pswdLength:
-			err = errors.New("Passward length must atleast 12 characters and less than 60")
-		case pswdNoSpaces:
-			err = errors.New("Password cannot have any spaces")
-		}
-		return err
-	}
-	return nil
+func LogError(err error){
+  log.Println(err)
 }

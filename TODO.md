@@ -1,4 +1,74 @@
 # MY TODO's
+## BUILDING IN PUBLIC
+
+This is describes how features will be implemented and in what oder. Focus here forget what's down there :)
+
+Features in Pipeline oder.
+1. Asset Manager
+    1. Generate an agents "asset": an EDR agent, basically acts as a beacon for now.
+2. User Manager
+3. API Key Manager
+4. Generate binaries for wheagle (Mothership and Backdoors)
+2. Pending Scans and Initiating them.
+    Refactoring lib handlers and giving them a proper structure. This might be recurrent as per the best abstracted way. *Feel free to add suggestions of it, try using interfaces like Scan(),Recon(domain,AD)*
+    Whatever you do, ABSTRACT IT AWAY. #TAJI
+3. Phishing Links
+4. EDR:
+      1. Look at that dash and various users, How do we merge that?
+      2. Create a malware scanner, let it install sysmon gather logs
+      3. .pcap Analyzer
+            1. Upload .pcap and generate an analysis
+            2. live analyze network traffic and report if anything(should probably poll MS certain IOC's and RMM's)
+
+
+## WHY Domain Driven Design
+A DDD allows a service to cal unto another service without changing the DB Connection or making a new API Call. Furthermore, changes in one side can be replicated all over the code base allowing for proper modularity.
+
+Process injection and droper
+Packet analyser
+
+## LINODE VPS
+https://www.linode.com/products/shared/
+
+## SIDELINES
+Write a log aggregator for writing rules and detecting action from quarantine to removing
+
+
+
+
+### WorkLoad odder of precedence
+Finish the Domain
+Create the service layer and marshall up with the ui UI
+(For now the API will run with the handlers route as /api/)
+Create the agents and the MS
+Add MS and Agent functionalities to UI
+Add recon capabilities to UI
+*DEPLOY*
+Start with the plugins.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+alias gomobile='/home/sam/go/bin/gomobile'
+*This is my trash, you can ignore it or add yours too*
 https://www.youtube.com/watch?v=dXG2SIB1XMM
 https://www.youtube.com/watch?v=k3oOlBIW2hk
 https://www.youtube.com/watch?v=JPuA9TdC-2M

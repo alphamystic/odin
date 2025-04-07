@@ -12,7 +12,19 @@ import (
 
 	"github.com/alphamystic/odin/lib/db"
 	"github.com/alphamystic/odin/lib/utils"
+  dfn"github.com/alphamystic/odin/lib/definers"
 )
+/*
+	* redefine this to get data from the api
+	* this is stored in memory at runtime, initialized at startup
+*/
+/*
+	******* Abstract DB calls from here and limit them only to disk persistence******
+	* @TODO: How to ensure session is persisted to DB:
+		1. Send alll at a go
+		2. Response contains done or or list of undone
+		Navigate with when not done as it contains a string or those not done on quit
+*/
 
 var (
 	SNF = errors.New("Session not found")
@@ -21,11 +33,8 @@ var (
 const SessionsPath = "../.brain/"
 
 type Session struct {
-	ID string
-	MotherShipID string
-	Expiry string
-	Active bool
-	SessionID string
+	Min *dfn.Minion
+	Persisted bool // use this to tell if minion has been perssisted to DB
 }
 
 // SessionManager is responsible for managing active connections doesn't matter the protocol
@@ -52,22 +61,14 @@ func InitializeNewSessionManager() *SessionManager {
 }
 
 // NewSession creates a new session
-func (sm *SessionManager) NewSession(id,msid,expiry string,driver *db.Driver) *Session {
+func (sm *SessionManager) NewSession(minion *dfn.Minion) *Session {
 	sm.mu.Lock()
 	defer sm.mu.Unlock()
 	ssid := utils.Md5Hash(utils.RandString(10))
 	s := &Session{
-		ID: id,
-		MotherShipID: msid,
-		Expiry:  expiry,
-		Active: true,
-		SessionID: ssid,
+		Min:minion,
 	}
 	sm.Sessions[ssid] = s
-	if err := sm.SaveSession(s,driver); err != nil{
-		utils.Warning(fmt.Sprintf("Error saving newly created session %s to db\n.ERROR: %s",s.SessionID,err))
-		utils.PrintTextInASpecificColor("cyan","Save manually with save --ses hlkjnkjjkjii where gibberish is Session ID.")
-	}
 	return s
 }
 
@@ -76,19 +77,20 @@ func (sm *SessionManager) Add(session *Session) error {
 	sm.mu.Lock()
 	defer sm.mu.Unlock()
 	for _,ses := range sm.Sessions{
-		if ses.SessionID == session.SessionID {
+		if ses.MinionID == session.MinionID {
 			return errors.New("Session with ID already exists")
 		}
 	}
-	sm.Sessions[session.SessionID] = session
+	sm.Sessions[session.MinionID] = session
 	return nil
 }
+
 // update a session in sessions
 func (sm *SessionManager) UpdateSession(session *Session,driver *db.Driver) error{
 	sm.mu.Lock()
 	for _,ses := range sm.Sessions {
-		if ses.SessionID == session.SessionID {
-			err := sm.DeleteSession(session.SessionID,driver)
+		if ses.MinionID == session.MinionID {
+			err := sm.DeleteSession(session.MinionID,driver)
 			if err != nil {
 				return err
 			}
@@ -165,7 +167,7 @@ func (sm *SessionManager) ListFromMS(msid string)(error){
 	utils.PrintTextInASpecificColorInBold("yellow",fmt.Sprintf("    **********    CURRENT  Minion Sessions  From %s  ********** ",msid))
 	for _,s := range sessions {
 		utils.PrintTextInASpecificColorInBold("magenta","***********************************************************************")
-		utils.PrintTextInASpecificColorInBold("cyan",fmt.Sprintf("   SessionID:	%s",s.SessionID))
+		utils.PrintTextInASpecificColorInBold("cyan",fmt.Sprintf("   MinionID:	%s",s.MinionID))
 		utils.PrintTextInASpecificColorInBold("cyan",fmt.Sprintf("   Mothership ID:	%s",s.MotherShipID))
 		utils.PrintTextInASpecificColorInBold("cyan",fmt.Sprintf("   Mule ID:	%s",s.ID))
 		if s.Active {
@@ -173,7 +175,8 @@ func (sm *SessionManager) ListFromMS(msid string)(error){
 		} else {
 			utils.PrintTextInASpecificColorInBold("cyan",fmt.Sprintf("   Active:	False"))
 		}
-		utils.PrintTextInASpecificColorInBold("cyan",fmt.Sprintf("   Expiry:	%s",s.Expiry))
+		utils.PrintTextInASpecificColorInBold("cyan",fmt.Sprintf("   OS:	%s",s.Os))
+		utils.PrintTextInASpecificColorInBold("cyan",fmt.Sprintf("   Last Seen:	%s",s.LastSeen))
 		utils.PrintTextInASpecificColorInBold("magenta","***********************************************************************")
   }
 	return nil
@@ -194,58 +197,82 @@ func (sm *SessionManager) DeleteSession(id string,driver *db.Driver) error {
 	return nil
 }
 
+
+func (sm *SessionManager) DeleteNoneInstalledSessions(id string)error{
+	sm.mu.Lock()
+	defer sm.mu.Unlock()
+	if _, ok := sm.Sessions[id]; !ok {
+		return SNF
+	}
+	//@TODO delete from domain
+	// delete locally
+	if err := driver.Delete("sessions",id); err != nil {
+		return fmt.Errorf("Error deleting session from db.\nERROR: %s",err)
+	}
+	delete(sm.Sessions, id)
+	return nil
+}
+
 func (sm *SessionManager) SearchSession(name string){
 	sm.mu.Lock()
 	defer sm.mu.Unlock()
   for _,s := range sm.Sessions {
-    if strings.Contains(s.ID,name){
+    if strings.Contains(s.MinionID,name){
 			utils.PrintTextInASpecificColorInBold("magenta","***********************************************************************")
-	    utils.PrintTextInASpecificColorInBold("cyan",fmt.Sprintf("   SessionID:	%s",s.SessionID))
-	    utils.PrintTextInASpecificColorInBold("cyan",fmt.Sprintf("   Mothership ID:	%s",s.MotherShipID))
+			utils.PrintTextInASpecificColorInBold("cyan",fmt.Sprintf("   MinionID:	%s",s.MinionID))
+			utils.PrintTextInASpecificColorInBold("cyan",fmt.Sprintf("   Mothership ID:	%s",s.MotherShipID))
 			utils.PrintTextInASpecificColorInBold("cyan",fmt.Sprintf("   Mule ID:	%s",s.ID))
 			if s.Active {
 				utils.PrintTextInASpecificColorInBold("cyan",fmt.Sprintf("   Active:	True"))
 			} else {
 				utils.PrintTextInASpecificColorInBold("cyan",fmt.Sprintf("   Active:	False"))
 			}
-			utils.PrintTextInASpecificColorInBold("cyan",fmt.Sprintf("   Expiry:	%s",s.Expiry))
-	    utils.PrintTextInASpecificColorInBold("magenta","***********************************************************************")
+			utils.PrintTextInASpecificColorInBold("cyan",fmt.Sprintf("   OS:	%s",s.Os))
+			utils.PrintTextInASpecificColorInBold("cyan",fmt.Sprintf("   Last Seen:	%s",s.LastSeen))
+			utils.PrintTextInASpecificColorInBold("magenta","***********************************************************************")
     }
   }
 }
 
-func (sm *SessionManager) ListSessions(){
+func (sm *SessionManager) ListSessions(persisted bool){
 	utils.PrintTextInASpecificColorInBold("yellow","    **********    CURRENT  Minion Sessions    ********** ")
   for _,s := range sm.Sessions {
-    utils.PrintTextInASpecificColorInBold("magenta","***********************************************************************")
-    utils.PrintTextInASpecificColorInBold("cyan",fmt.Sprintf("   SessionID:	%s",s.SessionID))
-    utils.PrintTextInASpecificColorInBold("cyan",fmt.Sprintf("   Mothership ID:	%s",s.MotherShipID))
-		utils.PrintTextInASpecificColorInBold("cyan",fmt.Sprintf("   Mule ID:	%s",s.ID))
-		if s.Active {
-			utils.PrintTextInASpecificColorInBold("cyan",fmt.Sprintf("   Active:	True"))
-		} else {
-			utils.PrintTextInASpecificColorInBold("cyan",fmt.Sprintf("   Active:	False"))
+		if s.Persist == persisted {
+			utils.PrintTextInASpecificColorInBold("magenta","***********************************************************************")
+			utils.PrintTextInASpecificColorInBold("cyan",fmt.Sprintf("   MinionID:	%s",s.MinionID))
+			utils.PrintTextInASpecificColorInBold("cyan",fmt.Sprintf("   Mothership ID:	%s",s.MotherShipID))
+			utils.PrintTextInASpecificColorInBold("cyan",fmt.Sprintf("   Mule ID:	%s",s.ID))
+			if s.Active {
+				utils.PrintTextInASpecificColorInBold("cyan",fmt.Sprintf("   Active:	True"))
+			} else {
+				utils.PrintTextInASpecificColorInBold("cyan",fmt.Sprintf("   Active:	False"))
+			}
+			utils.PrintTextInASpecificColorInBold("cyan",fmt.Sprintf("   OS:	%s",s.Os))
+			utils.PrintTextInASpecificColorInBold("cyan",fmt.Sprintf("   Last Seen:	%s",s.LastSeen))
+			utils.PrintTextInASpecificColorInBold("magenta","***********************************************************************")
 		}
-		utils.PrintTextInASpecificColorInBold("cyan",fmt.Sprintf("   Expiry:	%s",s.Expiry))
-    utils.PrintTextInASpecificColorInBold("magenta","***********************************************************************")
   }
 }
 
 // Remove expired sessions
+// This is deprecated expiry changed to last seen, We give it the longest time say 6 plus months
+// @TODO Add capability to delete from MySQL_DB
 func (sm *SessionManager) PurgeExpiredSessions(driver *db.Driver) {
 	now := time.Now()
 	for id, s := range sm.Sessions {
   	sm.mu.Lock()
-		expiry,_ := time.Parse(time.RFC3339,s.Expiry)
-		if expiry.Before(now) {
+		expiry,_ := time.Parse(time.RFC3339,s.LastSeen)
+		limit := expiry.AddDate(0, 6, 0)
+		// if expiry.Before(now) { // changed this to a current duration of time created
+		if now.After(limit) {
+			err := driver.Delete("sessions",id)
+			if err != nil {
+				return fmt.Errorf("Error deleting session from db.\nERROR: %s",err)
+			}
 			delete(sm.Sessions, id)
-		}
-		sm.mu.Unlock()
-		err := sm.DeleteSession(id,driver)
-		if err != nil{
-			utils.Logerror(err)
 			continue
 		}
+		sm.mu.Unlock()
 	}
 }
 
@@ -255,7 +282,7 @@ func (s *SessionManager) Close(driver *db.Driver) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	for _, session := range s.Sessions {
-		err := s.DeleteSession(session.SessionID,driver)
+		err := s.DeleteSession(session.MinionID,driver)
 		if err != nil{
 			utils.Logerror(err)
 			continue
@@ -264,7 +291,7 @@ func (s *SessionManager) Close(driver *db.Driver) {
 }
 
 func (s *SessionManager) SaveSession(session *Session,driver *db.Driver) error {
-	return driver.Write("sessions",session.SessionID,session)
+	return driver.Write("sessions",session.MinionID,session)
 }
 
 func (s *SessionManager) LoadSessions(driver *db.Driver) error {
@@ -303,7 +330,7 @@ func (s *SessionManager) LoadSessions(driver *db.Driver) error {
 		} else {
 			ses.Active = false
 		}
-		ses.SessionID = sesn.MotherShipID
+		ses.MinionID = sesn.MotherShipID
 		err = s.Add(ses)
 		if err != nil{
 			utils.Warning(fmt.Sprintf("%s",err))

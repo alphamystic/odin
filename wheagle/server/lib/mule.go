@@ -21,6 +21,7 @@ var GrpcMule = `
   )
 
   func init(){
+    // manually populate the minion
     session := &c2.Session{
       ID: "{{.ID}}",
       MotherShipID:"{{.MotherShipID}}",

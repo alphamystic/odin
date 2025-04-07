@@ -22,6 +22,7 @@ import (
 var SessionsDriver = new(db.Driver)
 var ConnectorsDriver = new(db.Driver)
 
+// changethis to load from API
 func init(){
   var err error
   SessionsDriver,err = db.Old(c2.SessionsPath,0644)

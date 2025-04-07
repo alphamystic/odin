@@ -2,6 +2,8 @@
 Wheagle is a c2 framework that allows for easier control of multiple C2's and implant sessions from compromised machines.
 
 
+Golang Tensor flow https://www.youtube.com/watch?v=Al_T3O27DO8
+
 ## Features
 1. C2 generation
   Generate exe/elf/dll os so files to run as C2 on the fly.
