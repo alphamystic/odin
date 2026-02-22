@@ -8,6 +8,10 @@ import(
 
 
 func (hnd *Handler) ListFiles(res http.ResponseWriter, req *http.Request){
+  _, authenticated := hnd.AuthenticateUser(res, req)
+  if !authenticated {
+    return // User is redirected in the helper
+  }
   tpl,err := hnd.Pages.GetATemplate("listfiles","listfiles.tmpl")
   if err != nil {
     utils.Warning(fmt.Sprintf("%s", err))
@@ -19,6 +23,10 @@ func (hnd *Handler) ListFiles(res http.ResponseWriter, req *http.Request){
 }
 
 func (hnd *Handler) ViewFile(res http.ResponseWriter, req *http.Request){
+  _, authenticated := hnd.AuthenticateUser(res, req)
+  if !authenticated {
+    return // User is redirected in the helper
+  }
   tpl,err := hnd.Pages.GetATemplate("blank","blank.tmpl")
   if err != nil {
     utils.Warning(fmt.Sprintf("%s", err))

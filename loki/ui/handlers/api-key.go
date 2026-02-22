@@ -6,7 +6,7 @@ import(
   "net/http"
   "github.com/alphamystic/odin/lib/utils"
 //  "loki/lib/workers"
-  dfn"github.com/alphamystic/odin/lib/definers"
+//  dfn"github.com/alphamystic/odin/lib/definers"
 
 	"github.com/dgrijalva/jwt-go"
 )
@@ -27,15 +27,9 @@ func (hnd *Handler) Listapikeys(res http.ResponseWriter, req *http.Request){
     tpl.ExecuteTemplate(res,"tmpl_error",errPage)
     return
   }
-  ud,err := hnd.GetUDFromToken(req)
-  if err != nil{
-    utils.Warning(fmt.Sprintf("%s",err))
-    if err == dfn.UserNotLoggedIn {
-      http.Redirect(res,req,"/mkubwa",http.StatusSeeOther)
-      return
-    }
-    http.Redirect(res,req,"/mkubwa",http.StatusSeeOther)
-    return
+  ud, authenticated := hnd.AuthenticateUser(res, req)
+  if !authenticated {
+    return // User is redirected in the helper
   }
   ntfs,err := hnd.SRVCS.NTFCNSvrs.ListUserNotifications(ud.UserId)
   if err != nil {
@@ -50,20 +44,15 @@ func (hnd *Handler) Listapikeys(res http.ResponseWriter, req *http.Request){
   }
   tpl.ExecuteTemplate(res,"listapikey",LOKI{
     "notifications":ntfs,
+    "userdata": ud,
   })
   return
 }
 
 func (hnd *Handler) Createapikeys(res http.ResponseWriter, req *http.Request){
-  ud,err := hnd.GetUDFromToken(req)
-  if err != nil{
-    utils.Warning(fmt.Sprintf("%s",err))
-    if err == dfn.UserNotLoggedIn {
-      http.Redirect(res,req,"/mkubwa",http.StatusSeeOther)
-      return
-    }
-    http.Redirect(res,req,"/mkubwa",http.StatusSeeOther)
-    return
+  ud, authenticated := hnd.AuthenticateUser(res, req)
+  if !authenticated {
+    return // User is redirected in the helper
   }
   if req.Method != "POST"{
     ntfs,err := hnd.SRVCS.NTFCNSvrs.ListUserNotifications(ud.UserId)
@@ -78,6 +67,7 @@ func (hnd *Handler) Createapikeys(res http.ResponseWriter, req *http.Request){
     }
     tpl.ExecuteTemplate(res,"createapikey",LOKI{
       "Notifications": ntfs,
+      "userdata": ud,
     })
   }
   tpl,err := hnd.Pages.GetATemplate("createapikey","createapikey.tmpl")
@@ -92,6 +82,7 @@ func (hnd *Handler) Createapikeys(res http.ResponseWriter, req *http.Request){
   }
   tpl.ExecuteTemplate(res,"create-apikey.html",LOKI{
     "Notifications": ntfs,
+    "userdata": ud,
   })
   return
 }

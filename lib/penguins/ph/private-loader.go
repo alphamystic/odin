@@ -36,7 +36,8 @@ func LoadRico(rd handlers.ReconData) []handlers.Vulnerabilities{
       utils.Logerror(fmt.Errorf("Private has an invalid  entry point. Expecting: func New() handlers.Scanner{ ... }"))
     }
     scanner = newFunc()
-    vulns = scanner.Scan(rd)
+    //vulns = scanner.Scan(rd)
+    vulns = scanner.Scan()
   }
   return vulns
 }

@@ -12,6 +12,19 @@ import (
 )
 
 
+var scanTypeMap = map[string]string{
+	"bb":  "Bug Bounty",
+	"pt":  "Pentest",
+	"ctf": "CTF",
+}
+
+func GetScanType(input string) string {
+	if val, exists := scanTypeMap[input]; exists {
+		return val
+	}
+	return "Unknown" // Default case if input is not found
+}
+
 var cmdCreateTarget = &cobra.Command{
   Use:   "attack",
   Short: "Specify a specific target to attack",
@@ -29,9 +42,23 @@ var cmdCreateTarget = &cobra.Command{
       return
     }
     // Retrieve the name flag
-    name, _ := cmd.Flags().GetString("scansname")
+    name, _ := cmd.Flags().GetString("sn")
     if !utils.CheckifStringIsEmpty(name) {
       utils.Warning(fmt.Sprintf("Name of scan cannot be empty, use --name \"name_of_scan\": %s",name))
+      return
+    }
+    scanType,err := cmd.Flags().GetString("st")
+    if err != nil{
+      utils.Warning(fmt.Sprintf("%s",err))
+      return
+    }
+    if !utils.CheckifStringIsEmpty(scanType) {
+      utils.Warning("Scan Type can not be empty.")
+      return
+    }
+    scanType = GetScanType(scanType)
+    if scanType == "Unknown" {
+      utils.Warning("Scan Type can only be bb for Bug Bounty, pt for Pentest and ctf for CTF")
       return
     }
     // Proceed with the scan
@@ -40,6 +67,8 @@ var cmdCreateTarget = &cobra.Command{
     fmt.Println(targets)
     skp := &skipper.Skipper{
       Name: name,
+      ScanType: scanType,
+      Clientelle: GlobalClient,
     }
     t0 := time.Now()
     utils.PrintTextInASpecificColorInBold("white", fmt.Sprintf("Starting scan %s at %s", name, t0.String()))
@@ -90,9 +119,25 @@ var cmdCreateTargets = &cobra.Command {
         targets = ExplodeTargets(list)
       }
     }
-    fmt.Println(targets)
+    //fmt.Println(targets)
+    scanType,err := cmd.Flags().GetString("st")
+    if err != nil{
+      utils.Warning(fmt.Sprintf("%s",err))
+      return
+    }
+    if !utils.CheckifStringIsEmpty(scanType) {
+      utils.Warning("Scan Type can not be empty.")
+      return
+    }
+    scanType = GetScanType(scanType)
+    if scanType == "Unknown" {
+      utils.Warning("Scan Type can only be bb for Bug Bounty, pt for Pentest and ctf for CTF")
+      return
+    }
     skp := &skipper.Skipper{
       Name: name,
+      ScanType: scanType,
+      Clientelle: GlobalClient,
     }
     skp.Attack(targets)
   },
@@ -121,12 +166,15 @@ func GetTargetsFromFile(fileName string)([]string,error){
 }
 
 func init(){
+  cmdCreateTarget.Flags().String("t", "domain.com", "A specific target to attack (e.g., `attack --t domain.com --name ExampleScan`)")
+  cmdCreateTarget.Flags().String("st", "Bug Bounty/Pentest/Black Ops", "The Scan Type (e.g., `attack --t domain.com ---sn ExampleScan --st bb`)")
+  cmdCreateTarget.Flags().String("sn","target","Name for this particular scan say target_one if it's scan for target_one systems")
+  cmdCreateTarget.MarkFlagRequired("sn")
+  cmdCreateTarget.MarkFlagRequired("st")
   cmdCreateTargets.Flags().String("tF","tf","target-filename")
   cmdCreateTargets.Flags().String("tL","tL","A list of targets")
-  cmdCreateTarget.Flags().String("t", "domain.com", "A specific target to attack (e.g., `attack --t domain.com --name \"ExampleScan\"`)")
+  cmdCreateTargets.Flags().String("st", "Bug Bounty/Pentest/Black Ops", "The Scan Type (e.g., `attack --t domain.com --sn ExampleScan --st bb`)")
   cmdCreateTargets.Flags().String("name","target","Name for this particular scan say target_one if it's scan for target_one systems")
-  cmdCreateTarget.Flags().String("scansname","target","Name for this particular scan say target_one if it's scan for target_one systems")
-  cmdCreateTarget.MarkFlagRequired("scansname")
   RootCmd.AddCommand(cmdCreateTarget)
   RootCmd.AddCommand(cmdCreateTargets)
 }

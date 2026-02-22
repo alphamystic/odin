@@ -10,7 +10,7 @@ import (
   "os/signal"
   "net/http"
   "github.com/alphamystic/odin/lib/utils"
-  dfn"github.com/alphamystic/odin/lib/definers"
+  //dfn"github.com/alphamystic/odin/lib/definers"
   "github.com/alphamystic/odin/loki/ui/handlers"
 )
 
@@ -49,24 +49,27 @@ func (rtr *Router) Run(reg bool){
     fs.ServeHTTP(res,req)
   })))
 
-  // connect to DB (Add your onw connection or load from the environment)
-  dbConfig := dfn.IntitializeConnector("root","","localhost","odin")
-  dbConn,err := dfn.NewMySQLConnector(dbConfig)
-  if err != nil {
-    utils.Warning(fmt.Sprintf("Error connecting to the DB. \n[-]   ERROR: %s",err))
-    return
-  }
-
   // create a request logger
-  rl := utils.NewRequestLogger("./.data/logs/requests/",066)
+  rl := utils.NewRequestLogger("./.logs/requests/",066)
 
   // initiate new handler
-  hnd,err := handlers.NewHandler(dbConn, ShutdownCh, DoneCh, rl)
+  hnd,err := handlers.NewHandler(ShutdownCh, DoneCh, rl,"http://localhost:5000","12345")
   if err != nil {
     utils.Danger(err);return
   }
 
   // Handlers
+  // Portfolio Handler
+  //rtr.Mux.HandleFunc("/",hnd.Portfolio)
+  rtr.Mux.HandleFunc("/health",hnd.Health)
+  rtr.Mux.HandleFunc("/portfolio",hnd.Portfolio)
+  rtr.Mux.HandleFunc("/blogs",hnd.BlogSite)
+  rtr.Mux.HandleFunc("/createblog",hnd.Createblog)
+  rtr.Mux.HandleFunc("/writeblog",hnd.Writeblog)
+
+  // Odin Net
+  rtr.Mux.HandleFunc("/odin-net",hnd.OdinNet)
+
   //panel shortcuts (We handle the rest as they come. bit by bit baba)
   rtr.Mux.HandleFunc("/profile",hnd.Profile)
   rtr.Mux.HandleFunc("/updateprofile",hnd.Updateprofile)
@@ -82,7 +85,6 @@ func (rtr *Router) Run(reg bool){
 
   rtr.Mux.HandleFunc("/apt",hnd.Apt)
   rtr.Mux.HandleFunc("/edr",hnd.Edr)
-  rtr.Mux.HandleFunc("/odin-net",hnd.Odinnet)
 
   rtr.Mux.HandleFunc("/bb",hnd.Bugbounty)
   rtr.Mux.HandleFunc("/pentests",hnd.Pentests)
@@ -130,16 +132,16 @@ func (rtr *Router) Run(reg bool){
 
   // Start the server on the background
   go func(){
-    if err := rtr.HTTPSvr.ListenAndServe(); err != http.ErrServerClosed {
-      log.Fatalf("[-] Error starting server: %s\n",err.Error())
-    }
+  	if err := rtr.HTTPSSvr.ListenAndServe(); err != http.ErrServerClosed {
+  		log.Fatalf("HTTP server error: %v", err)
+  	}
   }()
   if rtr.Tls {
     go func(){
       // we need to find a better way of supplying this
-      if err := rtr.HTTPSSvr.ListenAndServeTLS("../../../certs/server.crt", "../../../certs/server.key"); err != http.ErrServerClosed {
-        log.Fatalf("[-] Error starting HTTPS server: %s\n",err.Error())
-      }
+      if err := rtr.HTTPSvr.ListenAndServeTLS("./certs/server.crt", "./certs/server.key"); err != http.ErrServerClosed {
+  			log.Fatalf("HTTPS server error: %v", err)
+  		}
     }()
   }
   fmt.Println("Servers are here running")

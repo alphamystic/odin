@@ -11,10 +11,11 @@ type Asset struct{
   Dscbr interface{} `json:"describer"`
   Active bool `json:"active"`
   Hard bool `json:"hardware"`
+  OwnerID string `json:"owner_id"`
   utils.TimeStamps
 }
 
-// this is marshalled up from a jwt token
+// this is marshalled up to and from a base64 code (uitls.Base64Encode(describer) or utils.Base64Decode(descrriber))
 type Describer struct {
   AgentID string `json:"agentid"`
   UserId string  `json:"uid"`

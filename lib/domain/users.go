@@ -3,9 +3,11 @@ package domain
 
 import (
   "fmt"
+  "time"
   "errors"
   "context"
   "database/sql"
+  "golang.org/x/crypto/bcrypt"
   _ "github.com/go-sql-driver/mysql"
 
   "github.com/alphamystic/odin/lib/utils"
@@ -18,18 +20,16 @@ const (
   getHash = "SELECT * FROM `odin`.`hashes` WHERE userid = ?;"
   updateHash = `UPDATE odin.hashes SET (hash = ? AND updated_at = ?) WHERE (hash = ? AND userid = ?);`
   createUser = `INSERT INTO odin.user (userid,ownerid,username,email,password,active,anonymous,verified,admin,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?,?,?,?)`
-  viewUser = `SELECT * FROM odin.user WHERE userid = ?;`
-  listMyUsers = `SELECT * FROM odin.user WHERE (active = ? AND verified = ? AND ownerid = ?) ORDER BY updated_at ASC;`
-  adminListUsers = `SELECT * FROM odin.user WHERE (active = ?) ORDER BY updated_at ASC;`
-  listAllUsers =`SELECT * FROM odin.user WHERE (active = ?) ORDER BY updated_at ASC;`
+  viewUser = `SELECT userid,ownerid,username,email,password,active,anonymous,verified,admin,created_at,updated_at FROM odin.user WHERE userid = ?;`
+  listMyUsers = `SELECT userid,ownerid,username,email,password,active,anonymous,verified,admin,created_at,updated_at FROM odin.user WHERE (active = ? AND verified = ? AND ownerid = ?) ORDER BY updated_at ASC;`
+  adminListUsers = `SELECT userid,ownerid,username,email,password,active,anonymous,verified,admin,created_at,updated_at FROM odin.user WHERE (active = ?) ORDER BY updated_at ASC;`
+  listAllUsers =`SELECT userid,ownerid,username,email,password,active,anonymous,verified,admin,created_at,updated_at FROM odin.user WHERE (active = ?) ORDER BY updated_at ASC;`
   checkIfOwner = `SELECT userid,ownerid FROM odin.user WHERE (userid = ? AND ownerid = ?);`
   checkIfVerified = `SELECT userid,email,verified FROM odin.users WHERE (userid = ? AND email = ?);`
   checkIfAdmin = `SELECT active,admin FROM odin.user WHERE (userid= ?);`
 )
 
-type UserDom struct {
-  Dbs *sql.DB
-}
+
 func (d *Domain) CreateHash(h dfn.UserHash,ctx context.Context) error {
   conn,err := d.GetConnection(ctx)
   if err != nil {
@@ -107,10 +107,19 @@ func (d *Domain) CreateUser(ctx context.Context,u dfn.User) error {
     return errors.New("Server encountered an error while preparing to create user. Try again later :).")
   }
   defer ins.Close()
-  res,err := ins.ExecContext(ctx,&u.UserID,&u.OwnerID,&u.UserName,&u.Email,&u.Password,&u.Active,&u.Anonymous,&u.Verify,&u.Admin,&u.CreatedAt,&u.UpdatedAt)
-  rowsAffec, _  := res.RowsAffected()
-  if err != nil || rowsAffec != 1{
+  var hash []byte
+  hash,err = bcrypt.GenerateFromPassword([]byte(u.Password),bcrypt.DefaultCost)
+  if err != nil{
+    return errors.New("Error generating password hash")
+  }
+  res,err := ins.ExecContext(ctx,&u.UserID,&u.UserID,&u.UserName,&u.Email,hash,&u.Active,&u.Anonymous,&u.Verify,&u.Admin,&u.CreatedAt,&u.UpdatedAt)
+  if err != nil {
     d.LogToFile(utils.Logger{Name:"users_sql",Text:fmt.Sprintf("Error executing create user: %s",err),})
+    return errors.New("Server encountered an error while creating user.")
+  }
+  rowsAffec, err := res.RowsAffected()
+  if err != nil || rowsAffec != 1{
+    d.LogToFile(utils.Logger{Name:"users_sql",Text:fmt.Sprintf("Error executing create user, no rows affected: %s",err),})
     return errors.New("Server encountered an error while creating user.")
   }
   return nil
@@ -141,17 +150,30 @@ func (d *Domain) ListMyUsers(ctx context.Context,ownerId string,active,verified 
   defer conn.Close()
  rows,err := conn.QueryContext(ctx,listMyUsers,active,verified,ownerId)
  if err != nil{
-   d.LogToFile(utils.Logger{Name:"users_sql",Text:fmt.Sprintf("ELAU: %s",err),})
+   d.LogToFile(utils.Logger{Name:"users_sql",Text:fmt.Sprintf("Error listing individuals users: %s",err),})
    return nil,errors.New("Server encountered an error while listing all specified users.")
  }
  defer rows.Close()
  var users []dfn.User
  for rows.Next(){
    var u dfn.User
-   err = rows.Scan(&u.UserID,&u.OwnerID,&u.UserName,&u.Email,&u.Password,&u.Active,&u.Anonymous,&u.Verify,&u.Admin,&u.CreatedAt,&u.UpdatedAt)
+   var createdAt, updatedAt []byte
+   err = rows.Scan(&u.UserID,&u.OwnerID,&u.UserName,&u.Email,&u.Password,&u.Active,&u.Anonymous,&u.Verify,&u.Admin,&createdAt, &updatedAt)
    if err != nil{
      d.LogToFile(utils.Logger{Name:"users_sql",Text:fmt.Sprintf("Error scanning list users: %s",err),})
      continue
+   }
+   if createdAt != nil {
+    u.CreatedAt, err = time.Parse("2006-01-02 15:04:05", string(createdAt))
+    if err != nil {
+      d.LogToFile(utils.Logger{Name: "users_sql", Text: fmt.Sprintf("Error parsing created_at: %s", err)})
+    }
+   }
+   if updatedAt != nil {
+    u.UpdatedAt, err = time.Parse("2006-01-02 15:04:05", string(updatedAt))
+    if err != nil {
+      d.LogToFile(utils.Logger{Name: "users_sql", Text: fmt.Sprintf("Error parsing updated_at: %s", err)})
+    }
    }
    users = append(users,u)
  }
@@ -175,11 +197,24 @@ func (d *Domain) AdminListUsers(active bool,ctx context.Context) ([]dfn.User,err
  var users []dfn.User
  for rows.Next(){
    var u dfn.User
-   err = rows.Scan(&u.UserID,&u.OwnerID,&u.UserName,&u.Email,&u.Password,&u.Active,&u.Anonymous,&u.Verify,&u.Admin,&u.CreatedAt,&u.UpdatedAt)
+   var createdAt, updatedAt []byte
+   err = rows.Scan(&u.UserID,&u.OwnerID,&u.UserName,&u.Email,&u.Password,&u.Active,&u.Anonymous,&u.Verify,&u.Admin,&createdAt, &updatedAt)
    if err != nil{
      d.LogToFile(utils.Logger{Name:"users_sql",Text:fmt.Sprintf("Error scanning admin list users: %s",err),})
      continue
    }
+   if createdAt != nil {
+    u.CreatedAt, err = time.Parse("2006-01-02 15:04:05", string(createdAt))
+    if err != nil {
+      d.LogToFile(utils.Logger{Name: "users_sql", Text: fmt.Sprintf("Error parsing created_at: %s", err)})
+    }
+  }
+  if updatedAt != nil {
+    u.UpdatedAt, err = time.Parse("2006-01-02 15:04:05", string(updatedAt))
+    if err != nil {
+      d.LogToFile(utils.Logger{Name: "users_sql", Text: fmt.Sprintf("Error parsing updated_at: %s", err)})
+    }
+  }
    users = append(users,u)
  }
  /* just return an empty list (even if an error occured it still will be empty)
@@ -204,12 +239,25 @@ func (d *Domain) ListAllUsers(active bool,ctx context.Context) ([]dfn.User,error
  var users []dfn.User
  for rows.Next(){
    var u dfn.User
-   err = rows.Scan(&u.UserID,&u.OwnerID,&u.UserName,&u.Email,&u.Password,&u.Active,&u.Anonymous,&u.Verify,&u.Admin,&u.CreatedAt,&u.UpdatedAt)
+   var createdAt, updatedAt []byte
+   err = rows.Scan(&u.UserID,&u.OwnerID,&u.UserName,&u.Email,&u.Password,&u.Active,&u.Anonymous,&u.Verify,&u.Admin,&createdAt, &updatedAt)
    if err != nil{
-     d.LogToFile(utils.Logger{Name:"users_sql",Text:fmt.Sprintf("Error scaning for listed users: %w",err)})
-     return nil,errors.New("Server encountered an error while listing allusers.")
+     d.LogToFile(utils.Logger{Name:"users_sql",Text:fmt.Sprintf("Error scanning listing all users: %s",err),})
+     continue
    }
-   users = append(users,u)
+   if createdAt != nil {
+    u.CreatedAt, err = time.Parse("2006-01-02 15:04:05", string(createdAt))
+    if err != nil {
+      d.LogToFile(utils.Logger{Name: "users_sql", Text: fmt.Sprintf("Error parsing created_at: %s", err)})
+    }
+  }
+  if updatedAt != nil {
+    u.UpdatedAt, err = time.Parse("2006-01-02 15:04:05", string(updatedAt))
+    if err != nil {
+      d.LogToFile(utils.Logger{Name: "users_sql", Text: fmt.Sprintf("Error parsing updated_at: %s", err)})
+    }
+  }
+  users = append(users,u)
  }
  return users,nil
 }

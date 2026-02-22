@@ -12,6 +12,7 @@ import (
   "fmt"
   "time"
   "sync"
+	"bufio"
   "errors"
   "regexp"
   "strconv"
@@ -19,18 +20,19 @@ import (
   "math/rand"
   cr"crypto/rand"
 	"encoding/base64"
-  "github.com/google/uuid"
+  //"github.com/google/uuid"
+  uuid"github.com/hypersequent/uuid7"
   "golang.org/x/crypto/bcrypt"
   //"github.com/dgrijalva/jwt-go"
 )
 
 func GenerateUUID() string {
-  return uuid.New().String()
+  return uuid.NewString()//.String()
 }
 
 type TimeStamps struct {
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
+	CreatedAt time.Time `json:"created_at,omitempty"`
+	UpdatedAt time.Time `json:"updated_at,omitempty"`
 }
 
 func (t *TimeStamps) Touch() {
@@ -43,8 +45,35 @@ func (t *TimeStamps) Touch() {
   }
 }
 
+func ScanTimeStamps(ts *TimeStamps, createdAtRaw, updatedAtRaw []byte) error {
+	if createdAtRaw != nil {
+		parsedTime, err := time.Parse("2006-01-02 15:04:05", string(createdAtRaw))
+		if err != nil {
+			return fmt.Errorf("error parsing created_at: %w", err)
+		}
+		ts.CreatedAt = parsedTime.UTC()
+	}
+	if updatedAtRaw != nil {
+		parsedTime, err := time.Parse("2006-01-02 15:04:05", string(updatedAtRaw))
+		if err != nil {
+			return fmt.Errorf("error parsing updated_at: %w", err)
+		}
+		ts.UpdatedAt = parsedTime.UTC()
+	}
+	return nil
+}
+
 func IntToString(val int) string {
 	return strconv.Itoa(val)
+}
+
+func StringToBool(s string) bool {
+	b, err := strconv.ParseBool(s)
+	if err != nil {
+    fmt.Println("invalid boolean string: %s", s)
+		return false
+	}
+	return b
 }
 
 // ArrayContainsInt checks if an integer exists in a slice of integers.
@@ -75,6 +104,42 @@ func RemoveStringDuplicates(array []string) []string {
 
 	return result
 }
+
+
+// Helper to read .env file without external packages
+func LoadEnvFile(path string) map[string]string {
+	file, err := os.Open(path)
+	if err != nil {
+		log.Fatalf("Error loading .env file: %v", err)
+	}
+	defer file.Close()
+
+	envs := make(map[string]string)
+	scanner := bufio.NewScanner(file)
+
+	for scanner.Scan() {
+		line := strings.TrimSpace(scanner.Text())
+		if line == "" || strings.HasPrefix(line, "#") {
+			continue
+		}
+
+		parts := strings.SplitN(line, "=", 2)
+		if len(parts) != 2 {
+			continue
+		}
+
+		key := strings.TrimSpace(parts[0])
+		value := strings.Trim(strings.TrimSpace(parts[1]), `"`)
+		envs[key] = value
+	}
+
+	if err := scanner.Err(); err != nil {
+		log.Fatalf("Error reading .env file: %v", err)
+	}
+
+	return envs
+}
+
 
 func CheckIfStringIsDomainName(s string) bool {
 	domainRegex := `^([a-zA-Z0-9-]{1,63}\.)+[a-zA-Z]{2,}$`
@@ -122,8 +187,8 @@ func GenerateBusinessNumber() string {
 	mu.Lock()
 	defer mu.Unlock()
 	// Generate a UUID and convert it to a simpler string format
-	id := uuid.New()
-	uuidStr := id.String()[0:8]
+	id := uuid.NewString()
+	uuidStr := id[0:8]
 	// Remove '0' and 'O' characters from the UUID
 	uuidStr = strings.ReplaceAll(uuidStr, "0", "")
 	uuidStr = strings.ReplaceAll(uuidStr, "O", "")

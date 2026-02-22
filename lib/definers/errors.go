@@ -17,3 +17,9 @@ var WrongPassword = errors.New("Wrong Password")
 var ErrNoMinion = errors.New("Errorno minion does not exist.")
 
 var  Undefined = errors.New("Undefined statement or data requested/given as input.")
+
+var ScanDoesNotExists = errors.New("Scan Does Not Exists")
+
+var TargetDoesNotExist = errors.New("Target Does Not Exist")
+
+var WebDataForTargetDoesNotExist = errors.New("Web Data For Target Does Not Exist")

@@ -4,11 +4,11 @@ import (
   "fmt"
   //"log"
   "time"
+  "sync"
   "net/http"
   "database/sql"
   "html/template"
   "github.com/alphamystic/odin/lib/utils"
-  dom"github.com/alphamystic/odin/lib/domain"
   dfn"github.com/alphamystic/odin/lib/definers"
   "github.com/dgrijalva/jwt-go"
 //  _ "github.com/go-sql-driver/mysql"
@@ -19,6 +19,10 @@ type LOKI map[string]interface{}
 type ErrorRes map[string]interface{}
 
 var Registration bool
+
+const (
+  SighnInKey = "1234567890!#$%^&*()QWERYUIPASDFGHLMNBVCXZqwertplhgfdsazxcvbnm"
+)
 
 var (
   test = false
@@ -44,6 +48,8 @@ type Handler struct {
   ShutdownChan,DoneChan chan bool // channels to write into
   SRVCS *Services
   InvalidTokens []string // You would want to have this cached ina caching sytem
+  MaintenanceMode bool
+	mu sync.Mutex
 }
 
 type PagesHolder struct {
@@ -65,29 +71,29 @@ func NewPagesHolder() (*PagesHolder,error) {
 }
 
 // Initiates new handler
-func NewHandler(db_connection *sql.DB, shutdownCh chan bool, doneCh chan bool,rl *utils.RequestLogger) (*Handler,error) {
+func NewHandler(shutdownCh chan bool, doneCh chan bool,rl *utils.RequestLogger,baseURL, apiKey string) (*Handler,error) {
+  if rl == nil{
+    return nil,fmt.Errorf("Request Logger can not be nil.....")
+  }
   // tpl,err := template.ParseGlob("./loki/ui/templates/*.html")
   // if err != nil{
   //   utils.Warning("[-]  Failed to load templates.")
   //   return nil,fmt.Errorf("[-]  This is not good like: ",err)
   // }
   // fmt.Println("[+]  Loaded all templates.")
-  utils.PrintTextInASpecificColorInBold("white",fmt.Sprintf(" Starting LOKI server at: %s",GetCurrentTime()))
-  // create db configurations
-  dom := dom.NewDomain(db_connection,10,5)
   pages,err := NewPagesHolder()
   if err != nil {
     return nil,err
   }
+  utils.PrintTextInASpecificColorInBold("white",fmt.Sprintf(" Starting LOKI server at: %s",GetCurrentTime()))
   return &Handler {
     Pages: pages,
     //Store: sessions.NewCookieStore([]byte(utils.RandNoLetter(30))),
-    Dbs: db_connection,
     CanWriteLogs: true,
     ShutdownChan: shutdownCh,
     DoneChan: doneCh,
     RL: rl,
-    SRVCS: InitializeServices(dom),
+    SRVCS: InitializeServices(baseURL, apiKey),
   },nil
 }
 
@@ -117,7 +123,7 @@ type UserData struct {
   Admin bool
 }
 
- var store = []byte("loki-odin")
+var store = []byte("loki-odin")
 
 func (hnd *Handler) GenerateJWT(ud *UserData) (string,error) {
   expTime := time.Now().Add(time.Hour * 72)
@@ -125,7 +131,7 @@ func (hnd *Handler) GenerateJWT(ud *UserData) (string,error) {
     "ud": ud,
     "exp": expTime.Unix(),
   })
-  sighnedToken,err := token.SignedString(hnd.Store)
+  sighnedToken,err := token.SignedString([]byte(SighnInKey))
   if err != nil {
     return "",fmt.Errorf("Error signing token: %q",err)
   }
@@ -142,10 +148,10 @@ func (hnd *Handler) GetUDFromToken(req *http.Request) (*UserData,error) {
   tokenString := cookie.Value
   // @TODO add functionality to check expiry for a jwt token and save it
   token,err := jwt.Parse(tokenString,func(tkn *jwt.Token)(interface{},error){
-    if tkn.Method != jwt.SigningMethodHS256{
-      return nil,fmt.Errorf("Unexepcted signing method: %v",tkn.Header["alg"])
+    if _, ok := tkn.Method.(*jwt.SigningMethodHMAC); !ok {
+      return nil, fmt.Errorf("Unexpected signing method: %v", tkn.Header["alg"])
     }
-    return store,nil
+    return []byte(SighnInKey),nil
   })
   if err != nil {
     return nil,fmt.Errorf("Signing error. %q",err)
@@ -160,4 +166,18 @@ func (hnd *Handler) GetUDFromToken(req *http.Request) (*UserData,error) {
     }
   }
   return nil,dfn.NoClaimsError
+}
+
+func (hnd *Handler) AuthenticateUser(res http.ResponseWriter, req *http.Request) (*UserData, bool) {
+  ud, err := hnd.GetUDFromToken(req)
+  if err != nil {
+    utils.Warning(fmt.Sprintf("%s", err))
+    if err == dfn.UserNotLoggedIn {
+      http.Redirect(res, req, "/mkubwa", http.StatusSeeOther)
+      return nil, false
+    }
+    http.Redirect(res, req, "/mkubwa", http.StatusSeeOther)
+    return nil, false
+  }
+  return ud, true
 }

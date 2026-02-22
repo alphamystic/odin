@@ -59,3 +59,8 @@ func (xss *XssChecker) Scan() []Vulnerabilities {
 	}
 	f(doc)
 }
+
+
+/*
+	One way to check for xss is to look for something that appears in the url and also in the webpage.
+*/

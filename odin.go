@@ -7,8 +7,6 @@ import (
   "bufio"
   "strings"
   "github.com/alphamystic/odin/cli"
-  "github.com/alphamystic/odin/loki"
-  "github.com/alphamystic/odin/loki/ui/router"
   "github.com/alphamystic/odin/lib/utils"
 
   "github.com/common-nighthawk/go-figure"
@@ -16,27 +14,42 @@ import (
 
 func main(){
   myFigure := figure.NewFigure("Odin", "isometric1", true)
-  // Start the server to write and read to
-  Loki := &loki.Loki {
-    Address: "0.0.0.0",
-    PortS: 3001,
-    Port: 4000,
-    TlsCert: "",
-    TlsKey: "",
-    Tls: false,
-    ApiKey: "", // servers api keey to chat service at main
-  }
-  svr,_ := Loki.CreateServer()
-  rtr := router.NewRouter(svr,svr)
-  go func(){
-    rtr.Run(true)
-  }()
-  //myFigure := figure.NewFigure("Odin", "basic", true).Scroll(10000, 200, "right")
   myFigure.Print()
   utils.PrintTextInASpecificColorInBold("white","Initializing ODIN.....")
   fmt.Println("[ODIN]  Starting commandline")
-  // start cli
+  // Authenticate the USer first to the API
   reader := bufio.NewReader(os.Stdin)
+
+	// fmt.Print("[+] Enter API base URL: ")
+	// baseURL, _ := reader.ReadString('\n')
+	// baseURL = strings.TrimSpace(baseURL)
+  //
+	// // Initialize client with base URL: https://localhost:8080
+	globalClient := utils.GetClient("portfolio")
+  //
+	// // Prompt for login credentials
+	// fmt.Print("[+] Enter email: ")
+	// email, _ := reader.ReadString('\n')
+	// email = strings.TrimSpace(email)
+  //
+	// fmt.Print("[+] Enter password: ")
+	// password, _ := reader.ReadString('\n')
+	//password = strings.TrimSpace(password)
+  //end of login
+
+	// Attempt login
+  email := "sam@mail.com"
+  password := "12345"
+	err := globalClient.Login(email, password)
+	if err != nil {
+		fmt.Println("Login failed:", err)
+		os.Exit(1) // Exit if login fails
+	}
+
+	utils.Notice("Login successful!")
+	cli.GlobalClient =  globalClient
+  // start cli
+  //reader = bufio.NewReader(os.Stdin)
   for {
     utils.Odin()
     input,_ := reader.ReadString('\n')

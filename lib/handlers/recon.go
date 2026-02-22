@@ -38,22 +38,30 @@ import (
 */
 
 type Scans struct {
-  OwnerID string
-  ScanID string
-  Name string
-  ScanType string
+  ScanID string `json: "scanid,omitempty"`
+  Name string `json: "name,omitempty"`
+  ScanType string `json: "scantype,omitempty"`
+  OwnerID string `json: "owner_id,omitempty"`
   utils.TimeStamps
 }
 
 type Target struct{
-  TargetID string
-  ScanID string
-  Host string //can be null if not specified as a subdomain
-  HostIp net.IP
-  TargetIp net.IP
-  FireWallName string
-  Decoys []net.IP
+  TargetID string `json: "targetid,omitempty"`
+  ScanID string `json: "scanid,omitempty"`
+  Host string  `json: "host,omitempty"`//can be null if not specified as a subdomain
+  HostIp net.IP `json: "hostip,omitempty"`
+  TargetIp net.IP `json: "targetip,omitempty"`
+  FireWallName string `json: "firewall-name,omitempty"`
+  Decoys []net.IP `json: "decoys,omitempty"`
   utils.TimeStamps
+}
+
+// I honestly should have declared this here and not on the API Layer but....
+type WebDataBody struct {
+  TargetID string `json: "targetid"`
+  Directories []string `jaon: "directories"`
+  Parameters []string `json: "parameters"`
+  Filepaths []string `json: "filepaths"`
 }
 
 type ReconData struct {
@@ -63,22 +71,22 @@ type ReconData struct {
 }
 
 type WebData struct {
-  Directories []string
-  Parameters []string// should also be associated with the directory it came from
-  Files []string
+  Directories []string `json: "directory,omitempty"`
+  Parameters []string `json: "parameters,omitempty"`// should also be associated with the directory it came from
+  Files []string `json:"files,omitempty" `
 }
 
 type Service struct {
-  ServiceID int
-  TargetID string
-  ServiceName string
-  Port int
-  Protocol string
-	State   bool // open or closed
-	Version string
-  AT AttackType
+  ServiceID int `json: "serviceid,omitempty"`
+  TargetID string `json: "targetid,omitempty"`
+  ServiceName string `json: "serviceName,omitempty"`
+  Port int `json: "port,omitempty"`
+  Protocol string `json: "protocol,omitempty"`
+	State   bool `json: "state,omitempty"` // open or closed
+	Version string `json: "version,omitempty"`
+  AT AttackType `json: "attack_type,omitempty"`
   utils.TimeStamps
-  Data []Output // we store this as it could be any service and we might need to reply it or enumerate further
+  Data string `json: "data,omitempty"`//[]Output // we store this as it could be any service and we might need to replay it or enumerate further
 }
 
 type ServiceData []*Output
@@ -90,11 +98,11 @@ type Output struct{
 
 // Not sure on what kind of data it should return but a vulnerabilities will do for now
 type CVE struct {
-  CVEID string
-  Present bool
-  Confirmed bool
-  Vuln Vulnerabilities
-  POC Exploit
+  CVEID string `json: "cveid,omitempty"`
+  Present bool `json: "present,omitempty"`
+  Confirmed bool `json: "confirmed,omitempty"`
+  Vuln Vulnerabilities `json: "vulnerabilities,omitempty"`
+  POC Exploit `json: "poc,omitempty"`
 }
 
 type CVEChecker interface {

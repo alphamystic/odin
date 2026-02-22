@@ -8,6 +8,10 @@ import(
 )
 
 func (hnd *Handler) ListYaraRule(res http.ResponseWriter, req *http.Request){
+  _, authenticated := hnd.AuthenticateUser(res, req)
+  if !authenticated {
+    return // User is redirected in the helper
+  }
   tpl,err := hnd.Pages.GetATemplate("listfiles","listfiles.tmpl")
   if err != nil {
     utils.Warning(fmt.Sprintf("%s", err))
@@ -19,10 +23,10 @@ func (hnd *Handler) ListYaraRule(res http.ResponseWriter, req *http.Request){
 }
 
 func (hnd *Handler) CreateYaraRule(res http.ResponseWriter, req *http.Request){
-  /*if !IsAuthenticated(req){
-    http.Redirect(res,req,"/mkubwa",http.StatusFound)//302
-    return
-  }*/
+  _, authenticated := hnd.AuthenticateUser(res, req)
+  if !authenticated {
+    return // User is redirected in the helper
+  }
   if req.Method == "GET"{
     tpl,err := hnd.Pages.GetATemplate("listfiles","listfiles.tmpl")
     if err != nil {

@@ -2,8 +2,9 @@ package services
 
 
 import (
+  "fmt"
   "context"
-  dom"github.com/alphamystic/odin/lib/domain"
+	//"encoding/json"
   dfn"github.com/alphamystic/odin/lib/definers"
 )
 
@@ -16,15 +17,26 @@ type (
     IsAdmin(ctx context.Context)
     UpdateUser(ctx context.Context) error
   }
-  UserDataService struct {Dom *dom.Domain}
+  UserDataService struct {SAC *ServerAPIConnector}
 )
 
-func NewUserService(domain *dom.Domain) *UserDataService{
-  return &UserDataService{Dom: domain}
+func NewUserService(sac *ServerAPIConnector) *UserDataService{
+  return &UserDataService{SAC: sac}
 }
 
-func (usd *UserDataService) CreateUser(ctx context.Context,user dfn.User) error {
-  return usd.Dom.CreateUser(ctx, user)
+func (usd *UserDataService) CreateUser(ctx context.Context,user dfn.User) (string,error) {
+  data,err := usd.SAC.Post("/api/users/createuser",user)
+  if err != nil{
+    return  "",err
+  }
+  if status, ok := data["Status"].(string); ok {
+		return "",fmt.Errorf("Status: %q", status)
+	}
+  redirecturl, ok := data["RedirectUrl"].(string)
+  if !ok {
+		return "",fmt.Errorf("Redirect URL: %q", redirecturl)
+	}
+  return redirecturl,nil
 }
 
 

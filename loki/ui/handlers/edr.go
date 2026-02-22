@@ -7,6 +7,10 @@ import(
 )
 
 func (hnd *Handler) Edr(res http.ResponseWriter, req *http.Request){
+  _, authenticated := hnd.AuthenticateUser(res, req)
+  if !authenticated {
+    return // User is redirected in the helper
+  }
   tpl,err := hnd.Pages.GetATemplate("edr","edr.tmpl")
   if err != nil {
     utils.Warning(fmt.Sprintf("%s", err))

@@ -20,11 +20,12 @@ type Domain struct {
   *utils.ErrorLogger
 }
 
+//Whenever a new file is to be logged  it should be added to the log file list
 func NewDomain(dbs *sql.DB,max,min int) *Domain {
   dbs.SetMaxOpenConns(max)
 	dbs.SetMaxIdleConns(min)
-  errorFiles := []string{"users_sql", "minions_sql", "auth_sql", "api_sql", "assets_sql", "ms_sql", "recon_sql"}
-  errorLogger := utils.NewErrorLogger("./.brain/logs/sql", 066, errorFiles)
+  errorFiles := []string{"users_sql", "blog_sql", "comment_sql", "recon_conversion", "minions_sql", "auth_sql", "api_sql", "assets_sql", "ms_sql", "recon_sql"}
+  errorLogger := utils.NewErrorLogger("./.logs/sql", 0644, errorFiles)
   return &Domain {
     Dbs: dbs,
     ErrorLogger: errorLogger,

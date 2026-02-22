@@ -1,0 +1,12 @@
+{
+  "domain": "tum.ac.ke",
+  "secrets": {},
+  "fuzz_results": [
+    {
+      "raw": "\r\u001b[2K.git/HEAD               [Status: 200, Size: 21, Words: 2, Lines: 2, Duration: 53ms]\u001b[0m\n\r\u001b[2K                        [Status: 200, Size: 58548, Words: 23312, Lines: 760, Duration: 550ms]\u001b[0m\n\r\u001b[2Kdownloads               [Status: 200, Size: 25919, Words: 10207, Lines: 391, Duration: 1364ms]\u001b[0m\n\r\u001b[2Kevents                  [Status: 200, Size: 39911, Words: 14623, Lines: 711, Duration: 1977ms]\u001b[0m\n"
+    }
+  ],
+  "meta": {
+    "started_at": "2025-08-19_22-34-18.3271535_+0000_UTC"
+  }
+}

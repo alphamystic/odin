@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Nov 19, 2023 at 12:12 PM
+-- Generation Time: Feb 14, 2025 at 07:27 AM
 -- Server version: 10.4.24-MariaDB
 -- PHP Version: 8.1.6
 
@@ -35,7 +35,94 @@ CREATE TABLE `apikey` (
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
+--
+-- Table structure for table `blogs`
+--
+
+CREATE TABLE IF NOT EXISTS blogs (
+    `id` INT AUTO_INCREMENT PRIMARY KEY,
+    `uuid` VARCHAR(255) UNIQUE NOT NULL,
+    `ownerid` varchar(255) NOT NULL,
+    `title` VARCHAR(255) NOT NULL,
+    `author` VARCHAR(255) NOT NULL,
+    `content` LONGTEXT NOT NULL,
+    `maintag` VARCHAR(255),
+    `types` JSON, -- Dynamic classification
+    `categories` JSON, -- IDs from category table
+    `subcats` JSON, -- IDs from subcategories
+    `tags` JSON, -- free string tags e.g ["ISO:A.5.1","Logging"]
+    `public` BOOLEAN DEFAULT FALSE,
+    `archived` BOOLEAN DEFAULT FALSE,
+    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` TIMESTAMP NULL DEFAULT NULL
+);
+
+CREATE TABLE IF NOT EXISTS comments (
+    `id` INT AUTO_INCREMENT PRIMARY KEY,
+    `comment_uuid` VARCHAR(255) NOT NULL,
+    `blog_uuid` VARCHAR(255) NOT NULL,
+    `comment` TEXT NOT NULL,
+    `commentor` VARCHAR(255) NOT NULL,
+    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` TIMESTAMP NULL,
+    FOREIGN KEY (blog_uuid) REFERENCES blogs(uuid) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS categories (
+    `id` INT AUTO_INCREMENT PRIMARY KEY,
+    `name` VARCHAR(255) NOT NULL,
+    `parent_id` INT DEFAULT NULL,
+    FOREIGN KEY (parent_id) REFERENCES categories(id) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS enum_types (
+    `id` INT AUTO_INCREMENT PRIMARY KEY,
+    `type` VARCHAR(100) UNIQUE NOT NULL, 
+    `description` VARCHAR(255) NOT NULL
+);
+
+
 -- --------------------------------------------------------
+
+
+CREATE TABLE `vulnerabilities` (
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `vulnerability_id` VARCHAR(255) NOT NULL,
+  `name` VARCHAR(255) NOT NULL,
+  `severity` INT NOT NULL,
+  `target` VARCHAR(255) NOT NULL,
+  `payload` LONGTEXT, -- base64 encoded
+  `attack_type` VARCHAR(255),
+  `grouped` BOOLEAN DEFAULT FALSE,
+  `authenticated` BOOLEAN DEFAULT FALSE,
+  `works` BOOLEAN DEFAULT FALSE,
+  `details` LONGTEXT, -- base64 encoded
+  `created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uniq_vuln_id` (`vulnerability_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+
+CREATE TABLE `exploits` (
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `exploit_id` VARCHAR(255) NOT NULL,
+  `lhost` VARCHAR(255) NOT NULL,
+  `lport` INT NOT NULL,
+  `address` VARCHAR(255) NOT NULL,
+  `target` VARCHAR(255) NOT NULL,
+  `average_severity` INT NOT NULL,
+  `grouped` BOOLEAN DEFAULT FALSE,
+  `works` BOOLEAN DEFAULT FALSE,
+  `grouped_vulns` TEXT, -- comma-separated vuln IDs, e.g. "vuln1,vuln2,vuln3"
+  `created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uniq_exploit_id` (`exploit_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+
+
 
 --
 -- Table structure for table `appointments`
@@ -80,8 +167,10 @@ CREATE TABLE `assets` (
   `describers` text NOT NULL,
   `active` tinyint(1) NOT NULL,
   `hardware` tinyint(1) NOT NULL,
+  `owner_id` VARCHAR(255) NOT NULL,
   `created_at` timestamp NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NULL DEFAULT NULL
+  `updated_at` timestamp NULL DEFAULT NULL,
+  FOREIGN KEY (owner_id) REFERENCES user(userid)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
@@ -188,21 +277,6 @@ CREATE TABLE `motherships` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `outputs`
---
-
-CREATE TABLE `outputs` (
-  `output_id` int(11) NOT NULL,
-  `service_id` int(11) DEFAULT NULL,
-  `command` text DEFAULT NULL,
-  `output` text DEFAULT NULL,
-  `created_at` timestamp NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NULL DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
--- --------------------------------------------------------
-
---
 -- Table structure for table `plugins`
 --
 
@@ -228,9 +302,18 @@ CREATE TABLE `scans` (
   `scan_id` varchar(100) NOT NULL,
   `name` varchar(255) NOT NULL,
   `scan_type` enum('Bug Bounty','Pentest','Black Ops') DEFAULT NULL,
+  `owner_id` varchar(255) NOT NULL,
   `created_at` timestamp NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Dumping data for table `scans`
+--
+
+INSERT INTO `scans` (`scan_id`, `name`, `scan_type`, `owner_id`, `created_at`, `updated_at`) VALUES
+('12cbf5f4922792f5eb72d2972abe8483', 'example', 'Bug Bounty', '123456', '2025-02-11 10:01:33', '2025-02-11 10:01:33'),
+('58819d63e178f1e8cb46e12f23a15795', 'example', 'Bug Bounty', '123456', '2025-02-11 10:00:26', '2025-02-11 10:00:26');
 
 -- --------------------------------------------------------
 
@@ -246,9 +329,9 @@ CREATE TABLE `services` (
   `protocol` varchar(20) NOT NULL,
   `state` tinyint(1) NOT NULL,
   `version` varchar(255) DEFAULT NULL,
-  `AT` int(11) DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NULL DEFAULT NULL
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `data` text DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
@@ -261,13 +344,20 @@ CREATE TABLE `targets` (
   `target_id` varchar(100) NOT NULL,
   `scan_id` varchar(100) NOT NULL,
   `host` varchar(255) NOT NULL,
-  `host_ip` int(10) UNSIGNED NOT NULL,
-  `target_ip` int(10) UNSIGNED NOT NULL,
+  `host_ip` varchar(45) NOT NULL,
+  `target_ip` varchar(45) NOT NULL,
   `firewall_name` varchar(25) NOT NULL DEFAULT 'NONE',
   `decoys` text NOT NULL,
   `created_at` timestamp NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Dumping data for table `targets`
+--
+
+INSERT INTO `targets` (`target_id`, `scan_id`, `host`, `host_ip`, `target_ip`, `firewall_name`, `decoys`, `created_at`, `updated_at`) VALUES
+('4676429abe558d0669a46ba7cf470bb4', '12cbf5f4922792f5eb72d2972abe8483', 'domain.com', '16843009', '16843009', '', '8.8.8.8,2.2.4.4', '2025-02-13 09:40:03', '2025-02-13 09:40:03');
 
 -- --------------------------------------------------------
 
@@ -288,6 +378,14 @@ CREATE TABLE `user` (
   `created_at` timestamp NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Dumping data for table `user`
+--
+
+INSERT INTO `user` (`userid`, `ownerid`, `username`, `email`, `password`, `active`, `anonymous`, `verified`, `admin`, `created_at`, `updated_at`) VALUES
+('123456', '12345', 'test user', 'user@mail.com', '$2a$10$GA3fSdt0KF6jMSeTuZdkruNaUhkBEmqTEYZNJu8s.bJ8QhPNAWc6O', 1, 0, 1, 1, '2025-01-20 08:32:53', '2025-01-20 08:32:53'),
+('1234567', '12345', 'test user', 'user2@mail.com', '$2a$10$DT0OAtCuMIuXVuNAXhHfsupSz4uZ.2Oman/JZXNv6tqOza3nUfvKK', 1, 0, 1, 1, '2025-01-20 09:17:23', '2025-01-20 09:17:23');
 
 -- --------------------------------------------------------
 
@@ -316,7 +414,6 @@ CREATE TABLE `virus` (
 
 CREATE TABLE `webdata` (
   `target_id` varchar(100) NOT NULL,
-  `webdata` int(11) NOT NULL,
   `directory_path` text DEFAULT NULL,
   `parameter_path` text DEFAULT NULL,
   `file_path` text DEFAULT NULL,
@@ -409,13 +506,6 @@ ALTER TABLE `motherships`
   ADD UNIQUE KEY `msid` (`msid`);
 
 --
--- Indexes for table `outputs`
---
-ALTER TABLE `outputs`
-  ADD PRIMARY KEY (`output_id`),
-  ADD KEY `service_id` (`service_id`);
-
---
 -- Indexes for table `plugins`
 --
 ALTER TABLE `plugins`
@@ -423,17 +513,34 @@ ALTER TABLE `plugins`
   ADD KEY `owner` (`owner`);
 
 --
+-- Indexes for table `scans`
+--
+ALTER TABLE `scans`
+  ADD PRIMARY KEY (`scan_id`),
+  ADD UNIQUE KEY `scan_id` (`scan_id`),
+  ADD KEY `owner_id` (`owner_id`);
+
+--
 -- Indexes for table `services`
 --
 ALTER TABLE `services`
-  ADD PRIMARY KEY (`service_id`);
+  ADD PRIMARY KEY (`service_id`),
+  ADD KEY `target_id` (`target_id`);
+
+--
+-- Indexes for table `targets`
+--
+ALTER TABLE `targets`
+  ADD PRIMARY KEY (`target_id`),
+  ADD UNIQUE KEY `target_id` (`target_id`);
 
 --
 -- Indexes for table `user`
 --
 ALTER TABLE `user`
   ADD PRIMARY KEY (`userid`),
-  ADD UNIQUE KEY `userid` (`userid`);
+  ADD UNIQUE KEY `userid` (`userid`),
+  ADD UNIQUE KEY `email` (`email`);
 
 --
 -- Indexes for table `virus`
@@ -445,7 +552,7 @@ ALTER TABLE `virus`
 -- Indexes for table `webdata`
 --
 ALTER TABLE `webdata`
-  ADD PRIMARY KEY (`webdata`);
+  ADD KEY `target_id` (`target_id`);
 
 --
 -- Indexes for table `yara_rule`
@@ -477,12 +584,6 @@ ALTER TABLE `ioc`
   MODIFY `ioc_id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT for table `outputs`
---
-ALTER TABLE `outputs`
-  MODIFY `output_id` int(11) NOT NULL AUTO_INCREMENT;
-
---
 -- AUTO_INCREMENT for table `services`
 --
 ALTER TABLE `services`
@@ -493,12 +594,6 @@ ALTER TABLE `services`
 --
 ALTER TABLE `virus`
   MODIFY `aptid` int(11) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `webdata`
---
-ALTER TABLE `webdata`
-  MODIFY `webdata` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `yara_rule`
@@ -543,22 +638,34 @@ ALTER TABLE `motherships`
   ADD CONSTRAINT `motherships_ibfk_1` FOREIGN KEY (`ownerid`) REFERENCES `user` (`userid`);
 
 --
--- Constraints for table `outputs`
---
-ALTER TABLE `outputs`
-  ADD CONSTRAINT `outputs_ibfk_1` FOREIGN KEY (`service_id`) REFERENCES `services` (`service_id`);
-
---
 -- Constraints for table `plugins`
 --
 ALTER TABLE `plugins`
   ADD CONSTRAINT `plugins_ibfk_1` FOREIGN KEY (`owner`) REFERENCES `user` (`userid`);
 
 --
+-- Constraints for table `scans`
+--
+ALTER TABLE `scans`
+  ADD CONSTRAINT `scans_ibfk_1` FOREIGN KEY (`owner_id`) REFERENCES `user` (`userid`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `services`
+--
+ALTER TABLE `services`
+  ADD CONSTRAINT `services_ibfk_1` FOREIGN KEY (`target_id`) REFERENCES `targets` (`target_id`);
+
+--
 -- Constraints for table `virus`
 --
 ALTER TABLE `virus`
   ADD CONSTRAINT `virus_ibfk_1` FOREIGN KEY (`aptid`) REFERENCES `apt` (`aptid`);
+
+--
+-- Constraints for table `webdata`
+--
+ALTER TABLE `webdata`
+  ADD CONSTRAINT `webdata_ibfk_1` FOREIGN KEY (`target_id`) REFERENCES `targets` (`target_id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `yara_rule`

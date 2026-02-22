@@ -8,7 +8,9 @@ package skipper
 import (
   "fmt"
   "time"
+  //"bytes"
   //"sync"
+  "encoding/json"
 
   "github.com/alphamystic/odin/lib/db"
   "github.com/alphamystic/odin/lib/utils"
@@ -22,18 +24,53 @@ import (
 type Skipper struct {
   Exploits []handlers.Exploit
   Name string
+  ScanType string
+  Clientelle *utils.OdinAPIClient
 }
 
 //on receiving the exploit, create a mthership with the scan name and generate minions,droppers for it
 func (s *Skipper) Attack(targets []string){
+  kwsk := &kowalski.KOWALSKI{
+    ScanID: "b9c7690613a10b0f5e49bc3b13673c17",
+    Name: "test",
+    DBWriter: db.NewApiWriter(s.Clientelle),
+  }
+  kwsk.TestWriteToDB()
+  return
   mode :=  ph.InitAttack()
   //var ac AttackCommands
   mode.Recon = true
+  scan := handlers.Scans{
+    Name: s.Name,
+    ScanType: s.ScanType,
+  }
+  minimalScan := struct {
+		Name     string `json:"name"`
+		ScanType string `json:"scantype"`
+	}{
+		Name:     scan.Name,
+		ScanType: scan.ScanType,
+	}
+
+  jsonData, err := json.Marshal(minimalScan)
+	if err != nil {
+		utils.Notice(fmt.Sprintf("Error encoding Scan JSON: %s", err))
+		return
+	}
+  //payload := bytes.NewReader(jsonData)
+  api_resp,err := s.Clientelle.DoRequest("POST", "/api/recon/createscan/",string(jsonData))
+  if err != nil {
+    utils.NoticeError(fmt.Sprintf("%s",err))
+    return
+  }
+  fmt.Println(api_resp.RedirectUrl)
+  //data_resp := api_resp.(utils.APIResponse)
+  return
   //reconCommands := ac.LoadCommands(mode)
   kwsk := &kowalski.KOWALSKI{
     Targets: targets,
     Name: s.Name,
-    ScanID: utils.GenerateUUID(),
+    ScanID: api_resp.RedirectUrl,
   }
   exploits := make(chan *handlers.Exploit)
   exploitsDone := make(chan bool)

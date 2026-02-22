@@ -8,3 +8,15 @@ If a services does not need to be in the doamin,then *I don't know we'll figure 
 UI - Handles all templates for web apps
   handlers
   templates
+
+
+
+## For Both UI and API.
+Start with Assets
+Go Toissues
+Go to Appointments
+Go TO APIKey
+Go TO Manage Users
+Go To Reporting
+Go TO Yara Rules
+Go To Motherships and Agents

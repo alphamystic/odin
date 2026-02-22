@@ -2,9 +2,11 @@ package kowalski
 
 import (
   "fmt"
+  "log"
   "net"
   "time"
   "sync"
+  "encoding/json"
   "github.com/alphamystic/odin/lib/db"
   "github.com/alphamystic/odin/lib/utils"
   "github.com/alphamystic/odin/lib/handlers"
@@ -17,10 +19,14 @@ type KOWALSKI struct{
   Ac ph.AttackCommands
   Name string
   ScanID string
+  DBWriter *db.ApiWriter
 }
+
+
 
 func (k *KOWALSKI) Kowalski_Analysis(exploits chan<- *handlers.Exploit,exploitsDone chan<- bool){
   var targets = []*handlers.Target{}
+  var failedTarges = []*handlers.Target{}
   for _,t := range k.Targets{
     if utils.CheckIfStringIsIp(t){
       // add it to the targets array
@@ -81,9 +87,8 @@ func (k *KOWALSKI) Kowalski_Analysis(exploits chan<- *handlers.Exploit,exploitsD
   targets = sanitizeTargets(targets)
   println("Sanitizing targets...... Found... %d",len(targets))
   //write the targets t db
-  err := SaveTargetsTODB(k.Name,targets)
-  if err != nil{
-    utils.NoticeError(fmt.Sprintf("Scans for %s not saved to db.",k.Name))
+  k.SaveTargetsTODB(failedTarges,targets)
+  if err := k.BackupSaveTargetsTODB(failedTarges); err != nil{
     utils.Logerror(err)
   }
   //do recon on the targets
@@ -137,7 +142,7 @@ func (k *KOWALSKI) VulnerabilityScanner(inReconData <- chan *handlers.ReconData,
     }
     count = count + 1
     fmt.Sprintf("Recon Data on: %s",rd.Trg.TargetIp)
-    if err := SaveReconDataTODB(k.Name, rd); err != nil{
+    if err := k.SaveReconDataTODB(k.Name, rd); err != nil{
       utils.Logerror(err)
     }
     fmt.Println(rd)
@@ -345,48 +350,155 @@ var Sorter = func(vlns []*handlers.Vulnerability)[]Vuln{
   sort.Sort(Vuln(vlns))
 }
 */
-var SaveTargetsTODB = func(name string,targets []*handlers.Target)error{
-  driver,err := db.Old(".brain/scans/" + name,0644)
+//optimize this function
+func (k *KOWALSKI) SaveTargetsTODB(targets, failedTargets []*handlers.Target) {
+  for _, target := range targets {
+    trg := handlers.Target{
+      ScanID : target.ScanID,
+      Host : target.Host,
+      HostIp : target.HostIp,
+      TargetIp : target.TargetIp,
+      FireWallName : target.FireWallName,
+      Decoys : target.Decoys,
+    }
+    minimalTarget := struct {
+      ScanID string `json: "scanid,omitempty"`
+      Host string  `json: "host,omitempty"`//can be null if not specified as a subdomain
+      HostIp net.IP `json: "hostip,omitempty"`
+      TargetIp net.IP `json: "targetip,omitempty"`
+      FireWallName string `json: "firewall-name,omitempty"`
+      Decoys []net.IP `json: "decoys,omitempty"`
+    } {
+      ScanID: trg.ScanID,
+      Host : trg.Host,
+      HostIp : trg.HostIp,
+      TargetIp : trg.TargetIp,
+      FireWallName : trg.FireWallName,
+      Decoys : trg.Decoys,
+    }
+    api_resp,err := k.DBWriter.WriteToAPI("POST", "/api/recon/createtarget/",minimalTarget)
+    if err != nil {
+      utils.NoticeError(fmt.Sprintf("%s",err))
+      failedTargets.append(trg)
+    }
+    trg.TargetID = api_resp.RedirectUrl
+  }
+}
+
+func (k *KOWALSKI) SaveReconDataTODB(rd *handlers.ReconData) error {
+  mrd := handlers.WebDataBody {
+    TargetID :rd.Trg.TargetID,
+    Directories : rd.WD.Directories,
+    Parameters : rd.WD.Parameters,
+    Filepaths : rd.WD.Files,
+  }
+  minimalRD := struct {
+    TargetID string `json: "targetid"`
+    Directories []string `jaon: "directories"`
+    Parameters []string `json: "parameters"`
+    Filepaths []string `json: "filepaths"`
+  } {
+    TargetID : mrd.TargetID,
+    Directories : mrd.Directories,
+    Parameters : mrd.Parameters,
+    Filepaths : mrd.Filepaths,
+  }
+  api_resp,err := k.DBWriter.WriteToAPI("POST", "/api/recon/createrecondata/",minimalRD)
+  if err != nil {
+    utils.NoticeError(fmt.Sprintf("%s",err))
+    return err
+  }
+  return nil
+}
+
+
+func (k *KOWALSKI)  SaveVulnerabilitiesTODB(vulns []*handlers.Vulnerabilities){}
+
+func (k *KOWALSKI) SaveServiceTODB(srvc *handlers.Service) error {
+  service := handlers.Service{
+    TargetID: srvc.TargetID,
+    ServiceName: srvc.ServiceName,
+    Port: srvc.Port,
+    Protocol: srvc.Protocol,
+  	State: srvc.State,
+  	Version: srvc.Version,
+    Data: srvc.Data,
+  }
+  minimalService := struct {
+    TargetID string `json: "targetid,omitempty"`
+    ServiceName string `json: "serviceName,omitempty"`
+    Port int `json: "port,omitempty"`
+    Protocol string `json: "protocol,omitempty"`
+  	State   bool `json: "state,omitempty"`
+  	Version string `json: "version,omitempty"`
+    Data string `json: "data,omitempty"`
+  } {
+    TargetID: service.TargetID,
+    ServiceName: service.ServiceName,
+    Port: service.Port,
+    Protocol: service.Protocol,
+  	State: service.State,
+  	Version: service.Version,
+    Data: service.Data,
+  }
+  api_resp,err := k.DBWriter.WriteToAPI("POST", "/api/recon/createservice/",minimalService)
+  if err != nil {
+    utils.NoticeError(fmt.Sprintf("%s",err))
+    return err
+  }
+  return nil
+}
+
+
+
+func (k *KOWALSKI) BackupSaveTargetsTODB(failedTargets []*handlers.Target) error {
+  driver,err := db.Old("./.brain/failedscans/" + k.Name,0644)
   if err != nil{
     return err
   }
-  for _, target := range targets{
-    if err := driver.Write("targets",target.TargetIp.String(),target); err != nil{
-      utils.Logerror(fmt.Errorf("Error saving target %s to db.\nERROR: %v",target.TargetIp.String(),err))
+  for _, trg := range failedTargets{
+    time.Sleep(1 * time.Second)
+    str := utils.RandString(5)
+    if err := driver.Write("targets",str + trg.TargetIp.String(),vuln); err != nil{
+      utils.Logerror(fmt.Errorf("Error saving BACKUP vulnerability for %s to db.\nERROR: %v",vuln.Trg.TargetIp.String(),err))
       continue
     }
   }
   return nil
 }
 
-var SaveVulnerabilitiesTODB = func(name string,vulns []*handlers.Vulnerabilities)error{
-  driver,err := db.Old("../.brain/scans/" + name,0644)
-  if err != nil{
+
+func (k *KOWALSKI) BackupSaveVulnerabilitiesTODB(vulns []*handlers.Vulnerabilities) error{
+  driver,err := db.Old("./.brain/failedscans/" + k.Name, 0644)
+  if err != nil {
     return err
   }
   for _, vuln := range vulns{
     time.Sleep(1 * time.Second)
     str := utils.RandString(5)
     if err := driver.Write("vulnerabilities",str + vuln.Trg.TargetIp.String(),vuln); err != nil{
-      utils.Logerror(fmt.Errorf("Error saving vulnerability for %s to db.\nERROR: %v",vuln.Trg.TargetIp.String(),err))
+      utils.Logerror(fmt.Errorf("Error saving BACKUP vulnerability for %s to db.\nERROR: %v",vuln.Trg.TargetIp.String(),err))
       continue
     }
   }
   return nil
 }
 
-var SaveReconDataTODB = func(name string,rd *handlers.ReconData) error{
-  driver,err := db.Old("../.brain/scans/" + name + "/" + "recondata" + "/" + rd.Trg.TargetIp.String(),0644)
+
+
+
+func (k KOWALSKI) BackupSaveReconDataTODB(rd *handlers.ReconData) error{
+  driver,err := db.Old("./.brain/failedscans/"  + k.Name + "/" + "recondata" + "/" + rd.Trg.TargetIp.String(),0644)
   if err != nil{
     return err
   }
   err = driver.Write("services",rd.Trg.TargetIp.String(),rd.Services)
   if err != nil{
-    utils.Logerror(fmt.Errorf("Error writing services to db for %s.\nERROR: %v",rd.Trg.TargetIp.String(),err))
+    utils.Logerror(fmt.Errorf("Error writing services to BACKUP db for %s.\nERROR: %v",rd.Trg.TargetIp.String(),err))
   }
   err = driver.Write("webdata",rd.Trg.TargetIp.String(),rd.WD)
   if err != nil{
-    utils.Logerror(fmt.Errorf("Error writing webdata to db for %s.\nERROR: %v",rd.Trg.TargetIp.String(),err))
+    utils.Logerror(fmt.Errorf("Error writing webdata to BACKUP db for %s.\nERROR: %v",rd.Trg.TargetIp.String(),err))
   }
   return nil
 }

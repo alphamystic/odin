@@ -7,6 +7,10 @@ import(
 )
 
 func (hnd *Handler) BugBountyReports(res http.ResponseWriter, req *http.Request){
+  _, authenticated := hnd.AuthenticateUser(res, req)
+  if !authenticated {
+    return // User is redirected in the helper
+  }
   tpl,err := hnd.Pages.GetATemplate("blank","blank.tmpl")
   if err != nil {
     utils.Warning(fmt.Sprintf("%s", err))
@@ -18,6 +22,10 @@ func (hnd *Handler) BugBountyReports(res http.ResponseWriter, req *http.Request)
 }
 
 func (hnd *Handler) PentestsReports(res http.ResponseWriter, req *http.Request){
+  _, authenticated := hnd.AuthenticateUser(res, req)
+  if !authenticated {
+    return // User is redirected in the helper
+  }
   tpl,err := hnd.Pages.GetATemplate("blank","blank.tmpl")
   if err != nil {
     utils.Warning(fmt.Sprintf("%s", err))
@@ -29,6 +37,10 @@ func (hnd *Handler) PentestsReports(res http.ResponseWriter, req *http.Request){
 }
 
 func (hnd *Handler) Pendingscans(res http.ResponseWriter, req *http.Request){
+  _, authenticated := hnd.AuthenticateUser(res, req)
+  if !authenticated {
+    return // User is redirected in the helper
+  }
   tpl,err := hnd.Pages.GetATemplate("blank","blank.tmpl")
   if err != nil {
     utils.Warning(fmt.Sprintf("%s", err))
@@ -40,6 +52,10 @@ func (hnd *Handler) Pendingscans(res http.ResponseWriter, req *http.Request){
 }
 
 func (hnd *Handler) Phishinglinks(res http.ResponseWriter, req *http.Request){
+  _, authenticated := hnd.AuthenticateUser(res, req)
+  if !authenticated {
+    return // User is redirected in the helper
+  }
   tpl,err := hnd.Pages.GetATemplate("blank","blank.tmpl")
   if err != nil {
     utils.Warning(fmt.Sprintf("%s", err))
@@ -51,6 +67,10 @@ func (hnd *Handler) Phishinglinks(res http.ResponseWriter, req *http.Request){
 }
 
 func (hnd *Handler) Zerodays(res http.ResponseWriter, req *http.Request){
+  _, authenticated := hnd.AuthenticateUser(res, req)
+  if !authenticated {
+    return // User is redirected in the helper
+  }
   tpl,err := hnd.Pages.GetATemplate("blank","blank.tmpl")
   if err != nil {
     utils.Warning(fmt.Sprintf("%s", err))

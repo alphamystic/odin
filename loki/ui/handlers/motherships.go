@@ -7,6 +7,10 @@ import(
 )
 
 func (hnd *Handler) Motherships(res http.ResponseWriter, req *http.Request){
+  _, authenticated := hnd.AuthenticateUser(res, req)
+  if !authenticated {
+    return // User is redirected in the helper
+  }
   tpl,err := hnd.Pages.GetATemplate("motherships","motherships.tmpl")
   if err != nil {
     utils.Warning(fmt.Sprintf("%s", err))

@@ -21,114 +21,100 @@ func (hnd *Handler) IsAuthenticated(req *http.Request) bool{
   return true
 }
 
-func (hnd *Handler) Register(res http.ResponseWriter, req *http.Request){
+func (hnd *Handler) Register(res http.ResponseWriter, req *http.Request) {
   if !Registration {
-    hnd.ExecRegister(res,req, "Sorry no user registration allowed for now. contact the admin. :)")
+    hnd.ExecRegister(res, req, "Sorry, user registration is disabled. Contact admin.")
     return
   }
-  //END:
-  if req.Method == "POST"{
-    err := req.ParseMultipartForm(10 << 1) // 10MB limit
-		if err != nil {
-			utils.Warning(fmt.Sprintf("Error parsing login multipart form: %s", err))
-			hnd.Internalserverror(res, req)
-			return
-		}
+
+  if req.Method == "POST" {
+    err := req.ParseMultipartForm(10 << 20) // 10MB limit
+    if err != nil {
+      utils.Warning(fmt.Sprintf("Error parsing multipart form: %s", err))
+      hnd.ExecRegister(res, req, "Invalid form submission. Ensure file uploads are enabled.")
+      return
+    }
     req.ParseForm()
     id := utils.GenerateUUID()
     name := req.FormValue("name")
     mail := req.FormValue("email")
     pass := req.FormValue("password")
     pass2 := req.FormValue("cpass")
-    if !utils.CheckifStringIsEmpty(name){
-      hnd.ExecLogin(res, req,"User name can not be empty")
+    if !utils.CheckifStringIsEmpty(name) {
+      hnd.ExecRegister(res, req, "Username cannot be empty")
       return
     }
-    if !utils.CheckifStringIsEmpty(mail){
-      hnd.ExecRegister(res, req, "Email can not be empty.")
+    if !utils.CheckifStringIsEmpty(mail) {
+      hnd.ExecRegister(res, req, "Email cannot be empty.")
       return
     }
-    if !utils.CheckifStringIsEmpty(pass){
-      hnd.ExecRegister(res, req, "Password can not be empty")
-      return
-    }
-    if !utils.CheckifStringIsEmpty(pass2){
-      hnd.ExecRegister(res, req, "Password confirmation can not be empty")
+    if !utils.CheckifStringIsEmpty(pass) {
+      hnd.ExecRegister(res, req, "Password cannot be empty")
       return
     }
     if pass != pass2 {
-      hnd.ExecRegister(res, req,"Passwords are varying.")
+      hnd.ExecRegister(res, req, "Passwords do not match.")
       return
-    }
-    pass,err = utils.HashPassword(pass)
-    if err != nil{
-      hnd.ExecRegister(res, req, "We are experiencing internal server issues. Please try again later")
     }
     ctx := req.Context()
     user := dfn.User{
-      UserID: id,
-      OwnerID: id,
+      UserID:   id,
+      OwnerID:  id,
       UserName: name,
-      Email: mail,
+      Email:    mail,
       Password: pass,
-      Active: true,
-      Anonymous:  false,//utils.Md5Hash( id + utils.RandNoLetter(5))
-      Verify: true,
-      Admin: true,
+      Active:   true,
+      Anonymous: false,
+      Verify:   true,
+      Admin:    true,
     }
-    user.Touch()
-    err = hnd.SRVCS.UserSrvs.CreateUser(ctx,user)
-    if err != nil{
-      utils.Danger(fmt.Errorf("%q",err))
-      hnd.ExecRegister(res,req,"There was an internal error. Try again later.")
+    userID, err := hnd.SRVCS.UserSrvs.CreateUser(ctx, user)
+    if err != nil {
+      utils.Danger(fmt.Errorf("%q", err))
+      hnd.ExecRegister(res, req, "Internal error. Try again later.")
       return
     }
-    // save the image profile
-    dir := fmt.Sprintf("./loki/ui/static/uploads/profile/%s", user.UserID)
-		err = os.MkdirAll(dir, os.ModePerm)
-		if err != nil {
-			utils.Warning(fmt.Sprintf("Error creating directory: %s", err))
-      // changing from internal server error to  login but with update profile picture at the bottom
-			hnd.ExecLogin(res, req,"Please update your profile picture on login in.")
-			return
-		}
+    // Handle file upload
+    dir := fmt.Sprintf("./loki/ui/static/uploads/profile/%s", userID)
+    if err = os.MkdirAll(dir, os.ModePerm); err != nil {
+      utils.Warning(fmt.Sprintf("Error creating directory: %s", err))
+      hnd.ExecLogin(res, req, "Profile created. Please update your profile picture after logging in.")
+      return
+    }
     files := req.MultipartForm.File["images"]
-		for _, fileHeader := range files {
-			// Open the uploaded file
-			file, err := fileHeader.Open()
-			if err != nil {
-				utils.Warning(fmt.Sprintf("Error opening file: %s", err))
-				hnd.ExecLogin(res, req,"Please update your profile picture on login in.")
-				return
-			}
-			defer file.Close()
-			// Create a temporary file to save the uploaded file
-			tempFile, err := os.CreateTemp(dir, fmt.Sprintf("profile-%s-*%s", utils.GenerateUUID(), filepath.Ext(fileHeader.Filename)))
-			if err != nil {
-				utils.Warning(fmt.Sprintf("Error creating temporary file: %s", err))
-				hnd.ExecLogin(res, req,"Please update your profile picture on login in.")
-				return
-			}
-			defer tempFile.Close()
-			// Copy the uploaded file to the temporary file
-			_, err = io.Copy(tempFile, file)
-			if err != nil {
-				utils.Warning(fmt.Sprintf("Error saving file: %s", err))
-				hnd.ExecLogin(res, req,"Please update your profile picture on login in.")
-				return
-			}
-			break
-		}
-    http.Redirect(res,req,"/mkubwa",http.StatusSeeOther)
+    if len(files) > 0 {
+      fileHeader := files[0] // Only save the first image
+      file, err := fileHeader.Open()
+      if err != nil {
+        utils.Warning(fmt.Sprintf("Error opening file: %s", err))
+        hnd.ExecLogin(res, req, "Profile created. Please update your profile picture after logging in.")
+        return
+      }
+      defer file.Close()
+      filePath := fmt.Sprintf("%s/profile-%s%s", dir, userID, filepath.Ext(fileHeader.Filename))
+      outFile, err := os.Create(filePath)
+      if err != nil {
+        utils.Warning(fmt.Sprintf("Error creating file: %s", err))
+        hnd.ExecLogin(res, req, "Profile created. Please update your profile picture after logging in.")
+        return
+      }
+      defer outFile.Close()
+      if _, err = io.Copy(outFile, file); err != nil {
+        utils.Warning(fmt.Sprintf("Error saving file: %s", err))
+        hnd.ExecLogin(res, req, "Profile created. Please update your profile picture after logging in.")
+        return
+      }
+    }
+    http.Redirect(res, req, "/mkubwa", http.StatusSeeOther)
     return
   }
-  if req.Method == "GET"{
-    hnd.ExecRegister(res,req,"")
+  if req.Method == "GET" {
+    hnd.ExecRegister(res, req, "")
     return
   }
-  http.Redirect(res,req,"/mkubwa",http.StatusSeeOther)
-  return
+  http.Redirect(res, req, "/mkubwa", http.StatusSeeOther)
 }
+
 
 /*
 // You can try picking the user data and log it out for testing/logging purposes
@@ -161,7 +147,8 @@ func (hnd *Handler) Signin(res http.ResponseWriter, req *http.Request){
       hnd.ExecLogin(res,req,"Password can not be empty.")
       return
     }
-    user,err := hnd.SRVCS.AuthSrvs.Login(ctx,pass,email)
+
+    token,err := hnd.SRVCS.AuthSrvs.Login(ctx,pass,email)
     if err != nil {
       utils.Logerror(err)
       if errors.Is(err,dfn.WrongPassword) {
@@ -172,22 +159,11 @@ func (hnd *Handler) Signin(res http.ResponseWriter, req *http.Request){
       hnd.ExecLogin(res,req,"We are experiencing internal server issues, please try again later. :)")
       return
     }
-    ud := &UserData {
-      UserId: user.UserID,
-      UserName: user.UserName,
-      Admin: user.Admin,
-    }
-    token,err := hnd.GenerateJWT(ud)
-    if err != nil {
-      utils.Danger(err)
-      hnd.ExecLogin(res,req,"We are experiencing internal server issues, please try again later. :)")
-      return
-    }
     cookie := http.Cookie{
         Name:     "Authorization",
         Value:    token,
         Path:     "/",
-        MaxAge:   3600,
+        MaxAge:   72000,
         HttpOnly: true,
         Secure:   true,
         SameSite: http.SameSiteLaxMode,

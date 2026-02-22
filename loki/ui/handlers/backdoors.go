@@ -7,6 +7,10 @@ import(
 )
 
 func (hnd *Handler) Backdoors(res http.ResponseWriter, req *http.Request){
+  _, authenticated := hnd.AuthenticateUser(res, req)
+  if !authenticated {
+    return // User is redirected in the helper
+  }
   tpl,err := hnd.Pages.GetATemplate("backdoors","backdoors.tmpl")
   if err != nil {
     utils.Warning(fmt.Sprintf("%s", err))
@@ -18,6 +22,10 @@ func (hnd *Handler) Backdoors(res http.ResponseWriter, req *http.Request){
 }
 
 func (hnd *Handler) Backdoorgenerator(res http.ResponseWriter, req *http.Request){
+  _, authenticated := hnd.AuthenticateUser(res, req)
+  if !authenticated {
+    return // User is redirected in the helper
+  }
   tpl,err := hnd.Pages.GetATemplate("blank","blank.tmpl")
   if err != nil {
     utils.Warning(fmt.Sprintf("%s", err))

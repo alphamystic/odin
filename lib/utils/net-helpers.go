@@ -5,6 +5,9 @@ package utils
 
 import (
   "net"
+  "fmt"
+  "strings"
+  "strconv"
   "net/http"
 )
 
@@ -18,6 +21,117 @@ func ClientAddHeaderVal(req *http.Request,name,val string){
 
 func CheckIfStringIsIp(s string) bool {
 	return net.ParseIP(s) != nil
+}
+
+// Convert net.IP to string
+func IPToString(ip net.IP) string {
+	if ip == nil {
+		return ""
+	}
+	return ip.String()
+}
+
+// Convert string to net.IP
+func StringToIP(ipStr string) net.IP {
+	return net.ParseIP(ipStr)
+}
+
+// Convert []net.IP to a comma-separated string
+func IPListToString(ips []net.IP) string {
+	var strIPs []string
+	for _, ip := range ips {
+		if ip != nil {
+			strIPs = append(strIPs, ip.String())
+		}
+	}
+	return strings.Join(strIPs, ",")
+}
+
+// Convert a comma-separated string back to []net.IP
+func StringToIPList(ipStr string) []net.IP {
+	if ipStr == "" {
+		return nil
+	}
+	var ipList []net.IP
+	parts := strings.Split(ipStr, ",")
+	for _, part := range parts {
+		ipList = append(ipList, net.ParseIP(part))
+	}
+	return ipList
+}
+
+func StringsToIPArray(decoys []string) []net.IP {
+	var ipArray []net.IP
+	for _, ip := range decoys {
+		ipArray = append(ipArray, net.ParseIP(ip))
+	}
+	return ipArray
+}
+
+// Convert a slice of net.IP to a single comma-separated string
+func IPArrayToString(ips []net.IP) string {
+	var ipStrings []string
+	for _, ip := range ips {
+		ipStrings = append(ipStrings, ip.String())
+	}
+	return strings.Join(ipStrings, ",")
+}
+
+func StringToIPArray(decoyStr string) []net.IP {
+	var ipArray []net.IP
+	for _, ip := range strings.Split(decoyStr, ",") {
+		ipArray = append(ipArray, net.ParseIP(ip))
+	}
+	return ipArray
+}
+
+
+// Convert IP to either uint32 (for IPv4) or string (for IPv6)
+func IPToStorageFormat(ip net.IP) string {
+	if ip == nil {
+		return ""
+	}
+
+	// Check if the IP is IPv4 or IPv6
+	if ip.To4() != nil { // If it's IPv4
+		// Convert IPv4 to uint32 (4 bytes)
+		return fmt.Sprintf("%d", IPToInt(ip)) // return as a string
+	}
+
+	// If it's IPv6, return the string representation of the IP
+	return ip.String()
+}
+
+// Convert IPv4 to uint32 integer for DB storage (IPv4 only)
+func IPToInt(ip net.IP) uint64 {
+	ip = ip.To4() // Ensure IPv4
+	if ip == nil {
+		return 0
+	}
+	// Convert the 4 bytes of the IP into an integer
+	return uint64(ip[0])<<24 | uint64(ip[1])<<16 | uint64(ip[2])<<8 | uint64(ip[3])
+}
+
+// Converts a storage string back to a net.IP
+func StorageFormatToIP(ipStr string) net.IP {
+	// Try to parse as integer (IPv4 case)
+	if ipInt, err := strconv.ParseUint(ipStr, 10, 32); err == nil {
+		// Convert uint32 back to IPv4
+		return IntToIP(uint32(ipInt))
+	}
+
+	// If parsing fails, assume it's an IPv6 string
+	return net.ParseIP(ipStr)
+}
+
+// Converts an integer back to an IPv4 net.IP
+func IntToIP(ipInt uint32) net.IP {
+	return net.IPv4(
+		byte(ipInt>>24),
+		byte(ipInt>>16),
+		byte(ipInt>>8),
+		byte(ipInt),
+	)
 }
 
 

@@ -12,7 +12,7 @@ import (
 )
 
 const (
-  authStmt = "SELECT userid,username,email,password,active FROM `odin`.`user` WHERE email = ?;"
+  authStmt = "SELECT userid, ownerid, username, email, password, active, anonymous, admin FROM `odin`.`user` WHERE email = ?;"
 )
 
 func (d *Domain) Authenticate(ctx context.Context,password,email string)  (*dfn.User,error){
@@ -21,10 +21,10 @@ func (d *Domain) Authenticate(ctx context.Context,password,email string)  (*dfn.
     return nil,fmt.Errorf("Error getting db connection: %q",err)
   }
   defer conn.Close()
-  var userEmail,userName,hash,userId string
-  var active,admin bool
+  var userEmail,userName,hash,userId,ownerid string
+  var active,admin, anonymous bool
   row :=  conn.QueryRowContext(ctx,authStmt,email)
-  err = row.Scan(&userId,&userName,&userEmail,&hash,&active,&admin)
+  err = row.Scan(&userId,&ownerid,&userName,&userEmail,&hash,&active,&admin)
   if err != nil{
     if err == sql.ErrNoRows {
       utils.Warning(fmt.Sprintf("A none user with email %s tried accessing server",email))
@@ -47,5 +47,7 @@ func (d *Domain) Authenticate(ctx context.Context,password,email string)  (*dfn.
     UserID: userId,
     UserName: userName,
     Admin: admin,
-    },nil
+    OwnerID: ownerid,
+    Anonymous: anonymous,
+  },nil
 }

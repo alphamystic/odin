@@ -7,6 +7,7 @@ package loki
 
 import (
   "fmt"
+  "time"
   "net/http"
   "crypto/tls"
   //"github.com/alphamystic/odin/loki/ui/router"
@@ -43,6 +44,9 @@ func (l *Loki) Server(address string,port int){
 func (l *Loki) CreateServer() (*http.Server,*http.Server) {
   httpServer := &http.Server {
     Addr: fmt.Sprintf(":%d", l.Port),
+    ReadTimeout: 5 * time.Second,
+    WriteTimeout: 10 * time.Second,
+    IdleTimeout: 120 * time.Second,
 	}
   config := &tls.Config {
     MinVersion: tls.VersionTLS12,
@@ -59,6 +63,9 @@ func (l *Loki) CreateServer() (*http.Server,*http.Server) {
     Addr: fmt.Sprintf(":%d",l.PortS),
     TLSConfig: config,
     TLSNextProto: make(map[string]func(*http.Server, *tls.Conn, http.Handler), 0),
+    ReadTimeout: 5 * time.Second,
+    WriteTimeout: 10 * time.Second,
+    IdleTimeout: 120 * time.Second,
   }
   return httpServer,httpsServer
 }

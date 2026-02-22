@@ -5,6 +5,7 @@ import (
   "io"
   "os"
   "fmt"
+  "log"
   "crypto/md5"
   "crypto/sha256"
   "encoding/hex"
@@ -49,6 +50,7 @@ func Base64Encode(str string) string {
 func Base64Decode(str string) string {
 	data, err := base64.StdEncoding.DecodeString(str)
 	if err != nil {
+    log.Println(err)
 		return ""
 	}
 	return string(data)

@@ -83,3 +83,16 @@ func (pghldr *PagesHolder) GetAStaticTemplate(name,templFile string) (*template.
 	}
 	return tpl,nil
 }
+
+func (pghldr *PagesHolder) LoadPortfolio(name,templFile string) (*template.Template,error) {
+	body,err := ioutil.ReadFile(pghldr.TemplatesDir + templFile)
+	if err != nil {
+		return nil,fmt.Errorf("Error getting portfolio template %s: %q",templFile,err)
+	}
+	var tpl = template.New(name)
+	tpl,err = tpl.Parse(string(body))
+	if err != nil{
+		return nil,fmt.Errorf("Error parsing portfolio body to template: %q",err)
+	}
+	return tpl,nil
+}

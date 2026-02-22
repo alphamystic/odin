@@ -31,10 +31,10 @@ type Mothership struct {
 
 // MaichineData struct
 type MaichineData struct {
-	UserName  string
-	OsType    string
-	HomeDir   string
-	Password  string
+	UserName  string `json:"username"`
+	OsType    string `json:"os_type"`
+	HomeDir   string `json:home_dir`
+	Password  string `json:"password"`
 }
 
 // ProtocolType enum

@@ -1,0 +1,201 @@
+<div class="container-fluid">
+  <div class="card shadow">
+    <div class="card-body">
+      <ul class="nav nav-pills nav-fill mb-3" id="pills-tab" role="tablist">
+        <li class="nav-item">
+          <a class="nav-link active" id="pills-home-tab" data-toggle="pill" href="#pills-home" role="tab" aria-controls="pills-home" aria-selected="true">Chats</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" id="pills-profile-tab" data-toggle="pill" href="#pills-profile" role="tab" aria-controls="pills-profile" aria-selected="false">Groups</a>
+        </li>
+      </ul>
+      <div class="tab-content mb-1" id="pills-tabContent">
+
+        <!-- Chats Tab -->
+        <div class="tab-pane fade show active" id="pills-home" role="tabpanel" aria-labelledby="pills-home-tab">
+            <div class="d-flex flex-row tab-icon">
+              <div class="nav flex-column nav-pills" id="v-pills-tab3" role="tablist" aria-orientation="vertical">
+                <a class="nav-link py-3 active" id="v-pills-home-tab3" data-toggle="pill" href="#v-pills-home3" role="tab" aria-controls="v-pills-home3" aria-selected="true">
+                  <span class="fe fe-16 fe-box"></span> Chat 1
+                </a>
+                <a class="nav-link py-3" id="v-pills-profile-tab3" data-toggle="pill" href="#v-pills-profile3" role="tab" aria-controls="v-pills-profile3" aria-selected="false">
+                  <span class="fe fe-16 fe-archive"></span> Chat 2
+                </a>
+              </div>
+              <div class="tab-content w-100" id="v-pills-tabContent3">
+                <!-- Chat 1 -->
+                <div class="tab-pane fade show active" id="v-pills-home3" role="tabpanel" aria-labelledby="v-pills-home-tab3">
+                  <div class="card mb-0">
+                    <div class="card-body chat-box" id="chat-box" style="height: 300px; overflow-y: auto;">
+                      <div class="chat-message received">
+                        <strong>User1:</strong> Hello, how are you?
+                      </div>
+                      <div class="chat-message sent">
+                        <strong>You:</strong> I'm good, thanks! How about you?
+                      </div>
+                    </div>
+                    <div class="card-footer">
+                      <input type="text" class="form-control" id="chat-input" placeholder="Type a message...">
+                      <button class="btn btn-primary mt-2" id="send-btn">Send</button>
+                    </div>
+                  </div>
+                </div>
+                <!-- Chat 2 -->
+                <div class="tab-pane fade" id="v-pills-profile3" role="tabpanel" aria-labelledby="v-pills-profile-tab3">
+                  <div class="card mb-0">
+                    <div class="card-body chat-box" id="chat-box-2" style="height: 300px; overflow-y: auto;">
+                      <div class="chat-message received">
+                        <strong>User2:</strong> Hey, what's up?
+                      </div>
+                      <div class="chat-message sent">
+                        <strong>You:</strong> Not much, just working on some tasks.
+                      </div>
+                    </div>
+                    <div class="card-footer">
+                      <input type="text" class="form-control" id="chat-input-2" placeholder="Type a message...">
+                      <button class="btn btn-primary mt-2" id="send-btn-2">Send</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+        </div>
+
+        <!-- Groups Tab -->
+        <div class="tab-pane fade" id="pills-profile" role="tabpanel" aria-labelledby="pills-profile-tab">
+            <div class="d-flex flex-row tab-icon">
+              <div class="nav flex-column nav-pills" id="v-pills-tab3" role="tablist" aria-orientation="vertical">
+                <a class="nav-link py-3 active" id="v-pills-home-tab3" data-toggle="pill" href="#v-pills-home3" role="tab" aria-controls="v-pills-home3" aria-selected="true">
+                  <span class="fe fe-16 fe-box"></span> Group 1
+                </a>
+                <a class="nav-link py-3" id="v-pills-profile-tab3" data-toggle="pill" href="#v-pills-profile3" role="tab" aria-controls="v-pills-profile3" aria-selected="false">
+                  <span class="fe fe-16 fe-archive"></span> Group 2
+                </a>
+              </div>
+              <div class="tab-content w-100" id="v-pills-tabContent3">
+                <!-- Group 1 -->
+                <div class="tab-pane fade show active" id="v-pills-home3" role="tabpanel" aria-labelledby="v-pills-home-tab3">
+                  <div class="card mb-0">
+                    <div class="card-body chat-box" id="chat-box-group-1" style="height: 300px; overflow-y: auto;">
+                      <div class="chat-message received">
+                        <strong>Group Admin:</strong> Welcome to the group!
+                      </div>
+                      <div class="chat-message sent">
+                        <strong>You:</strong> Hello everyone!
+                      </div>
+                    </div>
+                    <div class="card-footer">
+                      <input type="text" class="form-control" id="chat-input-group-1" placeholder="Type a message...">
+                      <button class="btn btn-primary mt-2" id="send-btn-group-1">Send</button>
+                    </div>
+                  </div>
+                </div>
+                <!-- Group 2 -->
+                <div class="tab-pane fade" id="v-pills-profile3" role="tabpanel" aria-labelledby="v-pills-profile-tab3">
+                  <div class="card mb-0">
+                    <div class="card-body chat-box" id="chat-box-group-2" style="height: 300px; overflow-y: auto;">
+                      <div class="chat-message received">
+                        <strong>Admin:</strong> Hey everyone!
+                      </div>
+                      <div class="chat-message sent">
+                        <strong>You:</strong> Hi all!
+                      </div>
+                    </div>
+                    <div class="card-footer">
+                      <input type="text" class="form-control" id="chat-input-group-2" placeholder="Type a message...">
+                      <button class="btn btn-primary mt-2" id="send-btn-group-2">Send</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .chat-box {
+    display: flex;
+    flex-direction: column;
+  }
+  .chat-message {
+    padding: 10px;
+    border-radius: 10px;
+    margin: 5px 0;
+    max-width: 70%;
+  }
+  .chat-message.received {
+    background-color: #f1f1f1;
+    align-self: flex-start;
+  }
+  .chat-message.sent {
+    background-color: #007bff;
+    color: white;
+    align-self: flex-end;
+  }
+</style>
+
+<script>
+  // Handle sending messages for Chat 1
+  document.getElementById('send-btn').addEventListener('click', function() {
+    let input = document.getElementById('chat-input');
+    let message = input.value;
+    if (message.trim() !== '') {
+      let chatBox = document.getElementById('chat-box');
+      let newMessage = document.createElement('div');
+      newMessage.classList.add('chat-message', 'sent');
+      newMessage.innerHTML = `<strong>You:</strong> ${message}`;
+      chatBox.appendChild(newMessage);
+      input.value = '';
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+  });
+
+  // Handle sending messages for Chat 2
+  document.getElementById('send-btn-2').addEventListener('click', function() {
+    let input = document.getElementById('chat-input-2');
+    let message = input.value;
+    if (message.trim() !== '') {
+      let chatBox = document.getElementById('chat-box-2');
+      let newMessage = document.createElement('div');
+      newMessage.classList.add('chat-message', 'sent');
+      newMessage.innerHTML = `<strong>You:</strong> ${message}`;
+      chatBox.appendChild(newMessage);
+      input.value = '';
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+  });
+
+  // Handle sending messages for Group 1
+  document.getElementById('send-btn-group-1').addEventListener('click', function() {
+    let input = document.getElementById('chat-input-group-1');
+    let message = input.value;
+    if (message.trim() !== '') {
+      let chatBox = document.getElementById('chat-box-group-1');
+      let newMessage = document.createElement('div');
+      newMessage.classList.add('chat-message', 'sent');
+      newMessage.innerHTML = `<strong>You:</strong> ${message}`;
+      chatBox.appendChild(newMessage);
+      input.value = '';
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+  });
+
+  // Handle sending messages for Group 2
+  document.getElementById('send-btn-group-2').addEventListener('click', function() {
+    let input = document.getElementById('chat-input-group-2');
+    let message = input.value;
+    if (message.trim() !== '') {
+      let chatBox = document.getElementById('chat-box-group-2');
+      let newMessage = document.createElement('div');
+      newMessage.classList.add('chat-message', 'sent');
+      newMessage.innerHTML = `<strong>You:</strong> ${message}`;
+      chatBox.appendChild(newMessage);
+      input.value = '';
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+  });
+</script>

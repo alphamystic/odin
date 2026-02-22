@@ -16,11 +16,11 @@ func (trg *Target) Recon(name string,outRecon chan<- *ReconData){
     //firewall not present
     utils.PrintInformation(fmt.Sprintf("Firewall not present on: %s",trg.TargetIp))
     wd := CreateWebData()
-    services := NmapScanForOpenPorts(name,trg)
+    //services := NmapScanForOpenPorts(name,trg)
     //construct rd and write to reconData
     rd := &ReconData {
       Trg: trg,
-      Services: services,
+      //Services: services,
       WD: wd,
     }
     outRecon <- rd

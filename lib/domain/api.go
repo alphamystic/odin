@@ -35,7 +35,11 @@ func (d *Domain) CreateApiKey(a dfn.Api,ctx context.Context) error {
   }
   defer ins.Close()
   res,err := ins.ExecContext(ctx,&a.ApiKey,&a.OwnerID,&a.Active,&a.CreatedAt,&a.UpdatedAt)
-  rowsAffec, _  := res.RowsAffected()
+  if err != nil {
+    d.LogToFile(utils.Logger{Name:"apikey_sql",Text:fmt.Sprintf("Error executing create API Key: %w",err),})
+    return fmt.Errorf("Server encountered an error while creating API Key. %v",err)
+  }
+  rowsAffec, err := res.RowsAffected()
   if err != nil || rowsAffec != 1{
     d.LogToFile(utils.Logger{Name:"apikey_sql",Text:fmt.Sprintf("more than one row affected: %w",err),})
     return fmt.Errorf("Server encountered an error while creating API Key. %v",err)

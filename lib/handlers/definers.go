@@ -1,5 +1,10 @@
 package handlers
 
+import (
+  //"net"
+  "github.com/alphamystic/odin/lib/utils"
+)
+
 // Vulnerability represents a type of vulnerability.
 type Vulnerability int
 
@@ -125,28 +130,36 @@ func (at AttackType) GetAttackType() string{
 }
 
 type Vulnerabilities struct {
-	Trg *Target
-  Name Vulnerability
-	Severity int
-	Target string
-  Payload string
-  AT AttackType
-	Grouped bool
-  Authenticated bool
-	Works bool
-  Details string // you can plug in a client here to be used for http or login creds
+	Trg *Target `json: "tagret,omitempty"`
+	VulnerabilityID string `json: "vulnerabilityid,omitempty"`
+  Name Vulnerability `json: "name,omitempty"`
+	Severity int `json: "severity,omitempty"`
+	Target string `json: "targetid,omitempty"`
+  Payload string `json: "payload,omitempty"`
+  AT AttackType `json: "at,omitempty"`
+	Grouped bool `json: "grouped,omitempty"`
+  Authenticated bool `json: "authenticated,omitempty"`
+	Works bool `json: "works,omitempty"`
+  Details string  `json: "details,omitempty"`// you can plug in a client here to be used for http or login creds
+	utils.TimeStamps
 }
 
 type Exploit struct {
-	Trg *Target
-	LHOST string
-	LPORT int
-	Address string
-	Target string
-	AverageSeverity int
-	Grouped bool
-	Vulns []*Vulnerabilities
-	Works bool
+	Trg *Target `json: "target,omitempty"`
+  ExploitID string `json:"exploitid"`
+	LHOST string `json: "lhost,omitempty"`
+	LPORT int `json: "lport,omitempty"`
+	Address string `json: "address,omitempty"`
+	Target string `json: "targetid,omitempty"`
+	AverageSeverity int `json: "average_severity,omitempty"`
+	Grouped bool `json: "grouped,omitempty"`
+	GroupedVulns []string `json: "grouped_vuns_ids,omitempty"`
+	Vulns []*Vulnerabilities `json: "vulnerabilities,omitempty"`
+	Works bool `json: "works,omitempty"`
+	utils.TimeStamps
+}
+type Scanner interface{
+	Scan() []Vulnerabilities
 }
 
 // implemented by private and rico
@@ -155,6 +168,3 @@ type Scanner interface{
   Scan(reconDataChannel chan *ReconData) []Vulnerabilities// should return a channel of this
 }
 */
-type Scanner interface{
-	Scan(reconData ReconData) []Vulnerabilities
-}

@@ -3,7 +3,6 @@ package handlers
 import(
   "fmt"
   "sync"
-  "time"
   "bufio"
   "regexp"
   "strings"
@@ -17,13 +16,13 @@ import(
 //read from it, n append to data, close when done
 //do the same for services
 func  NmapScanForOpenPorts(name string,trg *Target) []*Service{
+  commands := NmapCommandBuilder("all",trg)
   utils.PrintInformation(fmt.Sprintf("Scanning open ports for %s on host %s",trg.TargetIp,trg.Host))
-  datas := make(chan *Output)
-  svcs := make(chan *Service)
+  datas := make(chan *Output, len(commands))
+  svcs := make(chan *Service, len(commands)*10)
   var services []*Service
   var data []*Output
   //reconData := make(chan ReconData)
-  commands := NmapCommandBuilder("all",trg)
   var wg sync.WaitGroup
   wg.Add(len(commands))
   for _,cmd := range commands {
@@ -44,7 +43,10 @@ func  NmapScanForOpenPorts(name string,trg *Target) []*Service{
       datas <- datum
       // get the service from the nmap scan
       scanner := bufio.NewScanner(strings.NewReader(string(output)))
-      r := regexp.MustCompile(`(\d+)\/(\w+)\s+(\w+)\s+([\w\/]+)(.*)`)
+      if err := scanner.Err(); err != nil {
+          utils.Warning(fmt.Sprintf("Scanner error on command output: %v", err))
+      }
+      r := regexp.MustCompile(`(?i)^(\d+)\/(\w+)\s+(\w+)\s+([\S]+)(.*)?`)
       for scanner.Scan() {
         line := scanner.Text()
         matches := r.FindStringSubmatch(line)
@@ -144,8 +146,7 @@ var SaveServiceDataTODB = func(name,ip string,data ServiceData)error{
     return err
   }
   for _, datum := range data{
-    time.Sleep(1 * time.Second)
-    str := utils.RandString(5)
+    str := utils.Md5Hash(utils.GenerateUUID())
     if err := driver.Write("servicedata",ip + str,datum); err != nil{
       utils.Logerror(fmt.Errorf("Error saving service data for %s to db.\nERROR: %v",ip,err))
       continue

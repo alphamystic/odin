@@ -7,6 +7,10 @@ import(
 )
 
 func (hnd *Handler) Profile(res http.ResponseWriter, req *http.Request){
+  _, authenticated := hnd.AuthenticateUser(res, req)
+  if !authenticated {
+    return // User is redirected in the helper
+  }
   tpl,err := hnd.Pages.GetATemplate("profile","profile.tmpl")
   if err != nil {
     utils.Warning(fmt.Sprintf("%s", err))
@@ -18,6 +22,10 @@ func (hnd *Handler) Profile(res http.ResponseWriter, req *http.Request){
 }
 
 func (hnd *Handler) Updateprofile(res http.ResponseWriter, req *http.Request){
+  _, authenticated := hnd.AuthenticateUser(res, req)
+  if !authenticated {
+    return // User is redirected in the helper
+  }
   tpl,err := hnd.Pages.GetATemplate("profile-update","profile-update.tmpl")
   if err != nil {
     utils.Warning(fmt.Sprintf("%s", err))
@@ -29,6 +37,10 @@ func (hnd *Handler) Updateprofile(res http.ResponseWriter, req *http.Request){
 }
 
 func (hnd *Handler) Securityprofile(res http.ResponseWriter, req *http.Request){
+  _, authenticated := hnd.AuthenticateUser(res, req)
+  if !authenticated {
+    return // User is redirected in the helper
+  }
   tpl,err := hnd.Pages.GetATemplate("profile-security","profile-security.tmpl")
   if err != nil {
     utils.Warning(fmt.Sprintf("%s", err))
@@ -40,6 +52,10 @@ func (hnd *Handler) Securityprofile(res http.ResponseWriter, req *http.Request){
 }
 
 func (hnd *Handler) Notificationsprofile(res http.ResponseWriter, req *http.Request){
+  _, authenticated := hnd.AuthenticateUser(res, req)
+  if !authenticated {
+    return // User is redirected in the helper
+  }
   tpl,err := hnd.Pages.GetATemplate("profile-notifications","profile-notifications.tmpl")
   if err != nil {
     utils.Warning(fmt.Sprintf("%s", err))

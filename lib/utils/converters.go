@@ -8,12 +8,12 @@ import (
 
 
 const (
-  TOKENKEY = "This is the token Key"
   NI = "NOT IMPLEMENTED"
 )
 
 var (
   NotImplemented = errors.New("Requested data is not inmplemeted and set to null")
+  TOKENKEY = []byte("This is the Universal Token Key")
 )
 
 

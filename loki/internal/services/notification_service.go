@@ -1,7 +1,7 @@
 package services
 
 import (
-  dom"github.com/alphamystic/odin/lib/domain"
+  //dom"github.com/alphamystic/odin/lib/domain"
   "sync"
 )
 
@@ -11,7 +11,7 @@ type (
     ListNotification()
   }
   NotificationService struct{
-    Dom *dom.Domain
+    SAC *ServerAPIConnector
     Notifications map[string]*Notification
     mu sync.RWMutex
   }
@@ -29,9 +29,9 @@ const (
   EVENT NotificationType = iota
 )
 
-func CreateNotifyer(domain *dom.Domain) *NotificationService {
+func CreateNotifyer(sac *ServerAPIConnector) *NotificationService {
   return &NotificationService{
-    Dom: domain,
+    SAC: sac,
     Notifications: make(map[string]*Notification),
     mu: sync.RWMutex{},
   }
