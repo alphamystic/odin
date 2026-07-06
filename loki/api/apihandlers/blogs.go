@@ -18,18 +18,24 @@ func (api_hnd *APIHandler) CreateBlog(res http.ResponseWriter, req *http.Request
     api_hnd.MethodNotAllowed(res, "POST")
     return
   }
+  ud := req.Context().Value("userData").(*UserData)
+  if ud == nil {
+      api_hnd.Unauthorized(res, "User data not found")
+      return
+  }
 
   var blog dfn.Blog
   if err := json.NewDecoder(req.Body).Decode(&blog); err != nil {
     api_hnd.BadRequest(res, "Invalid JSON body.")
     return
   }
+  blog.OwnerID = ud.UserId
 
-  if utils.CheckifStringIsEmpty(blog.OwnerID) {
+  if !utils.CheckifStringIsEmpty(blog.OwnerID) {
     api_hnd.BadRequest(res, "OwnerID is required.")
     return
   }
-  if utils.CheckifStringIsEmpty(blog.Title) {
+  if !utils.CheckifStringIsEmpty(blog.Title) {
     api_hnd.BadRequest(res, "Title is required.")
     return
   }
@@ -50,6 +56,7 @@ func (api_hnd *APIHandler) CreateBlog(res http.ResponseWriter, req *http.Request
     "message": "Blog created successfully.",
     "data":    blog.UUID,
   })
+  return
 }
 
 // ====================================
@@ -62,7 +69,7 @@ func (api_hnd *APIHandler) ViewBlog(res http.ResponseWriter, req *http.Request) 
   }
 
   blogUUID := req.URL.Query().Get("uuid")
-  if utils.CheckifStringIsEmpty(blogUUID) {
+  if !utils.CheckifStringIsEmpty(blogUUID) {
     api_hnd.BadRequest(res, "UUID is required.")
     return
   }
@@ -80,6 +87,7 @@ func (api_hnd *APIHandler) ViewBlog(res http.ResponseWriter, req *http.Request) 
     "message": "Blog retrieved.",
     "data":    blog,
   })
+  return
 }
 
 // ====================================
@@ -104,9 +112,12 @@ func (api_hnd *APIHandler) GetRecentBlogs(res http.ResponseWriter, req *http.Req
     return
   }
 
-  res.Header().Set("Content-Type", "application/json")
-  json.NewEncoder(res).Encode(blogs)
-  return
+  api_hnd.DynamicResponse(res, map[string]interface{}{
+      "status":  "success",
+      "message": "Blogs retrieved.",
+      "data":    blogs,
+    })
+    return
 }
 
 // ====================================
@@ -119,7 +130,7 @@ func (api_hnd *APIHandler) ListBlogsByAuthor(res http.ResponseWriter, req *http.
   }
 
   author := req.URL.Query().Get("author")
-  if utils.CheckifStringIsEmpty(author) {
+  if !utils.CheckifStringIsEmpty(author) {
     api_hnd.BadRequest(res, "Author is required.")
     return
   }
@@ -138,8 +149,12 @@ func (api_hnd *APIHandler) ListBlogsByAuthor(res http.ResponseWriter, req *http.
     return
   }
 
-  res.Header().Set("Content-Type", "application/json")
-  json.NewEncoder(res).Encode(blogs)
+  api_hnd.DynamicResponse(res, map[string]interface{}{
+      "status":  "success",
+      "message": "Blogs retrieved.",
+      "data":    blogs,
+    })
+    return
 }
 
 // ====================================
@@ -152,7 +167,7 @@ func (api_hnd *APIHandler) ListBlogsByMainTag(res http.ResponseWriter, req *http
   }
 
   tag := req.URL.Query().Get("tag")
-  if utils.CheckifStringIsEmpty(tag) {
+  if !utils.CheckifStringIsEmpty(tag) {
     api_hnd.BadRequest(res, "MainTag is required.")
     return
   }
@@ -171,8 +186,12 @@ func (api_hnd *APIHandler) ListBlogsByMainTag(res http.ResponseWriter, req *http
     return
   }
 
-  res.Header().Set("Content-Type", "application/json")
-  json.NewEncoder(res).Encode(blogs)
+  api_hnd.DynamicResponse(res, map[string]interface{}{
+      "status":  "success",
+      "message": "Blogs retrieved.",
+      "data":    blogs,
+    })
+    return
 }
 
 // ====================================
@@ -185,7 +204,7 @@ func (api_hnd *APIHandler) ListBlogsByType(res http.ResponseWriter, req *http.Re
   }
 
   blogType := req.URL.Query().Get("type")
-  if utils.CheckifStringIsEmpty(blogType) {
+  if !utils.CheckifStringIsEmpty(blogType) {
     api_hnd.BadRequest(res, "Type is required.")
     return
   }
@@ -204,8 +223,12 @@ func (api_hnd *APIHandler) ListBlogsByType(res http.ResponseWriter, req *http.Re
     return
   }
 
-  res.Header().Set("Content-Type", "application/json")
-  json.NewEncoder(res).Encode(blogs)
+  api_hnd.DynamicResponse(res, map[string]interface{}{
+      "status":  "success",
+      "message": "Blogs retrieved.",
+      "data":    blogs,
+    })
+    return
 }
 
 // ====================================
@@ -238,8 +261,12 @@ func (api_hnd *APIHandler) ListBlogsByCategory(res http.ResponseWriter, req *htt
     return
   }
 
-  res.Header().Set("Content-Type", "application/json")
-  json.NewEncoder(res).Encode(blogs)
+  api_hnd.DynamicResponse(res, map[string]interface{}{
+      "status":  "success",
+      "message": "Blogs retrieved.",
+      "data":    blogs,
+    })
+    return
 }
 
 // ====================================
@@ -262,7 +289,7 @@ func (api_hnd *APIHandler) UpdateBlog(res http.ResponseWriter, req *http.Request
     return
   }
 
-  if utils.CheckifStringIsEmpty(update.UUID) {
+  if !utils.CheckifStringIsEmpty(update.UUID) {
     api_hnd.BadRequest(res, "UUID is required.")
     return
   }
@@ -278,6 +305,7 @@ func (api_hnd *APIHandler) UpdateBlog(res http.ResponseWriter, req *http.Request
     "status":  "success",
     "message": "Blog updated successfully.",
   })
+  return
 }
 
 // ====================================
@@ -297,7 +325,7 @@ func (api_hnd *APIHandler) ArchiveBlog(res http.ResponseWriter, req *http.Reques
   uuid := req.URL.Query().Get("uuid")
   status := req.URL.Query().Get("archived")
 
-  if utils.CheckifStringIsEmpty(uuid) {
+  if !utils.CheckifStringIsEmpty(uuid) {
     api_hnd.BadRequest(res, "UUID is required.")
     return
   }
@@ -314,6 +342,7 @@ func (api_hnd *APIHandler) ArchiveBlog(res http.ResponseWriter, req *http.Reques
     "status":  "success",
     "message": "Archive status updated.",
   })
+  return
 }
 
 // ====================================
@@ -331,11 +360,11 @@ func (api_hnd *APIHandler) CreateComment(res http.ResponseWriter, req *http.Requ
     return
   }
 
-  if utils.CheckifStringIsEmpty(comment.BlogUUID) {
+  if !utils.CheckifStringIsEmpty(comment.BlogUUID) {
     api_hnd.BadRequest(res, "BlogUUID is required.")
     return
   }
-  if utils.CheckifStringIsEmpty(comment.Commentor) {
+  if !utils.CheckifStringIsEmpty(comment.Commentor) {
     api_hnd.BadRequest(res, "Commentor is required.")
     return
   }
@@ -353,6 +382,7 @@ func (api_hnd *APIHandler) CreateComment(res http.ResponseWriter, req *http.Requ
     "status":  "success",
     "message": "Comment added.",
   })
+  return
 }
 
 // ====================================
@@ -365,7 +395,7 @@ func (api_hnd *APIHandler) ListComments(res http.ResponseWriter, req *http.Reque
   }
 
   blogUUID := req.URL.Query().Get("uuid")
-  if utils.CheckifStringIsEmpty(blogUUID) {
+  if !utils.CheckifStringIsEmpty(blogUUID) {
     api_hnd.BadRequest(res, "UUID is required.")
     return
   }
@@ -383,6 +413,39 @@ func (api_hnd *APIHandler) ListComments(res http.ResponseWriter, req *http.Reque
     return
   }
 
-  res.Header().Set("Content-Type", "application/json")
-  json.NewEncoder(res).Encode(comments)
+  api_hnd.DynamicResponse(res, map[string]interface{}{
+      "status":  "success",
+      "message": "Commments retrieved.",
+      "data":    comments,
+    })
+  return
 }
+//
+// Defining the Ticket Template Format:
+// 1. Top Header
+//         a. Title
+//         b. Severity (Informational/Low/Medium/High/Critical)
+//         c. Incident ID
+//         d. Status (Escalated/Closed/Muted)
+//         e. Detection Time.
+//         f. Alert link
+//         This should follow the color codes as appropriate
+// 2. AI Summary: Color code should be a lighter shade of the to header color
+// 3. Event Specifications (Key Details): Cards with details of the Key Details of the alert.ctx
+// 4. SOC Technical Analysis:
+//         a. Impact mappping of the alert
+//         b. Elaborative Description of the alert
+//         c. Adversary UseCasec.
+// 5. Osint And External Threat Intelligence
+//         a. Description of the OSINT Data.
+//         b. Button for VirusTotal, Button for AbuseIPDB, Hybrid Analysis, AnyRun if File can be run/uploaded/url
+// 6. Threat Hunting ROADMap:
+//         a. Value and a Description
+//         b. Query rules and should also have a copy functionality
+//
+// 7. Response Actions:
+//         A Table of  MSP Applied Actions (Immediate)  and Recommended Client Actions (Urgent)
+// 8. Summarized Raw Log Evidence. Should have a copy functionality(Optional)
+//
+
+

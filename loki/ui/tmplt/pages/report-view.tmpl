@@ -1,0 +1,145 @@
+
+<div id="comment-alert-stack" style="position: fixed; top: 20px; right: 20px; z-index: 1200; width: 350px;"></div>
+
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-12 col-lg-10 col-xl-9">
+            
+            <div class="row align-items-center mb-4">
+                <div class="col">
+                    <h2 class="h3 page-title">
+                        <small class="text-muted text-uppercase">{{.Blog.MainTag}}</small><br />
+                        {{.Blog.Title}}
+                    </h2>
+                    <div class="text-muted small">
+                        <strong>Author:</strong> {{.Blog.Author}} | <strong>Published:</strong> {{.Blog.CreatedAt.Format "Jan 02, 2006"}}
+                    </div>
+                </div>
+                <div class="col-auto">
+                    <button class="btn btn-primary" data-toggle="modal" data-target="#commentModal">
+                        <i class="fe fe-message-square mr-2"></i>Add Comment
+                    </button>
+                </div>
+            </div>
+
+            <div class="card shadow mb-4">
+                <div class="card-body p-5">
+                    <div class="report-content">
+                        {{.Blog.SafeContent}}
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mb-4">
+                <div class="col-12">
+                    <h4 class="h5 mb-3">Comments ({{if .Comments}}{{len .Comments}}{{else}}0{{end}})</h4>
+                    {{range .Comments}}
+                    <div class="card shadow-sm mb-3">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between mb-2">
+                                <strong>{{.Commentor}}</strong>
+                                <small class="text-muted">{{.CreatedAt.Format "Jan 02, 15:04"}}</small>
+                            </div>
+                            <p class="mb-0 text-secondary">{{.Comment}}</p>
+                        </div>
+                    </div>
+                    {{else}}
+                    <div class="text-center py-4 border rounded bg-light">
+                        <p class="text-muted mb-0 small">No comments yet. Start the discussion!</p>
+                    </div>
+                    {{end}}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="commentModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-dark text-white">
+                <h5 class="modal-title">Post Analysis Comment</h5>
+                <button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Your Analysis</label>
+                    <textarea id="txt_comment" class="form-control" rows="4" placeholder="Enter your thoughts..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-success" onclick="postComment()">Submit Comment</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+/**
+ * Spawns a dynamic Bootstrap alert in the stack
+ */
+function spawnAlert(type, msg) {
+    const icon = type === 'success' ? 'fe-check-circle' : 'fe-alert-octagon';
+    const alertHtml = `
+        <div class="alert alert-${type} shadow-lg border-0 fade show" role="alert">
+            <div class="d-flex align-items-center">
+                <span class="fe ${icon} fe-16 mr-3"></span>
+                <div class="flex-fill">
+                    <strong class="text-uppercase small">${type}</strong><br>
+                    ${msg}
+                </div>
+                <button type="button" class="close ml-2" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        </div>`;
+    
+    const $alert = $(alertHtml);
+    $('#comment-alert-stack').append($alert);
+    
+    // Auto-remove after 4 seconds
+    setTimeout(() => {
+        $alert.fadeOut(500, function() { $(this).remove(); });
+    }, 4000);
+}
+
+function postComment() {
+    const msg = $('#txt_comment').val();
+    if (!msg) {
+        spawnAlert('danger', 'Please enter a comment before submitting.');
+        return;
+    }
+
+    const payload = {
+        blog_uuid: "{{.Blog.UUID}}",
+        comment: msg,
+        commentor: "{{.Username}}"
+    };
+
+    // Disable button to prevent double-posting
+    const $btn = $('#commentModal .btn-success');
+    $btn.prop('disabled', true).text('Posting...');
+
+    $.ajax({
+        url: "/api/report/createcomment/",
+        method: "POST",
+        contentType: "application/json",
+        xhrFields: { withCredentials: true },
+        data: JSON.stringify(payload),
+        success: function() {
+            spawnAlert('success', 'Comment posted successfully! Reloading...');
+            $('#commentModal').modal('hide');
+            $('#txt_comment').val('');
+            
+            // Reload page to show new comment
+            setTimeout(() => { location.reload(); }, 1200);
+        },
+        error: function(xhr) {
+            $btn.prop('disabled', false).text('Submit Comment');
+            const err = xhr.responseJSON ? (xhr.responseJSON.error || xhr.responseJSON.message) : "Internal Server Error";
+            spawnAlert('danger', 'Error: ' + err);
+        }
+    });
+}
+</script>

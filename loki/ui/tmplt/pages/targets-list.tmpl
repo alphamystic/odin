@@ -1,0 +1,165 @@
+<div class="container-fluid">
+  <div class="row justify-content-center">
+    <div class="col-12">
+      <div class="row align-items-center mb-4">
+        <div class="col">
+          <h2 class="h3 page-title"><small class="text-muted text-uppercase">Target Vector Group</small><br />Scan Group: #{{.ScanID}}</h2>
+          <p class="text-muted mb-0">Target evaluation plane mapping network addresses, host configurations, and boundary proxies.</p>
+        </div>
+        <div class="col-auto">
+          <a href="/scans/render" class="btn btn-secondary">
+            <span class="fe fe-arrow-left mr-2"></span>Operations Index
+          </a>
+        </div>
+      </div>
+
+      <div class="card shadow mb-4">
+        <div class="card-body">
+          <div class="toolbar row mb-3">
+            <div class="col"><h5 class="card-title">Enumerated Target Plain</h5></div>
+          </div>
+
+          <table class="table datatables table-hover" id="dataTable-1">
+            <thead>
+              <tr>
+                <th>Target Asset ID</th>
+                <th>FQDN/Domain Mapping</th>
+                <th>Host Endpoint IP</th>
+                <th>Target Routing Vector</th>
+                <th>Boundary Proxy / WAF</th>
+                <th>Decoy Cluster Matrix</th>
+                <th>Operational Interface</th>
+              </tr>
+            </thead>
+            <tbody>
+              {{range .Targets}}
+              <tr>
+                <td><code>{{.TargetID}}</code></td>
+                <td>
+                  {{if .Host}}
+                    <strong class="text-primary"><span class="fe fe-globe mr-2"></span>{{.Host}}</strong>
+                  {{else}}
+                    <span class="text-muted small">No domain resolved</span>
+                  {{end}} </td>
+                <td><small class="text-monospace">{{.HostIp}}</small></td>
+                <td><span class="badge badge-pill badge-dark px-3 text-monospace">{{.TargetIp}}</span></td>
+                <td>
+                  {{if .FireWallName}}
+                    <span class="badge badge-pill badge-outline-warning text-warning">
+                      <span class="dot dot-md bg-warning mr-2"></span>{{.FireWallName}}
+                    </span>
+                  {{else}}
+                    <span class="badge badge-pill badge-outline-success text-success">
+                      <span class="dot dot-md bg-success mr-2"></span>Unfiltered Link
+                    </span>
+                  {{end}}
+                </td>
+                <td>
+                  <span class="text-muted small">
+                    <span class="fe fe-layers mr-2"></span>{{len .Decoys}} Route Nodes
+                  </span>
+                </td>
+                <td>
+                  <a href="/scans/view-target?scan-id={{.ScanID}}&target-id={{.TargetID}}" class="btn btn-sm btn-primary">
+                    <span class="fe fe-terminal mr-2"></span>Inspect Surfaces
+                  </a>
+                </td>
+              </tr>
+              {{else}}
+              <tr>
+                <td colspan="7" class="text-center py-5 text-muted bg-light">
+                  <span class="fe fe-compass fe-24 mb-2 d-block"></span>
+                  Asset discovery pipeline has not loaded targets for this scanning context operational token.
+                </td>
+              </tr>
+              {{end}}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="container-fluid">
+  <div class="row justify-content-center">
+    <div class="col-12">
+      <div class="row align-items-center mb-4">
+        <div class="col">
+          <h2 class=" h3 page-title"><small class="text-muted text-uppercase">Target Vector Group</small><br />Scan Group: #{{.ScanID}}</h2>
+          <p class="text-muted mb-0">Target evaluation plane mapping network addresses, host configurations, and boundary proxies.</p>
+        </div>
+        <div class="col-auto">
+          <a href="/scans/render" class="btn btn-secondary">
+            <span class="fe fe-arrow-left mr-2"></span>Operations Index
+          </a>
+        </div>
+      </div>
+
+      <div class="card shadow mb-4">
+        <div class="card-body">
+          <div class="toolbar row mb-3">
+            <div class="col"><h5 class="card-title">Enumerated Target Plain</h5></div>
+          </div>
+
+          <table class="table datatables table-hover" id="dataTable-1">
+            <thead>
+              <tr>
+                <th>Target Asset ID</th>
+                <th>FQDN/Domain Mapping</th>
+                <th>Host Endpoint IP</th>
+                <th>Target Routing Vector</th>
+                <th>Boundary Proxy / WAF</th>
+                <th>Decoy Cluster Matrix</th>
+                <th>Operational Interface</th>
+              </tr>
+            </thead>
+            <tbody>
+              {{range .Targets}}
+              <tr>
+                <td><code>{{.TargetID}}</code></td>
+                <td>
+                  {{if .Host}}
+                    <strong class="text-primary"><span class="fe fe-globe mr-2"></span>{{.Host}}</strong>
+                  {{else}}
+                    <span class="text-muted small">No domain resolved</span>
+                  {{end}} </td>
+                <td><small class="text-monospace">{{.HostIp}}</small></td>
+                <td><span class="badge badge-pill badge-dark px-3 text-monospace">{{.TargetIp}}</span></td>
+                <td>
+                  {{if .FireWallName}}
+                    <span class="badge badge-pill badge-outline-warning text-warning">
+                      <span class="dot dot-md bg-warning mr-2"></span>{{.FireWallName}}
+                    </span>
+                  {{else}}
+                    <span class="badge badge-pill badge-outline-success text-success">
+                      <span class="dot dot-md bg-success mr-2"></span>Unfiltered Link
+                    </span>
+                  {{end}}
+                </td>
+                <td>
+                  <span class="text-muted small">
+                    <span class="fe fe-layers mr-2"></span>{{len .Decoys}} Route Nodes
+                  </span>
+                </td>
+                <td>
+                  <a href="/scans/view-target?scan-id={{.ScanID}}&target-id={{.TargetID}}" class="btn btn-sm btn-primary">
+                    <span class="fe fe-terminal mr-2"></span>Inspect Surfaces
+                  </a>
+                </td>
+              </tr>
+              {{else}}
+              <tr>
+                <td colspan="7" class="text-center py-5 text-muted bg-light">
+                  <span class="fe fe-compass fe-24 mb-2 d-block"></span>
+                  Asset discovery pipeline has not loaded targets for this scanning context operational token.
+                </td>
+              </tr>
+              {{end}}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

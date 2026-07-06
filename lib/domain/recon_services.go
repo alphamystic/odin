@@ -26,7 +26,7 @@ func (d *Domain) CreateService(ctx context.Context, srvc png_hnd.Service) error 
 		return fmt.Errorf("error getting db connection: %w", err)
 	}
 	defer conn.Close()
-	// Convert Data to Token
+	// Convert Data to Token]
 	data := utils.Base64Encode(srvc.Data)
 	// Prepare SQL Statement
 	ins, err := conn.PrepareContext(ctx, createServiceStmt)

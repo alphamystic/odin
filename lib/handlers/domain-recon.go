@@ -378,9 +378,9 @@ func CheckForFirewall(input,target string) (present bool,FWname string){
 }
 
 var HttpsChecker = func(target string,count int)string{
-  if count > 1{
-    return "The site is behind Unamed WAF."
-  }
+    if count > 1{
+      return "The site is behind Unamed WAF."
+    }
 	cmnd := `wafw00f -a -v https://`+target
 	output, err := exec.Command("sh", "-c", cmnd).Output()
 	if err != nil{

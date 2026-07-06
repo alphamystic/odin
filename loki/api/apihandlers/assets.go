@@ -23,8 +23,14 @@ func (api_hnd *APIHandler) CreateAsset(res http.ResponseWriter, req *http.Reques
 		http.Error(res, err.Error(), http.StatusBadRequest)
 		return
 	}
+    ud := req.Context().Value("userData").(*UserData)
+    if ud == nil {
+        api_hnd.Unauthorized(res, "User data not found")
+        return
+    }
+    asset.OwnerID = ud.UserId
 
-	if utils.CheckifStringIsEmpty(asset.OwnerID) {
+	if !utils.CheckifStringIsEmpty(asset.OwnerID) {
 		api_hnd.BadRequest(res, "OwnerID is required.")
 		return
 	}
@@ -45,53 +51,42 @@ func (api_hnd *APIHandler) CreateAsset(res http.ResponseWriter, req *http.Reques
 		"message": "Asset created successfully.",
 		"data":    asset.AssetID,
 	})
+    return
 }
 
 // ListAssets — lists all assets owned by a user with optional filters (active, hardware, pagination)
 func (api_hnd *APIHandler) ListAssets(res http.ResponseWriter, req *http.Request) {
-	if req.Method != http.MethodGet {
-		api_hnd.MethodNotAllowed(res, "GET")
-		return
-	}
+    if req.Method != http.MethodGet {
+        api_hnd.MethodNotAllowed(res, "GET")
+        return
+    }
 
-	ownerID := req.URL.Query().Get("ownerid")
-	if utils.CheckifStringIsEmpty(ownerID) {
-		api_hnd.BadRequest(res, "OwnerID is required.")
-		return
-	}
+    ud := req.Context().Value("userData").(*UserData)
+    if ud == nil {
+        api_hnd.Unauthorized(res, "User data not found")
+        return
+    }
+    ownerID := ud.UserId
+    active := req.URL.Query().Get("active") != "false" // Default to true
+    hardware := req.URL.Query().Get("hardware") == "true" // Default to false
+    limit := utils.StringToInt(req.URL.Query().Get("limit"))
+    if limit <= 0 { limit = 20 }
+    offset := utils.StringToInt(req.URL.Query().Get("offset"))
 
-	activeStr := req.URL.Query().Get("active")
-	hardwareStr := req.URL.Query().Get("hardware")
-	limitStr := req.URL.Query().Get("limit")
-	offsetStr := req.URL.Query().Get("offset")
+    ctx := req.Context()
+    assets, err := api_hnd.Dom.ListAssetsByFilter(ctx, ownerID, active, hardware, limit, offset)
+    if err != nil {
+        api_hnd.InternalServerError(res, "Failed to list assets.")
+        return
+    }
 
-	active := true
-	if activeStr == "false" {
-		active = false
-	}
-
-	hardware := false
-	if hardwareStr == "true" {
-		hardware = true
-	}
-
-	limit := utils.StringToInt(limitStr)
-	offset := utils.StringToInt(offsetStr)
-	if limit <= 0 {
-		limit = 20
-	}
-
-	ctx := context.Background()
-	assets, err := api_hnd.Dom.ListAssetsByFilter(ctx, ownerID, active, hardware, limit, offset)
-	if err != nil {
-		utils.Warning(fmt.Sprintf("Error listing assets: %v", err))
-		api_hnd.InternalServerError(res, "Failed to list assets.")
-		return
-	}
-
-	res.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(res).Encode(assets)
-	return
+    res.Header().Set("Content-Type", "application/json")
+    api_hnd.DynamicResponse(res, map[string]interface{}{
+        "status":  "success",
+        "message": "Assets returned successfully.",
+        "data":    assets,
+    })
+    return
 }
 
 // ViewAsset — retrieves details for one asset
@@ -101,8 +96,13 @@ func (api_hnd *APIHandler) ViewAsset(res http.ResponseWriter, req *http.Request)
 		return
 	}
 
-	assetID := req.URL.Query().Get("assetid")
-	if utils.CheckifStringIsEmpty(assetID) {
+	ud := req.Context().Value("userData").(*UserData)
+    if ud == nil {
+        api_hnd.Unauthorized(res, "User data not found")
+        return
+    }
+    assetID := req.URL.Query().Get("assetid")
+	if !utils.CheckifStringIsEmpty(assetID) {
 		api_hnd.BadRequest(res, "AssetID cannot be empty.")
 		return
 	}
@@ -123,6 +123,8 @@ func (api_hnd *APIHandler) ViewAsset(res http.ResponseWriter, req *http.Request)
 	return
 }
 
+
+
 // UpdateAsset — allows admins to modify asset fields
 func (api_hnd *APIHandler) UpdateAsset(res http.ResponseWriter, req *http.Request) {
 	if req.Method != http.MethodPost {
@@ -141,7 +143,7 @@ func (api_hnd *APIHandler) UpdateAsset(res http.ResponseWriter, req *http.Reques
 		return
 	}
 
-	if utils.CheckifStringIsEmpty(update.AssetID) {
+	if !utils.CheckifStringIsEmpty(update.AssetID) {
 		api_hnd.BadRequest(res, "AssetID is required.")
 		return
 	}
@@ -173,7 +175,7 @@ func (api_hnd *APIHandler) DeactivateAsset(res http.ResponseWriter, req *http.Re
 	}
 
 	assetID := req.URL.Query().Get("assetid")
-	if utils.CheckifStringIsEmpty(assetID) {
+	if !utils.CheckifStringIsEmpty(assetID) {
 		api_hnd.BadRequest(res, "AssetID is required.")
 		return
 	}

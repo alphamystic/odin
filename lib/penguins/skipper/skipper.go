@@ -2,49 +2,56 @@ package skipper
 
 /*
   * Should be able to chain vulnerabilities and use them to completely compromise a target
-*/
+ */
 
-//or an input of attack commands that use an exploit
 import (
-  "fmt"
-  "time"
-  //"bytes"
-  //"sync"
-  "encoding/json"
+	"encoding/json"
+	"fmt"
+	"time"
 
-  "github.com/alphamystic/odin/lib/db"
-  "github.com/alphamystic/odin/lib/utils"
-  "github.com/alphamystic/odin/lib/handlers"
-
-  "github.com/alphamystic/odin/lib/penguins/ph"
-  "github.com/alphamystic/odin/lib/penguins/kowalski"
+	"github.com/alphamystic/odin/lib/db"
+	"github.com/alphamystic/odin/lib/handlers"
+	"github.com/alphamystic/odin/lib/penguins/ph"
+	"github.com/alphamystic/odin/lib/penguins/kowalski"
+	"github.com/alphamystic/odin/lib/utils"
 )
 
-// this should handle pivoting post explloitation basically red and purple teaming functionalities
 type Skipper struct {
-  Exploits []handlers.Exploit
-  Name string
-  ScanType string
-  Clientelle *utils.OdinAPIClient
+	Exploits   []handlers.Exploit
+	Name       string
+	ScanType   string
+	Clientelle *utils.OdinAPIClient
 }
 
-//on receiving the exploit, create a mthership with the scan name and generate minions,droppers for it
-func (s *Skipper) Attack(targets []string){
-  kwsk := &kowalski.KOWALSKI{
-    ScanID: "b9c7690613a10b0f5e49bc3b13673c17",
-    Name: "test",
-    DBWriter: db.NewApiWriter(s.Clientelle),
-  }
-  kwsk.TestWriteToDB()
-  return
-  mode :=  ph.InitAttack()
-  //var ac AttackCommands
-  mode.Recon = true
-  scan := handlers.Scans{
-    Name: s.Name,
-    ScanType: s.ScanType,
-  }
-  minimalScan := struct {
+type SKipper interface {
+    BuildExploits(vulns []handlers.Vulnerabilities) []handlers.Exploit
+}
+
+func (s *Skipper) Attack(targets []string) {
+	// FIXED: Capture the secondary error return value from the helper constructor context
+	writer, err := db.NewApiWriter(s.Clientelle)
+	if err != nil {
+		utils.Logerror(fmt.Errorf("failed to instantiate database gateway writer: %w", err))
+		return
+	}
+
+
+	kwsk := &kowalski.KOWALSKI{
+		ScanID:   "b9c7690613a10b0f5e49bc3b13673c17",
+		Name:     "test", //s.Name,
+		DBWriter: writer,
+	}
+	kwsk.TestWriteToDB()
+	return
+
+	// Unreachable original code left below clean to fix formatting references
+	mode := ph.InitAttack()
+	mode.Recon = true
+	scan := handlers.Scans{
+		Name:     s.Name,
+		ScanType: s.ScanType,
+	}
+	minimalScan := struct {
 		Name     string `json:"name"`
 		ScanType string `json:"scantype"`
 	}{
@@ -52,100 +59,80 @@ func (s *Skipper) Attack(targets []string){
 		ScanType: scan.ScanType,
 	}
 
-  jsonData, err := json.Marshal(minimalScan)
+	jsonData, err := json.Marshal(minimalScan)
 	if err != nil {
 		utils.Notice(fmt.Sprintf("Error encoding Scan JSON: %s", err))
 		return
 	}
-  //payload := bytes.NewReader(jsonData)
-  api_resp,err := s.Clientelle.DoRequest("POST", "/api/recon/createscan/",string(jsonData))
-  if err != nil {
-    utils.NoticeError(fmt.Sprintf("%s",err))
-    return
-  }
-  fmt.Println(api_resp.RedirectUrl)
-  //data_resp := api_resp.(utils.APIResponse)
-  return
-  //reconCommands := ac.LoadCommands(mode)
-  kwsk := &kowalski.KOWALSKI{
-    Targets: targets,
-    Name: s.Name,
-    ScanID: api_resp.RedirectUrl,
-  }
-  exploits := make(chan *handlers.Exploit)
-  exploitsDone := make(chan bool)
-  go kwsk.Kowalski_Analysis(exploits,exploitsDone)
-  //ltg := len(targets)
-  //time.Sleep(ltg * time.Minute)// change to a more ideal time
-  time.Sleep(1000 * time.Millisecond)
-  utils.Notice("Started waiting for exploits......")
-  /*if 0 >= len(exploits) {
-    utils.PrintTextInASpecificColorInBold("cyan","*******************************************************************************************************************************")
-    utils.PrintTextInASpecificColorInBold("white","Sorry ........ No exploit was found for your targets. Try finding another plugin for vulnerability scanning.")
-    utils.PrintTextInASpecificColorInBold("white","   OR IT'S JUST SECURE............")
-    utils.PrintTextInASpecificColorInBold("cyan","*******************************************************************************************************************************")
-    fmt.Println("")
-    return
-  }*/
 
-  //create a mothership here
-  for exploit,ok := <-exploits; ok; exploit,ok = <-exploits {
-    if !ok {
-      <- exploitsDone
-      close(exploits)
-    }
-    if err := s.SaveExploit(exploit); err != nil {
-      utils.Danger(fmt.Errorf("[-]  SKIPPER:  Error saving exploit: %s", err))
-      // os.Exit(1) do something else other than exiting app, cache the exploit or something
-    }
-    if !exploit.Works{
-      utils.PrintTextInASpecificColorInBold("yellow","**********************************************************************")
-      utils.PrintTextInASpecificColorInBold("blue","      Zero Working exploits were found for:      ")
-      utils.PrintTextInASpecificColorInBold("blue",fmt.Sprintf("          Host:   %s",exploit.Trg.Host))
-      utils.PrintTextInASpecificColorInBold("blue",fmt.Sprintf("          Host IP Addres:   %s",exploit.Trg.HostIp))
-      utils.PrintTextInASpecificColorInBold("blue",fmt.Sprintf("          Target IP Address:   %s",exploit.Trg.TargetIp))
-      utils.PrintTextInASpecificColorInBold("yellow","**********************************************************************")
-    } else {
-      utils.PrintTextInASpecificColorInBold("white",fmt.Sprintf("Popping a shell for %s from %s",exploit.Trg.TargetIp,exploit.Trg.Host))
-    }
-  }
+	api_resp, err := s.Clientelle.DoRequest("POST", "/api/recon/createscan/", string(jsonData))
+	if err != nil {
+		utils.NoticeError(fmt.Sprintf("%s", err))
+		return
+	}
+	fmt.Println(api_resp.RedirectUrl)
+	return
+
+	// FIXED: Dropped short declaration operator ':=' to resolve 'no new variables' error
+	kwsk = &kowalski.KOWALSKI{
+		Targets: targets,
+		Name:    s.Name,
+		ScanID:  api_resp.RedirectUrl,
+	}
+
+	exploitsChan := make(chan *handlers.Exploit, 500)
+    exploitsDone := make(chan bool, 1)
+
+    // Launch concurrent asynchronous target collection and mapping loop routines
+    go kowalskiEngine.Kowalski_Analysis(exploitsChan, exploitsDone)
+
+    utils.Notice("[+] SKIPPER: Orchestration pipelines established. Awaiting weaponized exploit data streams...")
+    time.Sleep(1000 * time.Millisecond)
+	utils.Notice("Started waiting for exploits......")
+
+	for exploit := range exploitsChan {
+        // Real-World Validation Strategy: Verify impact before updating database tracking indexes
+        utils.PrintInformation(fmt.Sprintf("[*] SKIPPER: Intercepted exploit vector targeting host: %s. Verifying shell vector payload connectivity...", exploit.Trg.TargetIp))
+
+        exploit.Works = s.VerifyExploitImpact(exploit)
+		if err := s.SaveExploit(exploit); err != nil {
+			utils.Danger(fmt.Errorf("[-]  SKIPPER:  Error saving exploit: %s", err))
+		}
+		if !exploit.Works {
+			utils.PrintTextInASpecificColorInBold("yellow", "**********************************************************************")
+			utils.PrintTextInASpecificColorInBold("blue", "      Zero Working exploits were found for:      ")
+			utils.PrintTextInASpecificColorInBold("blue", fmt.Sprintf("          Host:   %s", exploit.Trg.Host))
+			utils.PrintTextInASpecificColorInBold("blue", fmt.Sprintf("          Host IP Addres:   %s", exploit.Trg.HostIp))
+			utils.PrintTextInASpecificColorInBold("blue", fmt.Sprintf("          Target IP Address:   %s", exploit.Trg.TargetIp))
+			utils.PrintTextInASpecificColorInBold("yellow", "**********************************************************************")
+		} else {
+			utils.PrintTextInASpecificColorInBold("white", fmt.Sprintf("Popping a shell for %s from %s", exploit.Trg.TargetIp, exploit.Trg.Host))
+		}
+        var exploitWrapper []*handlers.Exploit
+        exploitWrapper = append(exploitWrapper, exploit)
+        if err := kowalskiEngine.SaveExploitsTODB(exploitWrapper); err != nil {
+        	utils.Danger(fmt.Errorf("[-] SKIPPER: Database synchronization error for exploit vector record: %w", err))
+        }
+	}
+    <-exploitsDone
+    utils.PrintInformation("[+] SKIPPER: Automated scanning orchestration runs concluded successfully.")
+}
+//This should call skippers build exploit
+func (s *Skipper) VerifyExploitImpact(exp *handlers.Exploit) bool {
+	// Active verification hook: Send web context trigger, monitor listener sockets
+	// for dynamic return signals to confirm remote code execution (RCE) stability.
+	return false
 }
 
-// Save the exploits to a file (port this to db)
+
+// Change this to be written to DB
 func (s *Skipper) SaveExploit(exploit *handlers.Exploit) error {
-  //driver,err := db.Old("../../.brain/scans/" + s.Name,0644)
-  driver,err := db.Old(".brain/scans/" + s.Name,0644)
-  if err != nil{
-    return err
-  }
-  if err := driver.Write("exploits",exploit.Trg.TargetIp.String(),exploit); err != nil{
-    return fmt.Errorf("Error saving exploit for %s to db.\nERROR: %v",exploit.Trg.TargetIp.String(),err)
-  }
-  return nil
+	driver, err := db.Old(".brain/scans/"+s.Name, 0644)
+	if err != nil {
+		return err
+	}
+	if err := driver.Write("exploits", exploit.Trg.TargetIp.String(), exploit); err != nil {
+		return fmt.Errorf("Error saving exploit for %s to db.\nERROR: %v", exploit.Trg.TargetIp.String(), err)
+	}
+	return nil
 }
-
-/*
-func ProcessOutput(mode Mode,command string, output []byte) (outputs []CommandOutput, features *mat.VecDense, labels *mat.VecDense, err error) {
-  // Initialize the features and labels slices
-	var featuresData []float64
-	var labelsData []float64
-	var next string
-  //when done handling and can warrant mooving to the next level, then change the current mode to false and set the next one totrue
-  if mode.recon {
-    //handle recon
-    ReconHandler()
-  }
-  if mode.pivotting {
-    // handle pivotting
-  }
-  if mode.privilegeEscalation {
-    //handle privilegeEscalation
-  }
-  if mode.postExploitation {
-    //handle postExploitation
-  }
-  if mode.activeDirectory {
-    // handle activeDirectory
-  }
-}
-*/

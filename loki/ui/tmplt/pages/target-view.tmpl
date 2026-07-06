@@ -1,0 +1,201 @@
+<div class="container-fluid">
+  <div class="row justify-content-center">
+    <div class="col-12">
+
+      <div class="row align-items-center mb-4">
+        <div class="col">
+          <h2 class="h3 page-title">
+            <small class="text-muted text-uppercase">Asset Surface Inspection</small><br />
+            Asset: {{if .Target.host}}{{.Target.host}}{{else}}{{.Target.targetip}}{{end}}
+          </h2>
+          <p class="text-muted small mb-0">Target Record Token: <code>{{.Target.targetid}}</code> | Boundary State: <strong>{{if (index .Target "firewall-name")}}Filtered ({{index .Target "firewall-name"}}){{else}}Direct Path{{end}}</strong></p>
+        </div>
+        <div class="col-auto">
+          <a href="/scans/targets?scanid={{.ScanID}}" class="btn btn-secondary">
+            <span class="fe fe-chevron-left mr-2"></span>Target Plain
+          </a>
+        </div>
+      </div>
+
+      <div class="row my-4">
+        <div class="col-md-4">
+          <div class="card shadow mb-4">
+            <div class="card-header"><strong class="card-title">Network Interface Matrix</strong></div>
+            <div class="card-body">
+              <dl class="row mb-0">
+                <dt class="col-sm-5 text-muted small">Parent Host:</dt>
+                <dd class="col-sm-7 small"><strong>{{if .Target.host}}{{.Target.host}}{{else}}N/A{{end}}</strong></dd>
+                <dt class="col-sm-5 text-muted small">Origin IP:</dt>
+                <dd class="col-sm-7 small text-monospace">{{.Target.hostip}}</dd>
+                <dt class="col-sm-5 text-muted small">Target Route:</dt>
+                <dd class="col-sm-7 small text-monospace">{{.Target.targetip}}</dd>
+                <dt class="col-sm-5 text-muted small">Temporal Frame:</dt>
+                <dd class="col-sm-7 small text-muted">{{.Target.updated_at}}</dd>
+              </dl>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-8">
+          <div class="card shadow mb-4">
+            <div class="card-header"><strong class="card-title">Decoy Distribution Routing Paths</strong></div>
+            <div class="card-body py-3">
+              <p class="text-muted small mb-2">Asynchronous node decoys leveraged during port discovery routines:</p>
+              <div class="d-flex flex-wrap">
+                {{range .Target.decoys}}
+                <span class="badge badge-light border text-monospace px-3 py-2 mr-2 mb-2"><span class="fe fe-link mr-2 text-muted"></span>{{.}}</span>
+                {{else}}
+                <span class="text-muted small">No path route decoys assigned during target creation lifecycle.</span>
+                {{end}}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row my-4">
+
+        <div class="col-md-6">
+          <div class="card shadow mb-4">
+            <div class="card-header"><strong class="card-title">Discovered Services & Port Vectors</strong></div>
+            <div class="card-body p-0">
+              <table class="table table-hover table-striped mb-0 small">
+                <thead class="thead-dark">
+                  <tr>
+                    <th>Port Link</th>
+                    <th>Protocol</th>
+                    <th>Service Element</th>
+                    <th>Banner / Version</th>
+                    <th>State</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {{range .Services}}
+                  <tr>
+                    <td><code>{{.port}}</code></td>
+                    <td class="text-uppercase">{{.protocol}}</td>
+                    <td><strong>{{.serviceName}}</strong></td>
+                    <td class="text-muted text-monospace">{{if .version}}{{.version}}{{else}}No Banner Revealed{{end}}</td>
+                    <td>
+                      <span class="badge {{if .state}}badge-success{{else}}badge-secondary{{end}} text-white">
+                        {{if .state}}Open{{else}}Closed{{end}}
+                      </span>
+                    </td>
+                  </tr>
+                  {{else}}
+                  <tr>
+                    <td colspan="5" class="text-center py-4 text-muted bg-light">No open network port service listings resolved via service definitions catalog interface.</td>
+                  </tr>
+                  {{end}}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <div class="card shadow mb-4">
+            <div class="card-header"><strong class="card-title">Crawled Filesystem Surface Paths</strong></div>
+            <div class="card-body py-3">
+              <ul class="nav nav-tabs mb-3" id="webDataTab" role="tablist">
+                <li class="nav-item">
+                  <a class="nav-link active" id="dirs-tab" data-toggle="tab" href="#dirs" role="tab">Directories</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" id="params-tab" data-toggle="tab" href="#params" role="tab">Parameters</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" id="files-tab" data-toggle="tab" href="#files" role="tab">Filepaths</a>
+                </li>
+              </ul>
+
+              <div class="tab-content" id="webDataTabContent">
+                <div class="tab-pane fade show active" id="dirs" role="tabpanel">
+                  <div class="border rounded p-2 bg-light text-monospace small" style="max-height: 180px; overflow-y: auto;">
+                    {{range .WebData.directory}}
+                    <div class="text-truncate mb-1 text-secondary"><span class="fe fe-folder mr-2 text-warning"></span>{{.}}</div>
+                    {{else}}
+                    <div class="text-muted text-center py-3">No directory vectors cataloged.</div>
+                    {{end}}
+                  </div>
+                </div>
+                <div class="tab-pane fade" id="params" role="tabpanel">
+                  <div class="border rounded p-2 bg-light text-monospace small" style="max-height: 180px; overflow-y: auto;">
+                    {{range .WebData.parameters}}
+                    <div class="text-truncate mb-1 text-info"><span class="fe fe-help-circle mr-2"></span>{{.}}</div>
+                    {{else}}
+                    <div class="text-muted text-center py-3">No dynamic configuration parameters parsed.</div>
+                    {{end}}
+                  </div>
+                </div>
+                <div class="tab-pane fade" id="files" role="tabpanel">
+                  <div class="border rounded p-2 bg-light text-monospace small" style="max-height: 180px; overflow-y: auto;">
+                    {{range .WebData.files}}
+                    <div class="text-truncate mb-1 text-success"><span class="fe fe-file-text mr-2 text-muted"></span>{{.}}</div>
+                    {{else}}
+                    <div class="text-muted text-center py-3">No individual flat filepaths extracted.</div>
+                    {{end}}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row my-4">
+        <div class="col-12">
+          <div class="card shadow mb-4">
+            <div class="card-header">
+              <strong class="card-title"><span class="fe fe-alert-triangle mr-2 text-danger"></span>Identified Flaws & Vulnerability Profiles</strong>
+            </div>
+            <div class="card-body p-0">
+              <div class="accordion w-100" id="vulnAccordion">
+                {{range $index, $vuln := .Vulnerabilities}}
+                <div class="card border-0 mb-0 border-bottom">
+                  <div class="card-header bg-light py-2" id="heading{{$index}}">
+                    <a role="button" href="#collapse{{$index}}" data-toggle="collapse" data-target="#collapse{{$index}}" aria-expanded="false" class="d-flex justify-content-between align-items-center decoration-none">
+                      <span>
+                        <span class="badge badge-pill badge-danger mr-2">Severity: {{$vuln.Severity}}</span>
+                        <strong class="text-dark">Vector Type Index: {{$vuln.Name}}</strong>
+                      </span>
+                      <small class="text-muted"><span class="fe fe-eye mr-2"></span>Expand Technical Details</small>
+                    </a>
+                  </div>
+                  <div id="collapse{{$index}}" class="collapse" aria-labelledby="heading{{$index}}" data-parent="#vulnAccordion">
+                    <div class="card-body text-secondary small bg-dark text-white-50 p-4">
+                      <div class="row">
+                        <div class="col-md-8">
+                          <h6>Vector Operational Mechanics Summary</h6>
+                          <p class="mb-3">{{$vuln.Details}}</p>
+                          <h6>Payload Payload Delivery Execution</h6>
+                          <pre class="bg-black text-success p-2 rounded border border-secondary text-monospace mb-0"><code>{{$vuln.Payload}}</code></pre>
+                        </div>
+                        <div class="col-md-4 border-left border-secondary">
+                          <h6>Flaw Class Telemetry</h6>
+                          <ul class="list-unstyled mb-0">
+                            <li class="my-1"><strong>Attack plane Index (AT):</strong> {{$vuln.AT}}</li>
+                            <li class="my-1"><strong>Grouped Context Chaining:</strong> <span class="text-monospace">{{if $vuln.Grouped}}True{{else}}False{{end}}</span></li>
+                            <li class="my-1"><strong>Authentication Barrier Bypass:</strong> <span class="text-monospace">{{if $vuln.Authenticated}}Bypassed{{else}}False{{end}}</span></li>
+                            <li class="my-1"><strong>Weaponization Status:</strong> <span class="text-success">{{if $vuln.Works}}Exploit Stable{{else}}PoC Phase{{end}}</span></li>
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                {{else}}
+                <div class="text-center py-5 text-muted bg-light border-0">
+                  <span class="fe fe-check-circle fe-24 mb-2 d-block text-success"></span>
+                  Vulnerability plane has not flagged cataloged structural vector flaws on this asset target.
+                </div>
+                {{end}}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>

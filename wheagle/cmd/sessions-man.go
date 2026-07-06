@@ -51,7 +51,7 @@ func init(){
     utils.Warning(fmt.Sprintf("%s",err))
   }
   //print all available sessions
-  RunningSessions.ListSessions()
+  RunningSessions.ListSessions(true)
 
   fmt.Println(" ")
   fmt.Println(" ")
@@ -78,7 +78,7 @@ var cmdLister = &cobra.Command{
       case "minions":
           no := len(RunningSessions.Sessions)
           utils.PrintTextInASpecificColorInBold("magenta",fmt.Sprintf("Total number of mule sessions are %d",no))
-          RunningSessions.ListSessions()
+          RunningSessions.ListSessions(true)
           fmt.Println("")
         case "admins":
           ano := len(Conns.Connections)

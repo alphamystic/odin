@@ -1,29 +1,44 @@
 #!/bin/bash
 # stop_servers.sh
-# Stops Load Balancer, API, and UI servers
 
-echo "Stopping servers..."
+# Adjust this to match the PID_DIR in your run script
+PID_DIR="./pids"
 
-# Stop using saved PIDs if available
-if [ -f .lb_pid ]; then
-    kill $(cat .lb_pid) 2>/dev/null && echo "Stopped Load Balancer"
-    rm .lb_pid
-else
-    sudo fuser -k 4040/tcp 4041/tcp 2>/dev/null
-fi
+echo "🛑 Stopping servers..."
 
-if [ -f .api_pid ]; then
-    kill $(cat .api_pid) 2>/dev/null && echo "Stopped API Server"
-    rm .api_pid
-else
-    sudo fuser -k 5000/tcp 5001/tcp 2>/dev/null
-fi
+stop_process() {
+    local name=$1
+    local pid_file="$PID_DIR/.$2_pid"
+    local ports=$3
 
-if [ -f .ui_pid ]; then
-    kill $(cat .ui_pid) 2>/dev/null && echo "Stopped UI Server"
-    rm .ui_pid
-else
-    sudo fuser -k 4000/tcp 4001/tcp 2>/dev/null
-fi
+    if [ -f "$pid_file" ]; then
+        PID=$(cat "$pid_file")
+        if kill "$PID" 2>/dev/null; then
+            echo "✅ Stopped $name (PID: $PID)"
+        else
+            echo "⚠️  $name (PID: $PID) was not running."
+        fi
+        rm "$pid_file"
+    else
+        echo "🔍 No PID file for $name, searching by ports: $ports"
+        # OS-specific fallback for killing by port
+        if [[ "$OSTYPE" == "darwin"* ]]; then
+            # macOS path
+            for port in $ports; do
+                lsof -ti :$port | xargs kill -9 2>/dev/null
+            done
+        else
+            # Linux path
+            for port in $ports; do
+                sudo fuser -k "$port/tcp" 2>/dev/null
+            done
+        fi
+        echo "✅ Attempted to clear ports for $name"
+    fi
+}
 
-echo "✅ All servers stopped."
+stop_process "Load Balancer" "lb" "4040 4041"
+stop_process "API Server" "api" "5000 5001"
+stop_process "UI Server" "ui" "4000 4001"
+
+echo "Done."

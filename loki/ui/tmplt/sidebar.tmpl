@@ -45,14 +45,14 @@
         </a>
         <ul class="collapse list-unstyled pl-4 w-100" id="ui-elements">
           <li class="nav-item">
-            <a class="nav-link pl-3" href="/bb"><span class="ml-1 item-text">Bug Bounty</span>
-            </a>
+             <a class="nav-link pl-3" href="/scans?scantype=Bug Bounty"><span class="ml-1 item-text">Bug Bounty</span>
+             </a>
           </li>
           <li class="nav-item">
-            <a class="nav-link pl-3" href="/pentests"><span class="ml-1 item-text">Pentests</span></a>
+             <a class="nav-link pl-3" href="/scans?scantype=Pentest"><span class="ml-1 item-text">Pentests</span></a>
           </li>
           <li class="nav-item">
-            <a class="nav-link pl-3" href="/bo"><span class="ml-1 item-text">Black Ops</span></a>
+            <a class="nav-link pl-3" href="/scans?scantype=Black Ops"><span class="ml-1 item-text">Black Ops</span></a>
           </li>
         </ul>
       </li>
@@ -70,13 +70,16 @@
         </a>
         <ul class="collapse list-unstyled pl-4 w-100" id="forms">
           <li class="nav-item">
-            <a class="nav-link pl-3" href="/agents"><span class="ml-1 item-text">Desktops</span></a>
+            <a class="nav-link pl-3" href="/assets/list?active=true&hardware=false"><span class="ml-1 item-text">Softwares (Active)</span></a>
           </li>
           <li class="nav-item">
-            <a class="nav-link pl-3" href="/iot"><span class="ml-1 item-text">IOT / Routers</span></a>
+            <a class="nav-link pl-3" href="/assets/list?active=false&hardware=false"><span class="ml-1 item-text">Softwares (InActive)</span></a>
           </li>
           <li class="nav-item">
-            <a class="nav-link pl-3" href="/phone"><span class="ml-1 item-text">Adroid/IOs</span></a>
+            <a class="nav-link pl-3" href="/assets/list?active=true&hardware=true"><span class="ml-1 item-text"> Hardwares (Active)</span></a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link pl-3" href="/assets/list?active=false&hardware=true"><span class="ml-1 item-text">Hardwares (InActive)</span></a>
           </li>
         </ul>
       </li>
@@ -87,17 +90,23 @@
         </a>
         <ul class="collapse list-unstyled pl-4 w-100" id="tables">
           <li class="nav-item">
+            <a class="nav-link pl-3" href="/createreport"><span class="ml-1 item-text">Create Report</span></a>
+          </li>
+          <li class="nav-item">
             <a class="nav-link pl-3" href="/bbreports"><span class="ml-1 item-text">Bug Bounty</span></a>
           </li>
           <li class="nav-item">
             <a class="nav-link pl-3" href="/pentestsreport"><span class="ml-1 item-text">Pentests</span></a>
           </li>
+          <li class="nav-item">
+          <a class="nav-link pl-3" href="/listreports"><span class="ml-1 item-text">Audit Reports</span></a>
+        </li>
         </ul>
       </li>
       <li class="nav-item dropdown">
         <a href="#charts" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle nav-link">
           <i class="fe fe-pie-chart fe-16"></i>
-          <span class="ml-3 item-text">Reporting</span>
+          <span class="ml-3 item-text">Scans</span>
         </a>
         <ul class="collapse list-unstyled pl-4 w-100" id="charts">
           <li class="nav-item">

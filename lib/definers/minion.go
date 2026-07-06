@@ -23,11 +23,18 @@ type Minion struct {
   TunnelAddress string `json:"tunnel_address"`
   Tls bool `json:"tls"`
   //Motherships []map[string]string  `json:"motherships"`
+  Active bool `json:"active"`
+  Describer Describers `json:"describers"`
   OwnerID string `json:"owner_id"`
   LastSeen string `json:"lastseen"`
   IsDropper bool `json:"is_dropper"`
   GenCommand string `json:"generate_command"`
   utils.TimeStamps
+}
+
+
+type Describers struct {
+    Motherships []map[string]string  `json:"motherships"`
 }
 
 /*

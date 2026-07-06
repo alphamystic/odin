@@ -115,23 +115,6 @@ func (hnd *Handler) Register(res http.ResponseWriter, req *http.Request) {
   http.Redirect(res, req, "/mkubwa", http.StatusSeeOther)
 }
 
-
-/*
-// You can try picking the user data and log it out for testing/logging purposes
-if _,err := hnd.GetUDFromToken(req); err != nil {
-  utils.Warning(fmt.Sprintf("%s", err))
-  if errors.Is(err,dfn.UserNotLoggedIn){
-    http.Redirect(res,req,"/register",http.StatusSeeOther)
-    return
-  }
-  if errors.Is(err,dfn.NoClaimsError){
-    http.Redirect(res,req,"/logout",http.StatusSeeOther)
-    return
-  }
-  //we can log this error somewhere as a http request error
-  hnd.ExecRegister(res, req,"")
-  return
-}*/
 //  @TODO Add a set expiry
 func (hnd *Handler) Signin(res http.ResponseWriter, req *http.Request){
   if req.Method == "POST"{
@@ -152,11 +135,13 @@ func (hnd *Handler) Signin(res http.ResponseWriter, req *http.Request){
     if err != nil {
       utils.Logerror(err)
       if errors.Is(err,dfn.WrongPassword) {
-        hnd.RL.LogRequestDetails(req, fmt.Sprintf("Wrong password attmept with email %s and password %s",email,pass))
+        hnd.RL.LogRequestDetails(req, fmt.Sprintf("Wrong password attempt with email %s and password %s",email,pass))
         hnd.ExecLogin(res,req,"Wrong email or password provided.")
         return
       }
-      hnd.ExecLogin(res,req,"We are experiencing internal server issues, please try again later. :)")
+      fmt.Println(err)
+      //hnd.ExecLogin(res,req,fmt.Sprintf("We are experiencing internal server issues, please try again later. :) %s",err))
+      hnd.ExecLogin(res,req,"We are experiencing internal server issues, please try again later. :).")
       return
     }
     cookie := http.Cookie{
@@ -165,11 +150,12 @@ func (hnd *Handler) Signin(res http.ResponseWriter, req *http.Request){
         Path:     "/",
         MaxAge:   72000,
         HttpOnly: true,
-        Secure:   true,
+        Secure:   false,
         SameSite: http.SameSiteLaxMode,
     }
     http.SetCookie(res,&cookie)
     //redirect to dashboard or get the dash data and execute dash
+    //fmt.Println("oOken: ",token)
     http.Redirect(res,req,"/",http.StatusSeeOther)
     return
   }

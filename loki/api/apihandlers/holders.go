@@ -33,6 +33,7 @@ type AuthResponse struct {
 
 
 type APIHandler struct {
+  UE *utils.Crypter // This is the universal file encrypter and decryptor.
   Dom *dom.Domain
   Store *http.Cookie
   Dbs *sql.DB

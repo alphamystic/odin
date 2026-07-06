@@ -58,17 +58,17 @@ func (ad *AdminData) RunMothershipHTTP(){
     }
     config := &tls.Config{Certificates: []tls.Certificate{cert}}
     server := &http.Server{
-      Addr:"0.0.0.0:"+utils.IntToString(ad.Ad.OPort),
+      Addr: ad.Ad.OAddress,
       TLSConfig: config,
     }
-	  err = server.ListenAndServeTLS("", "")
+    err = server.ListenAndServeTLS("", "")
     if err != nil{
      utils.Logerror(err);return
     }
   case "DNS":
   case "DOH":
   default:
-    err := http.ListenAndServe("0.0.0.0:"+utils.IntToString(ad.Ad.OPort),nil)
+    err := http.ListenAndServe(ad.Ad.OAddress,nil)
     if err != nil {
       utils.CustomError("[+] Error starting HTTP server: ",err)
     }

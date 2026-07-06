@@ -1,70 +1,262 @@
-<div class="container-fluid">
-  <div class="row justify-content-center">
-    <div class="col-12">
-      <h1 class="mb-2 page-title">Let's start</h1>
-        <!-- simple table -->
-        <div class="row my-4"><div class="col-md-12">
-          <div class="card shadow">
-            <div class="card-body">
-              <h5 class="card-title">Simple Table</h5>
-              <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
-              <table class="table table-hover">
-                <thead>
-                  <tr>
-                    <th>ID</th>
-                    <th>Name</th>
-                    <th>Company</th>
-                    <th>Address</th>
-                    <th>Date</th>
-                    <th>Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td>3224</td>
-                    <td>Keith Baird</td>
-                    <td>Enim Limited</td>
-                    <td>901-6206 Cras Av.</td>
-                    <td>Apr 24, 2019</td>
-                    <td><span class="badge badge-pill badge-warning">Hold</span></td>
-                  </tr>
-                  <tr>
-                    <td>3218</td>
-                    <td>Graham Price</td>
-                    <td>Nunc Lectus Incorporated</td>
-                    <td>Ap #705-5389 Id St.</td>
-                    <td>May 23, 2020</td>
-                    <td><span class="badge badge-pill badge-success">Success</span></td>
-                  </tr>
-                  <tr>
-                    <td>2651</td>
-                    <td>Reuben Orr</td>
-                    <td>Nisi Aenean Eget Limited</td>
-                    <td>7425 Malesuada Rd.</td>
-                    <td>Nov 4, 2019</td>
-                    <td><span class="badge badge-pill badge-warning">Hold</span></td>
-                  </tr>
-                  <tr>
-                    <td>2636</td>
-                    <td>Akeem Holder</td>
-                    <td>Pellentesque Associates</td>
-                    <td>896 Sodales St.</td>
-                    <td>Mar 27, 2020</td>
-                    <td><span class="badge badge-pill badge-danger">Danger</span></td>
-                  </tr>
-                  <tr>
-                    <td>2757</td>
-                    <td>Beau Barrera</td>
-                    <td>Augue Incorporated</td>
-                    <td>4583 Id St.</td>
-                    <td>Jan 13, 2020</td>
-                    <td><span class="badge badge-pill badge-success">Success</span></td>
-                  </tr>
-                </tbody>
-              </table>
+<div class="card shadow">
+  <div class="card-header">
+    <strong class="card-title">Active API Credentials</strong>
+  </div>
+  <div class="card-body">
+    <table class="table table-striped table-hover border-v">
+      <thead class="thead-dark">
+        <tr>
+          <th>Service / Tool</th>
+          <th>Owner</th>
+          <th>Type</th>
+          <th>Status</th>
+          <th>Created</th>
+          <th class="text-right">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{range .apikeys}}
+        <tr>
+          <td><strong>{{.ToolName}}</strong></td>
+          <td>{{.OwnerID}}</td>
+          <td><span class="badge badge-light text-uppercase">{{.CredentialType}}</span></td>
+          <td>
+            {{if .Active}}<span class="badge badge-dark">Active</span>{{else}}<span class="badge badge-warning">Inactive</span>{{end}}
+          </td>
+          <td>{{.CreatedAt.Format "Jan 02, 2006"}}</td>
+          <td class="text-right">
+            {{ $cid := "" }} {{ $csec := "" }} {{ $isOauth := "false" }}
+            {{ if eq .CredentialType "oauth" }}
+                {{ $cid = .Data.ClientID }} {{ $csec = .Data.ClientSecret }} {{ $isOauth = "true" }}
+            {{ else if .Data.ApiKey }}
+                {{ $cid = .Data.ApiKey }}
+            {{ else if .Data.Token }}
+                {{ $cid = .Data.Token }}
+            {{ end }}
+
+            <button class="btn btn-sm btn-outline-info mr-1"
+                    onclick="revealKey('{{.KeyID}}', '{{.ToolName}}', '{{$cid}}', '{{$csec}}', {{$isOauth}})"
+                    data-toggle="modal"
+                    data-target="#revealKeyModal">
+              <i class="fe fe-eye"></i>
+            </button>
+
+            <button class="btn btn-sm btn-outline-primary mr-1"
+                    onclick="initUpdateModal('{{.KeyID}}', '{{.ToolName}}', '{{.OwnerID}}', '{{.CredentialType}}', {{.Active}})">
+              <i class="fe fe-edit"></i>
+            </button>
+
+            <button class="btn btn-sm btn-outline-warning"
+                    onclick="deactivateKey('{{.KeyID}}', '{{.ToolName}}', '{{.OwnerID}}', '{{.CredentialType}}')">
+              <i class="fe fe-slash"></i>
+            </button>
+          </td>
+        </tr>
+        {{else}}
+        <tr><td colspan="6" class="text-center text-muted">No API keys found.</td></tr>
+        {{end}}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="modal fade" id="revealKeyModal" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content shadow-lg border-0">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title">Credential Reveal</h5>
+        <button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
+      </div>
+      <div class="modal-body p-4">
+        <p class="text-muted small text-center">Belongs to: <strong id="modalToolNameDisplay">...</strong></p>
+
+        <div class="form-group">
+          <label id="labelPrimary" class="small font-weight-bold">Key / Client ID</label>
+          <div class="input-group mb-3">
+            <input type="text" id="primarySecretInput" class="form-control bg-light font-weight-bold" readonly>
+            <div class="input-group-append">
+              <button class="btn btn-primary" onclick="copyValue('primarySecretInput')">Copy</button>
             </div>
-          </div></div>
-        </div> <!-- simple table -->
-    </div> <!-- .col-12 -->
-  </div> <!-- .row -->
-</div> <!-- .container-fluid -->
+          </div>
+        </div>
+
+        <div id="oauthSecretGroup" class="form-group" style="display: none;">
+          <label class="small font-weight-bold">Client Secret</label>
+          <div class="input-group mb-3">
+            <input type="text" id="oauthSecretInput" class="form-control bg-light font-weight-bold" readonly>
+            <div class="input-group-append">
+              <button class="btn btn-primary" onclick="copyValue('oauthSecretInput')">Copy</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="alert alert-warning small mb-0 mt-3">
+          <i class="fe fe-alert-triangle mr-2"></i>Warning: This action is logged.
+        </div>
+      </div>
+      <div class="modal-footer justify-content-between">
+        <button class="btn btn-outline-danger" id="dynamicRevokeBtn">Revoke Key</button>
+        <button class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="updateKeyModal" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content shadow-lg border-0">
+      <div class="modal-header bg-dark text-white">
+        <h5 class="modal-title">Update API Credential</h5>
+        <button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
+      </div>
+      <form id="updateKeyForm">
+        <div class="modal-body">
+          <input type="hidden" id="upd_key_id">
+          <input type="hidden" id="upd_ownerid">
+
+          <div class="row">
+            <div class="col-md-6 form-group">
+              <label class="small font-weight-bold">Tool Name</label>
+              <input type="text" id="upd_tool_name" class="form-control" required>
+            </div>
+            <div class="col-md-6 form-group">
+              <label class="small font-weight-bold">Credential Type</label>
+              <select id="upd_credential_type" class="form-control" onchange="toggleUpdateFields()">
+                <option value="apikey">API Key</option>
+                <option value="oauth">OAuth 2.0</option>
+                <option value="token">Bearer Token</option>
+              </select>
+            </div>
+          </div>
+
+          <hr>
+          <div id="upd_apikey_fields">
+            <div class="form-group">
+              <label class="small">API Key / Token</label>
+              <input type="password" id="upd_api_key" class="form-control" placeholder="Leave blank to keep current">
+            </div>
+          </div>
+
+          <div id="upd_oauth_fields" style="display:none;">
+            <div class="form-group">
+              <label class="small">Client ID</label>
+              <input type="text" id="upd_client_id" class="form-control">
+            </div>
+            <div class="form-group">
+              <label class="small">Client Secret</label>
+              <input type="password" id="upd_client_secret" class="form-control" placeholder="Leave blank to keep current">
+            </div>
+          </div>
+
+          <div class="custom-control custom-switch mt-3">
+            <input type="checkbox" class="custom-control-input" id="upd_active">
+            <label class="custom-control-label" for="upd_active">Active Status</label>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+<script>
+/** 1. Reveal Logic **/
+function revealKey(keyID, toolName, primary, secondary, isOauth) {
+    const primaryInput = document.getElementById('primarySecretInput');
+    const oauthInput = document.getElementById('oauthSecretInput');
+    const oauthGroup = document.getElementById('oauthSecretGroup');
+    const labelPrimary = document.getElementById('labelPrimary');
+    const nameLabel = document.getElementById('modalToolNameDisplay');
+    const revokeBtn = document.getElementById('dynamicRevokeBtn');
+
+    nameLabel.innerText = toolName;
+    primaryInput.value = primary;
+
+    if (isOauth) {
+        labelPrimary.innerText = "Client ID";
+        oauthInput.value = secondary;
+        oauthGroup.style.display = "block";
+    } else {
+        labelPrimary.innerText = "API Key / Token";
+        oauthGroup.style.display = "none";
+        oauthInput.value = "";
+    }
+    // Set revoke btn to deactivate this specific key
+    revokeBtn.onclick = function() { deactivateKey(keyID, toolName, "", ""); };
+}
+
+/** 2. Update/Deactivate AJAX Logic **/
+function toggleUpdateFields() {
+    const type = document.getElementById('upd_credential_type').value;
+    document.getElementById('upd_apikey_fields').style.display = (type !== 'oauth') ? 'block' : 'none';
+    document.getElementById('upd_oauth_fields').style.display = (type === 'oauth') ? 'block' : 'none';
+}
+
+function initUpdateModal(id, name, owner, type, active) {
+    document.getElementById('upd_key_id').value = id;
+    document.getElementById('upd_tool_name').value = name;
+    document.getElementById('upd_ownerid').value = owner;
+    document.getElementById('upd_credential_type').value = type;
+    document.getElementById('upd_active').checked = active;
+    toggleUpdateFields();
+    $('#updateKeyModal').modal('show');
+}
+
+document.getElementById('updateKeyForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const payload = {
+        key_id: document.getElementById('upd_key_id').value,
+        tool_name: document.getElementById('upd_tool_name').value,
+        ownerid: document.getElementById('upd_ownerid').value,
+        credential_type: document.getElementById('upd_credential_type').value,
+        active: document.getElementById('upd_active').checked,
+        data: {
+            api_key: document.getElementById('upd_api_key').value,
+            client_id: document.getElementById('upd_client_id').value,
+            client_secret: document.getElementById('upd_client_secret').value
+        }
+    };
+    performAjaxUpdate(payload);
+});
+
+function deactivateKey(id, name, owner, type) {
+    if (confirm(`Are you sure you want to set ${name} to INACTIVE?`)) {
+        const payload = {
+            key_id: id,
+            tool_name: name,
+            ownerid: owner,
+            credential_type: type,
+            active: false, // Update to inactive
+            data: {}
+        };
+        performAjaxUpdate(payload);
+    }
+}
+
+function performAjaxUpdate(payload) {
+    fetch('/api/keys/update', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.status === 'success') {
+            location.reload();
+        } else {
+            alert("Error: " + (data.error || data.message));
+        }
+    })
+    .catch(err => console.error("Update failed:", err));
+}
+
+function copyValue(elementId) {
+    const copyText = document.getElementById(elementId);
+    copyText.select();
+    navigator.clipboard.writeText(copyText.value).then(() => {
+        alert("Copied to clipboard!");
+    });
+}
+</script>

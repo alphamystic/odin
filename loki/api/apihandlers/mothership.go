@@ -3,7 +3,7 @@ package apihandlers
 import (
 	"fmt"
 	"net/http"
-	"strconv"
+	//"strconv"
 	"context"
 	"encoding/json"
 
@@ -28,6 +28,12 @@ func (api_hnd *APIHandler) CreateMothership(res http.ResponseWriter, req *http.R
 		http.Error(res, err.Error(), http.StatusBadRequest)
 		return
 	}
+    ud := req.Context().Value("userData").(*UserData)
+    if ud == nil {
+        api_hnd.Unauthorized(res, "User data not found")
+        return
+    }
+    ms.OwnerID = ud.UserId
 
 	// Basic setup
 	ms.MSId = utils.GenerateUUID()
@@ -55,8 +61,13 @@ func (api_hnd *APIHandler) ListMotherships(res http.ResponseWriter, req *http.Re
 		return
 	}
 
-	ownerID := req.URL.Query().Get("ownerid")
-	if utils.CheckifStringIsEmpty(ownerID) {
+    ud := req.Context().Value("userData").(*UserData)
+    if ud == nil {
+        api_hnd.Unauthorized(res, "User data not found")
+        return
+    }
+	ownerID := ud.UserId
+	if !utils.CheckifStringIsEmpty(ownerID) {
 		api_hnd.BadRequest(res, "OwnerID is required.")
 		return
 	}
@@ -83,10 +94,12 @@ func (api_hnd *APIHandler) ListMotherships(res http.ResponseWriter, req *http.Re
 		api_hnd.InternalServerError(res, "Failed to list motherships.")
 		return
 	}
-
-	res.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(res).Encode(motherships)
-	return
+	api_hnd.DynamicResponse(res, map[string]interface{}{
+        "status":  "success",
+        "message": "Mothership created successfully.",
+        "data":    motherships,
+    })
+    return
 }
 
 // ListFilteredMotherships - list by owner with filters (active, online)
@@ -96,19 +109,22 @@ func (api_hnd *APIHandler) ListFilteredMotherships(res http.ResponseWriter, req 
 		return
 	}
 
-	ownerID := req.URL.Query().Get("ownerid")
-	if utils.CheckifStringIsEmpty(ownerID) {
+	ud := req.Context().Value("userData").(*UserData)
+    if ud == nil {
+        api_hnd.Unauthorized(res, "User data not found")
+        return
+    }
+    ownerID := ud.UserId
+	if !utils.CheckifStringIsEmpty(ownerID) {
 		api_hnd.BadRequest(res, "OwnerID is required.")
 		return
 	}
 
 	activeStr := req.URL.Query().Get("active")
-	onlineStr := req.URL.Query().Get("online")
 	limitStr := req.URL.Query().Get("limit")
 	offsetStr := req.URL.Query().Get("offset")
 
 	active := activeStr != "false"
-	online := onlineStr == "true"
 
 	limit := utils.StringToInt(limitStr)
 	offset := utils.StringToInt(offsetStr)
@@ -117,16 +133,23 @@ func (api_hnd *APIHandler) ListFilteredMotherships(res http.ResponseWriter, req 
 	}
 
 	ctx := context.Background()
-	motherships, err := api_hnd.Dom.ListFilteredMotherships(ownerID, active, online, limit, offset, ctx)
+	motherships, err := api_hnd.Dom.ListFilteredMotherships(ownerID, active, limit, offset, ctx)
 	if err != nil {
 		utils.Warning(fmt.Sprintf("Error filtering motherships: %v", err))
 		api_hnd.InternalServerError(res, "Failed to filter motherships.")
 		return
 	}
 
-	res.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(res).Encode(motherships)
+    api_hnd.DynamicResponse(res, map[string]interface{}{
+		"status":  "success",
+		"message": "Mothership created successfully.",
+		"data":    motherships,
+	})
 	return
+
+// 	res.Header().Set("Content-Type", "application/json")
+// 	json.NewEncoder(res).Encode(motherships)
+// 	return
 }
 
 // ViewMothership - view single mothership by msid
@@ -137,7 +160,7 @@ func (api_hnd *APIHandler) ViewMothership(res http.ResponseWriter, req *http.Req
 	}
 
 	msid := req.URL.Query().Get("msid")
-	if utils.CheckifStringIsEmpty(msid) {
+	if !utils.CheckifStringIsEmpty(msid) {
 		api_hnd.BadRequest(res, "MSID cannot be empty.")
 		return
 	}
@@ -176,7 +199,7 @@ func (api_hnd *APIHandler) UpdateMothership(res http.ResponseWriter, req *http.R
 		return
 	}
 
-	if utils.CheckifStringIsEmpty(update.MSId) || utils.CheckifStringIsEmpty(update.OwnerID) {
+	if !utils.CheckifStringIsEmpty(update.MSId) || !utils.CheckifStringIsEmpty(update.OwnerID) {
 		api_hnd.BadRequest(res, "MSID and OwnerID are required.")
 		return
 	}
@@ -208,9 +231,14 @@ func (api_hnd *APIHandler) DeactivateMothership(res http.ResponseWriter, req *ht
 	}
 
 	msid := req.URL.Query().Get("msid")
-	ownerID := req.URL.Query().Get("ownerid")
+	ud := req.Context().Value("userData").(*UserData)
+    if ud == nil {
+        api_hnd.Unauthorized(res, "User data not found")
+        return
+    }
+    ownerID := ud.UserId
 
-	if utils.CheckifStringIsEmpty(msid) || utils.CheckifStringIsEmpty(ownerID) {
+	if !utils.CheckifStringIsEmpty(msid) || !utils.CheckifStringIsEmpty(ownerID) {
 		api_hnd.BadRequest(res, "MSID and OwnerID are required.")
 		return
 	}

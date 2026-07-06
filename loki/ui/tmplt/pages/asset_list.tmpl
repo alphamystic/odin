@@ -1,0 +1,172 @@
+<div id="asset-alert-stack" style="position: fixed; top: 20px; right: 20px; z-index: 3000; width: 350px;"></div>
+
+<div class="d-flex align-items-center mb-3">
+    <h2 class="h4">Inventory Intelligence</h2>
+    <button class="btn btn-success ml-auto" onclick="openAssetModal('create')">
+        <i class="fe fe-plus mr-1"></i> New Asset
+    </button>
+</div>
+
+<div class="card shadow">
+    <div class="card-body">
+        <table class="table table-hover table-sm">
+            <thead>
+                <tr>
+                    <th>Asset Info</th>
+                    <th>Intelligence Metadata</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{range .assets}}
+                <tr>
+                    <td>
+                        <strong>{{.AssetName}}</strong><br>
+                        <small class="text-muted">{{.AssetID}}</small>
+                    </td>
+                    <td>
+                        {{range $k, $v := .DescMap}}
+                        <span class="badge badge-light border text-dark">{{$k}}:{{$v}}</span>
+                        {{end}}
+                    </td>
+                    <td>
+                        {{if .Active}}<span class="badge badge-success">Online</span>{{else}}<span class="badge badge-secondary">Offline</span>{{end}}
+                    </td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-primary"
+                                onclick="openAssetModal('update', this)"
+                                data-id="{{.AssetID}}"
+                                data-name="{{.AssetName}}"
+                                data-desc="{{.Description}}"
+                                data-active="{{.Active}}"
+                                data-hard="{{.Hardware}}"
+                                data-describer='{{.RawDescriberJSON}}'>
+                            Manage
+                        </button>
+                    </td>
+                </tr>
+                {{end}}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="modal fade" id="assetModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-dark text-white">
+                <h5 class="modal-title" id="m_title">Asset Management</h5>
+                <button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
+            </div>
+            <div class="modal-body">
+                <form id="assetForm">
+                    <input type="hidden" id="m_id">
+                    <div class="row">
+                        <div class="col-md-4 border-right">
+                            <h6 class="text-primary mb-3">Asset Identity</h6>
+                            <div class="form-group"><label>Name</label><input type="text" id="m_name" class="form-control" required></div>
+                            <div class="form-group"><label>Description</label><textarea id="m_desc" class="form-control" rows="2"></textarea></div>
+                            <div class="custom-control custom-switch mb-2">
+                                <input type="checkbox" class="custom-control-input" id="m_active">
+                                <label class="custom-control-label" for="m_active">Active</label>
+                            </div>
+                            <div class="custom-control custom-switch">
+                                <input type="checkbox" class="custom-control-input" id="m_hard">
+                                <label class="custom-control-label" for="m_hard">Hardware Device</label>
+                            </div>
+                        </div>
+                        <div class="col-md-8">
+                            <h6 class="text-primary mb-3">Technical Describer</h6>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group"><label>Agent ID</label><input type="text" id="d_agentid" class="form-control form-control-sm"></div>
+                                    <div class="form-group"><label>OS Type</label><input type="text" id="d_ostype" class="form-control form-control-sm"></div>
+                                    <div class="form-group"><label>Asset Type</label><input type="text" id="d_asset_type" class="form-control form-control-sm"></div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group"><label>Location</label><input type="text" id="d_location" class="form-control form-control-sm"></div>
+                                    <div class="form-group"><label>Criticality</label><input type="text" id="d_criticality" class="form-control form-control-sm"></div>
+                                    <div class="form-group"><label>Obs. Tool</label><input type="text" id="d_obervability_tool" class="form-control form-control-sm"></div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group"><label>Notes</label><textarea id="d_notes" class="form-control form-control-sm" rows="5"></textarea></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary btn-block" onclick="processSave()">Sync Intelligence</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function spawnAlert(type, msg) {
+    $('#asset-alert-stack').html(`<div class="alert alert-${type} shadow border-0">${msg}</div>`);
+    if(type === 'success') setTimeout(() => location.reload(), 1500);
+}
+
+function openAssetModal(mode, btn) {
+    $('#assetForm')[0].reset();
+
+    if (mode === 'update') {
+        const $btn = $(btn);
+        $('#m_id').val($btn.data('id'));
+        $('#m_name').val($btn.data('name'));
+        $('#m_desc').val($btn.data('desc'));
+        $('#m_active').prop('checked', $btn.data('active'));
+        $('#m_hard').prop('checked', $btn.data('hard'));
+
+        const d = $btn.data('describer');
+        if(d) {
+            $('#d_agentid').val(d.agentid || '');
+            $('#d_ostype').val(d.ostype || '');
+            $('#d_asset_type').val(d.asset_type || '');
+            $('#d_location').val(d.location || '');
+            $('#d_criticality').val(d.criticality || '');
+            $('#d_obervability_tool').val(d.obervability_tool || '');
+            $('#d_notes').val(d.notes || '');
+        }
+    } else {
+        $('#m_id').val(''); // Create mode
+    }
+    $('#assetModal').modal('show');
+}
+
+function processSave() {
+    const id = $('#m_id').val();
+    const isUpdate = id !== "";
+    const url = isUpdate ? '/api/assets/update' : '/api/assets/create';
+
+    const payload = {
+        asset_id: id,
+        asset_name: $('#m_name').val(),
+        description: $('#m_desc').val(),
+        active: $('#m_active').is(':checked'),
+        hardware: $('#m_hard').is(':checked'),
+        describer: {
+            agentid: $('#d_agentid').val(),
+            ostype: $('#d_ostype').val(),
+            asset_type: $('#d_asset_type').val(),
+            location: $('#d_location').val(),
+            criticality: $('#d_criticality').val(),
+            obervability_tool: $('#d_obervability_tool').val(),
+            notes: $('#d_notes').val()
+        }
+    };
+
+    $.ajax({
+        url: url,
+        method: 'POST',
+        contentType: 'application/json',
+        xhrFields: { withCredentials: true },
+        data: JSON.stringify(payload),
+        success: () => spawnAlert('success', isUpdate ? 'Asset Updated' : 'Asset Created'),
+        error: (x) => spawnAlert('danger', 'Error: ' + x.responseText)
+    });
+}
+</script>

@@ -15,7 +15,8 @@ import (
 const (
   createTargetStmt = `INSERT INTO odin.targets (target_id,scan_id,host,host_ip,target_ip,firewall_name,decoys,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?,?);`
   listTargetsStmt = "SELECT * FROM odin.targets WHERE (scan_id = ?) ORDER BY updated_at ASC;"
-  viewTargetStmt = `SELECT * FROM odin.targets WHERE target_id = ?;`
+  //viewTargetStmt = `SELECT * FROM odin.targets WHERE target_id = ?;`
+  viewTargetStmt = `SELECT target_id, scan_id, host, host_ip, target_ip, firewall_name, decoys, created_at, updated_at FROM odin.targets WHERE target_id = ?;`
 )
 
 func (d *Domain) WriteTargetToDB(trgt *png_hnd.Target, ctx context.Context) error {

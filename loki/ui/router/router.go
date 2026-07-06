@@ -50,10 +50,10 @@ func (rtr *Router) Run(reg bool){
   })))
 
   // create a request logger
-  rl := utils.NewRequestLogger("./.logs/requests/",066)
+  rl := utils.NewRequestLogger("./.data/logs/requests/",066)
 
   // initiate new handler
-  hnd,err := handlers.NewHandler(ShutdownCh, DoneCh, rl,"http://localhost:5000","12345")
+  hnd,err := handlers.NewHandler(ShutdownCh, DoneCh, rl,"https://localhost:5001","12345")
   if err != nil {
     utils.Danger(err);return
   }
@@ -64,7 +64,7 @@ func (rtr *Router) Run(reg bool){
   rtr.Mux.HandleFunc("/health",hnd.Health)
   rtr.Mux.HandleFunc("/portfolio",hnd.Portfolio)
   rtr.Mux.HandleFunc("/blogs",hnd.BlogSite)
-  rtr.Mux.HandleFunc("/createblog",hnd.Createblog)
+  rtr.Mux.HandleFunc("/createblog",hnd.Createblog) /// this renders perfect, use this to reports
   rtr.Mux.HandleFunc("/writeblog",hnd.Writeblog)
 
   // Odin Net
@@ -78,7 +78,7 @@ func (rtr *Router) Run(reg bool){
 
   //panel side
   rtr.Mux.HandleFunc("/test",hnd.Blank)
-  rtr.Mux.HandleFunc("/",hnd.Home)
+  rtr.Mux.HandleFunc("/",hnd.Home) //.Home
   rtr.Mux.HandleFunc("/mkubwa",hnd.Signin)
   rtr.Mux.HandleFunc("/signout",hnd.Logout)
   rtr.Mux.HandleFunc("/register",hnd.Register)
@@ -86,22 +86,35 @@ func (rtr *Router) Run(reg bool){
   rtr.Mux.HandleFunc("/apt",hnd.Apt)
   rtr.Mux.HandleFunc("/edr",hnd.Edr)
 
-  rtr.Mux.HandleFunc("/bb",hnd.Bugbounty)
-  rtr.Mux.HandleFunc("/pentests",hnd.Pentests)
+  rtr.Mux.HandleFunc("/bb",hnd.Bugbounty) //lists
+  rtr.Mux.HandleFunc("/pentests",hnd.Pentests) //lists
   rtr.Mux.HandleFunc("/bo",hnd.Blackops)
 
-  rtr.Mux.HandleFunc("/ms",hnd.Motherships)
+  //Scan tests
+  rtr.Mux.HandleFunc("/scans",hnd.RenderScans) //lists
+  rtr.Mux.HandleFunc("/scans/list-targets",hnd.ListTargets) //lists
+  rtr.Mux.HandleFunc("/scans/view-target",hnd.ViewTarget)
 
+  rtr.Mux.HandleFunc("/bbreports",hnd.BugBountyReports)//rendering
+  rtr.Mux.HandleFunc("/createreport", hnd.ManageBlog)
+  rtr.Mux.HandleFunc("/reports/import", hnd.ParseDocument)
+  rtr.Mux.HandleFunc("/listreports",hnd.RenderBlogList) // use this to list various blogs(templates)
+  rtr.Mux.HandleFunc("/viewsreports",hnd.ViewReport)
+  rtr.Mux.HandleFunc("/pentestsreport",hnd.PentestsReports) //rendering
+
+  rtr.Mux.HandleFunc("/ms",hnd.ListMotherships)
+
+  // Asset manager
+  rtr.Mux.HandleFunc("/assets/list", hnd.ListAssets)
   rtr.Mux.HandleFunc("/agents",hnd.Minions)
-  rtr.Mux.HandleFunc("/iot",hnd.IotRouters)
-  rtr.Mux.HandleFunc("/phone",hnd.AndroidIOs)
 
-  rtr.Mux.HandleFunc("/bbreports",hnd.BugBountyReports)
-  rtr.Mux.HandleFunc("/pentestsreport",hnd.PentestsReports)
 
   rtr.Mux.HandleFunc("/pendingscans",hnd.Pendingscans)
   rtr.Mux.HandleFunc("/phishinglinks",hnd.Phishinglinks)
   rtr.Mux.HandleFunc("/zerodays",hnd.Zerodays)
+
+  // Adding a report manager to create an aggregate functionality
+  rtr.Mux.HandleFunc("/reports/create",hnd.ListFiles)
 
   rtr.Mux.HandleFunc("/listfiles",hnd.ListFiles)
 
@@ -126,6 +139,7 @@ func (rtr *Router) Run(reg bool){
 
   rtr.Mux.HandleFunc("/issues",hnd.CurrentIssues)
   rtr.Mux.HandleFunc("/appointments",hnd.Viewappointments)
+
 
   rtr.Mux.HandleFunc("/docs",hnd.Documentation)
   // End of handlers

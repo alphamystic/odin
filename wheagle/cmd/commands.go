@@ -76,7 +76,7 @@ var cmdAdminCli = &cobra.Command {
     resp.Body.Close()
     utils.Interactor(id,true)
     var iarg string
-		reader := bufio.NewReader(os.Stdin)
+	reader := bufio.NewReader(os.Stdin)
     for {
       START:
       fmt.Printf("[ADMIN-INTERACTOR]: ")

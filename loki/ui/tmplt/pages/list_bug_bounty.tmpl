@@ -1,0 +1,53 @@
+<div class="card shadow">
+  <div class="card-body">
+    <div class="toolbar row mb-3">
+      <div class="col"><h5 class="card-title">Bug Bounty Program</h5></div>
+      <div class="col text-right"><button class="btn btn-primary btn-sm">Export CSV</button></div>
+    </div>
+    <table class="table datatables" id="dataTable-1">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Researcher</th>
+          <th>Vulnerability</th>
+          <th>Asset Path</th>
+          <th>Severity</th>
+          <th>Payout</th>
+          <th>Status</th>
+          <th>Date</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>882</td>
+          <td><strong>sec_ghost_01</strong><br/><small class="text-muted">External</small></td>
+          <td>SQL Injection</td>
+          <td><code>api.prod.v1/search</code></td>
+          <td><span class="badge badge-pill badge-danger">Critical</span></td>
+          <td>$2,500.00</td>
+          <td><span class="dot dot-md bg-success mr-2"></span>Paid</td>
+          <td>Mar 12, 2026</td>
+          <td>
+            <button class="btn btn-sm dropdown-toggle more-horizontal" type="button" data-toggle="dropdown"></button>
+            <div class="dropdown-menu dropdown-menu-right">
+              <a class="dropdown-item" href="#">View Report</a>
+              <a class="dropdown-item" href="#">Message</a>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td>879</td>
+          <td><strong>intern_dev_sec</strong><br/><small class="text-muted">Internal</small></td>
+          <td>Broken Auth</td>
+          <td><code>dev-portal.internal/</code></td>
+          <td><span class="badge badge-pill badge-warning">High</span></td>
+          <td>$500.00</td>
+          <td><span class="dot dot-md bg-warning mr-2"></span>Validation</td>
+          <td>Feb 28, 2026</td>
+          <td><button class="btn btn-sm dropdown-toggle more-horizontal" data-toggle="dropdown"></button></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

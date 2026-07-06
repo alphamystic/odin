@@ -1,0 +1,40 @@
+<div class="row">
+  <div class="col-md-9">
+    <div class="card shadow mb-4">
+      <div class="card-header h6">Ticket History: #TK-1022</div>
+      <div class="card-body">
+        <div class="accordion" id="ticketContent">
+          <div class="card mb-2 border">
+            <div class="card-header"><a href="#" data-toggle="collapse" data-target="#msg1"><strong>User Request</strong> <small class="text-muted float-right">10:00 AM</small></a></div>
+            <div id="msg1" class="collapse show p-3">The KB503... security update keeps rolling back on my machine. Please advise.</div>
+          </div>
+        </div>
+
+        <h6 class="mt-4 mb-3">Response Thread</h6>
+        <div class="list-group list-group-flush mb-4">
+          <div class="list-group-item bg-transparent">
+            <div class="row align-items-center">
+              <div class="col-auto"><div class="avatar avatar-sm"><img src="./assets/avatars/face-3.jpg" class="avatar-img rounded-circle"></div></div>
+              <div class="col">
+                <strong>Admin Response</strong><br/>
+                <div class="bg-light p-2 rounded mt-1 small">Checking the error codes. Looks like a driver conflict. Try disabling the firewall temporarily.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <textarea class="form-control" rows="2" placeholder="Type your reply..."></textarea>
+        <button class="btn btn-primary mt-2">Send Update</button>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card shadow">
+      <div class="card-body">
+        <p class="small text-muted mb-1">Impacted Asset</p>
+        <h6>LAP-0021 (Win 11)</h6>
+        <hr/>
+        <button class="btn btn-outline-danger btn-block btn-sm">Escalate to Tier 3</button>
+      </div>
+    </div>
+  </div>
+</div>

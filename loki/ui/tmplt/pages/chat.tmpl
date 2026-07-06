@@ -1,116 +1,144 @@
 <div class="container-fluid">
   <div class="card shadow">
+    <div class="card-header border-0">
+      <h4 class="card-title mb-0">Odin Communication Center</h4>
+    </div>
     <div class="card-body">
-      <ul class="nav nav-pills nav-fill mb-3" id="pills-tab" role="tablist">
+      <ul class="nav nav-pills nav-fill mb-3" id="main-chat-tabs" role="tablist">
         <li class="nav-item">
-          <a class="nav-link active" id="pills-home-tab" data-toggle="pill" href="#pills-home" role="tab" aria-controls="pills-home" aria-selected="true">Chats</a>
+          <a class="nav-link active" id="pills-individual-tab" data-toggle="pill" href="#pills-individual" role="tab"><i class="fe fe-user mr-2"></i>Direct Messages</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" id="pills-profile-tab" data-toggle="pill" href="#pills-profile" role="tab" aria-controls="pills-profile" aria-selected="false">Groups</a>
+          <a class="nav-link" id="pills-groups-tab" data-toggle="pill" href="#pills-groups" role="tab"><i class="fe fe-users mr-2"></i>Tactical Groups</a>
         </li>
       </ul>
-      <div class="tab-content mb-1" id="pills-tabContent">
 
-        <!-- Chats Tab -->
-        <div class="tab-pane fade show active" id="pills-home" role="tabpanel" aria-labelledby="pills-home-tab">
-            <div class="d-flex flex-row tab-icon">
-              <div class="nav flex-column nav-pills" id="v-pills-tab3" role="tablist" aria-orientation="vertical">
-                <a class="nav-link py-3 active" id="v-pills-home-tab3" data-toggle="pill" href="#v-pills-home3" role="tab" aria-controls="v-pills-home3" aria-selected="true">
-                  <span class="fe fe-16 fe-box"></span> Chat 1
+      <div class="tab-content" id="pills-tabContent">
+        <div class="tab-pane fade show active" id="pills-individual" role="tabpanel">
+          <div class="row">
+            <div class="col-md-3 border-right">
+              <div class="nav flex-column nav-pills" id="dm-list" role="tablist" aria-orientation="vertical">
+                <a class="nav-link py-3 active" data-toggle="pill" href="#chat-user-1" role="tab">
+                  <div class="d-flex align-items-center">
+                    <div class="avatar avatar-sm mr-3"><span class="dot dot-md bg-success mr-1"></span></div>
+                    <span>Analyst Sam</span>
+                  </div>
                 </a>
-                <a class="nav-link py-3" id="v-pills-profile-tab3" data-toggle="pill" href="#v-pills-profile3" role="tab" aria-controls="v-pills-profile3" aria-selected="false">
-                  <span class="fe fe-16 fe-archive"></span> Chat 2
+                <a class="nav-link py-3" data-toggle="pill" href="#chat-user-2" role="tab">
+                  <div class="d-flex align-items-center">
+                    <div class="avatar avatar-sm mr-3"><span class="dot dot-md bg-warning mr-1"></span></div>
+                    <span>Agent Jane</span>
+                  </div>
                 </a>
               </div>
-              <div class="tab-content w-100" id="v-pills-tabContent3">
-                <!-- Chat 1 -->
-                <div class="tab-pane fade show active" id="v-pills-home3" role="tabpanel" aria-labelledby="v-pills-home-tab3">
-                  <div class="card mb-0">
-                    <div class="card-body chat-box" id="chat-box" style="height: 300px; overflow-y: auto;">
+            </div>
+            <div class="col-md-9">
+              <div class="tab-content w-100">
+                <div class="tab-pane fade show active" id="chat-user-1" role="tabpanel">
+                  <div class="chat-container">
+                    <div class="chat-header p-2 border-bottom mb-3"><strong>Analyst Sam</strong> <small class="text-muted">| Senior Security Researcher</small></div>
+                    <div class="chat-box" id="box-sam" style="height: 400px; overflow-y: auto;">
                       <div class="chat-message received">
-                        <strong>User1:</strong> Hello, how are you?
+                        <small class="text-primary font-weight-bold">Sam</small>
+                        <div>Did you see the new RCE finding in the internal middleware?</div>
+                        <small class="text-muted">10:45 AM</small>
                       </div>
                       <div class="chat-message sent">
-                        <strong>You:</strong> I'm good, thanks! How about you?
+                        <small class="text-white-50 font-weight-bold">You</small>
+                        <div>Just reviewing the technical narrative now. Deploying the patch shortly.</div>
+                        <small class="text-white-50">10:46 AM</small>
                       </div>
                     </div>
-                    <div class="card-footer">
-                      <input type="text" class="form-control" id="chat-input" placeholder="Type a message...">
-                      <button class="btn btn-primary mt-2" id="send-btn">Send</button>
+                    <div class="input-group mt-3">
+                      <input type="text" class="form-control" placeholder="Type direct message..." onkeypress="handleEnter(event, 'box-sam', this)">
+                      <div class="input-group-append">
+                        <button class="btn btn-primary" onclick="sendMessage('box-sam', this.parentElement.previousElementSibling)">Send</button>
+                      </div>
                     </div>
                   </div>
                 </div>
-                <!-- Chat 2 -->
-                <div class="tab-pane fade" id="v-pills-profile3" role="tabpanel" aria-labelledby="v-pills-profile-tab3">
-                  <div class="card mb-0">
-                    <div class="card-body chat-box" id="chat-box-2" style="height: 300px; overflow-y: auto;">
+                <div class="tab-pane fade" id="chat-user-2" role="tabpanel">
+                   <div class="chat-container">
+                    <div class="chat-header p-2 border-bottom mb-3"><strong>Agent Jane</strong></div>
+                    <div class="chat-box" id="box-jane" style="height: 400px; overflow-y: auto;">
                       <div class="chat-message received">
-                        <strong>User2:</strong> Hey, what's up?
-                      </div>
-                      <div class="chat-message sent">
-                        <strong>You:</strong> Not much, just working on some tasks.
+                        <small class="text-primary font-weight-bold">Jane</small>
+                        <div>Minion IDs 1Ca3 and 1Ca4 are showing high latency. Can you check the load balancer?</div>
+                        <small class="text-muted">11:05 AM</small>
                       </div>
                     </div>
-                    <div class="card-footer">
-                      <input type="text" class="form-control" id="chat-input-2" placeholder="Type a message...">
-                      <button class="btn btn-primary mt-2" id="send-btn-2">Send</button>
+                    <div class="input-group mt-3">
+                      <input type="text" class="form-control" placeholder="Type direct message..." onkeypress="handleEnter(event, 'box-jane', this)">
+                      <div class="input-group-append">
+                        <button class="btn btn-primary" onclick="sendMessage('box-jane', this.parentElement.previousElementSibling)">Send</button>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
+          </div>
         </div>
 
-        <!-- Groups Tab -->
-        <div class="tab-pane fade" id="pills-profile" role="tabpanel" aria-labelledby="pills-profile-tab">
-            <div class="d-flex flex-row tab-icon">
-              <div class="nav flex-column nav-pills" id="v-pills-tab3" role="tablist" aria-orientation="vertical">
-                <a class="nav-link py-3 active" id="v-pills-home-tab3" data-toggle="pill" href="#v-pills-home3" role="tab" aria-controls="v-pills-home3" aria-selected="true">
-                  <span class="fe fe-16 fe-box"></span> Group 1
+        <div class="tab-pane fade" id="pills-groups" role="tabpanel">
+          <div class="row">
+            <div class="col-md-3 border-right">
+              <div class="nav flex-column nav-pills" role="tablist" aria-orientation="vertical">
+                <a class="nav-link py-3 active" data-toggle="pill" href="#group-incident" role="tab">
+                  <span class="fe fe-shield mr-2 text-danger"></span> Incident Response
                 </a>
-                <a class="nav-link py-3" id="v-pills-profile-tab3" data-toggle="pill" href="#v-pills-profile3" role="tab" aria-controls="v-pills-profile3" aria-selected="false">
-                  <span class="fe fe-16 fe-archive"></span> Group 2
+                <a class="nav-link py-3" data-toggle="pill" href="#group-recon" role="tab">
+                  <span class="fe fe-search mr-2 text-info"></span> Recon Operations
                 </a>
               </div>
-              <div class="tab-content w-100" id="v-pills-tabContent3">
-                <!-- Group 1 -->
-                <div class="tab-pane fade show active" id="v-pills-home3" role="tabpanel" aria-labelledby="v-pills-home-tab3">
-                  <div class="card mb-0">
-                    <div class="card-body chat-box" id="chat-box-group-1" style="height: 300px; overflow-y: auto;">
+            </div>
+            <div class="col-md-9">
+              <div class="tab-content">
+                <div class="tab-pane fade show active" id="group-incident" role="tabpanel">
+                  <div class="chat-container">
+                    <div class="chat-header p-2 border-bottom mb-3 text-danger"><strong>Incident Response Channel</strong></div>
+                    <div class="chat-box" id="box-group-ir" style="height: 400px; overflow-y: auto;">
                       <div class="chat-message received">
-                        <strong>Group Admin:</strong> Welcome to the group!
+                        <small class="text-danger font-weight-bold">SOC-Lead</small>
+                        <div>ALERT: Possible data exfiltration detected on ESXI-HOST-01.</div>
+                        <small class="text-muted">09:12 AM</small>
                       </div>
-                      <div class="chat-message sent">
-                        <strong>You:</strong> Hello everyone!
+                      <div class="chat-message received">
+                        <small class="text-primary font-weight-bold">Jane</small>
+                        <div>I am isolating the segment now.</div>
+                        <small class="text-muted">09:15 AM</small>
                       </div>
                     </div>
-                    <div class="card-footer">
-                      <input type="text" class="form-control" id="chat-input-group-1" placeholder="Type a message...">
-                      <button class="btn btn-primary mt-2" id="send-btn-group-1">Send</button>
+                    <div class="input-group mt-3">
+                      <input type="text" class="form-control border-danger" placeholder="Group message..." onkeypress="handleEnter(event, 'box-group-ir', this)">
+                      <div class="input-group-append">
+                        <button class="btn btn-danger" onclick="sendMessage('box-group-ir', this.parentElement.previousElementSibling)">Send</button>
+                      </div>
                     </div>
                   </div>
                 </div>
-                <!-- Group 2 -->
-                <div class="tab-pane fade" id="v-pills-profile3" role="tabpanel" aria-labelledby="v-pills-profile-tab3">
-                  <div class="card mb-0">
-                    <div class="card-body chat-box" id="chat-box-group-2" style="height: 300px; overflow-y: auto;">
+                <div class="tab-pane fade" id="group-recon" role="tabpanel">
+                   <div class="chat-container">
+                    <div class="chat-header p-2 border-bottom mb-3 text-info"><strong>Recon Ops Channel</strong></div>
+                    <div class="chat-box" id="box-group-recon" style="height: 400px; overflow-y: auto;">
                       <div class="chat-message received">
-                        <strong>Admin:</strong> Hey everyone!
-                      </div>
-                      <div class="chat-message sent">
-                        <strong>You:</strong> Hi all!
+                        <small class="text-info font-weight-bold">Recon-Bot</small>
+                        <div>Scan complete for subnet 192.168.10.0/24. 15 new assets found.</div>
+                        <small class="text-muted">Yesterday</small>
                       </div>
                     </div>
-                    <div class="card-footer">
-                      <input type="text" class="form-control" id="chat-input-group-2" placeholder="Type a message...">
-                      <button class="btn btn-primary mt-2" id="send-btn-group-2">Send</button>
+                    <div class="input-group mt-3">
+                      <input type="text" class="form-control border-info" placeholder="Group message..." onkeypress="handleEnter(event, 'box-group-recon', this)">
+                      <div class="input-group-append">
+                        <button class="btn btn-info" onclick="sendMessage('box-group-recon', this.parentElement.previousElementSibling)">Send</button>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
+          </div>
         </div>
-
       </div>
     </div>
   </div>
@@ -120,82 +148,62 @@
   .chat-box {
     display: flex;
     flex-direction: column;
+    padding: 10px;
+    background-color: #fdfdfd;
+    border-radius: 5px;
   }
   .chat-message {
-    padding: 10px;
-    border-radius: 10px;
-    margin: 5px 0;
-    max-width: 70%;
+    padding: 8px 12px;
+    border-radius: 15px;
+    margin-bottom: 12px;
+    max-width: 75%;
+    position: relative;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
   }
   .chat-message.received {
-    background-color: #f1f1f1;
+    background-color: #f1f3f4;
     align-self: flex-start;
+    border-bottom-left-radius: 2px;
   }
   .chat-message.sent {
-    background-color: #007bff;
+    background-color: #005088;
     color: white;
     align-self: flex-end;
+    border-bottom-right-radius: 2px;
+  }
+  .chat-message small {
+    display: block;
+    font-size: 10px;
+    margin-top: 4px;
   }
 </style>
 
 <script>
-  // Handle sending messages for Chat 1
-  document.getElementById('send-btn').addEventListener('click', function() {
-    let input = document.getElementById('chat-input');
-    let message = input.value;
-    if (message.trim() !== '') {
-      let chatBox = document.getElementById('chat-box');
-      let newMessage = document.createElement('div');
-      newMessage.classList.add('chat-message', 'sent');
-      newMessage.innerHTML = `<strong>You:</strong> ${message}`;
-      chatBox.appendChild(newMessage);
-      input.value = '';
-      chatBox.scrollTop = chatBox.scrollHeight;
-    }
-  });
+  // Unified function to handle messages
+  function sendMessage(containerId, inputElement) {
+    const message = inputElement.value.trim();
+    if (message === '') return;
 
-  // Handle sending messages for Chat 2
-  document.getElementById('send-btn-2').addEventListener('click', function() {
-    let input = document.getElementById('chat-input-2');
-    let message = input.value;
-    if (message.trim() !== '') {
-      let chatBox = document.getElementById('chat-box-2');
-      let newMessage = document.createElement('div');
-      newMessage.classList.add('chat-message', 'sent');
-      newMessage.innerHTML = `<strong>You:</strong> ${message}`;
-      chatBox.appendChild(newMessage);
-      input.value = '';
-      chatBox.scrollTop = chatBox.scrollHeight;
-    }
-  });
+    const chatBox = document.getElementById(containerId);
+    const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-  // Handle sending messages for Group 1
-  document.getElementById('send-btn-group-1').addEventListener('click', function() {
-    let input = document.getElementById('chat-input-group-1');
-    let message = input.value;
-    if (message.trim() !== '') {
-      let chatBox = document.getElementById('chat-box-group-1');
-      let newMessage = document.createElement('div');
-      newMessage.classList.add('chat-message', 'sent');
-      newMessage.innerHTML = `<strong>You:</strong> ${message}`;
-      chatBox.appendChild(newMessage);
-      input.value = '';
-      chatBox.scrollTop = chatBox.scrollHeight;
-    }
-  });
+    const newMessage = document.createElement('div');
+    newMessage.classList.add('chat-message', 'sent');
+    newMessage.innerHTML = `
+      <small class="text-white-50 font-weight-bold">You</small>
+      <div>${message}</div>
+      <small class="text-white-50">${time}</small>
+    `;
 
-  // Handle sending messages for Group 2
-  document.getElementById('send-btn-group-2').addEventListener('click', function() {
-    let input = document.getElementById('chat-input-group-2');
-    let message = input.value;
-    if (message.trim() !== '') {
-      let chatBox = document.getElementById('chat-box-group-2');
-      let newMessage = document.createElement('div');
-      newMessage.classList.add('chat-message', 'sent');
-      newMessage.innerHTML = `<strong>You:</strong> ${message}`;
-      chatBox.appendChild(newMessage);
-      input.value = '';
-      chatBox.scrollTop = chatBox.scrollHeight;
+    chatBox.appendChild(newMessage);
+    inputElement.value = '';
+    chatBox.scrollTop = chatBox.scrollHeight;
+  }
+
+  // Handle "Enter" key press
+  function handleEnter(event, containerId, inputElement) {
+    if (event.key === 'Enter') {
+      sendMessage(containerId, inputElement);
     }
-  });
+  }
 </script>

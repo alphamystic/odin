@@ -70,6 +70,12 @@ func (api_hnd *APIHandler) Listusers(res http.ResponseWriter, req *http.Request)
     json.NewEncoder(res).Encode(map[string]string{"error": "Invalid request body: " + err.Error()})
     return
   }
+  ud := req.Context().Value("userData").(*UserData)
+  if ud == nil {
+      api_hnd.Unauthorized(res, "User data not found")
+      return
+  }
+  lmur.OwnerID = ud.UserId
 
   var users []dfn.User
   ctx := context.Background()
@@ -107,6 +113,12 @@ func (api_hnd *APIHandler) Listadmins(res http.ResponseWriter, req *http.Request
     json.NewEncoder(res).Encode(map[string]string{"error": "Invalid request body: " + err.Error()})
     return
   }
+  ud := req.Context().Value("userData").(*UserData)
+  if ud == nil {
+      api_hnd.Unauthorized(res, "User data not found")
+      return
+  }
+  lmur.OwnerID = ud.UserId
 
   var users []dfn.User
   ctx := context.Background()

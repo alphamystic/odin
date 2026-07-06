@@ -23,3 +23,5 @@ var ScanDoesNotExists = errors.New("Scan Does Not Exists")
 var TargetDoesNotExist = errors.New("Target Does Not Exist")
 
 var WebDataForTargetDoesNotExist = errors.New("Web Data For Target Does Not Exist")
+
+var RMMTaskNotFound = errors.New("RMM Task Not Found")

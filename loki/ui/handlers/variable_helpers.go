@@ -168,6 +168,17 @@ func (hnd *Handler) GetUDFromToken(req *http.Request) (*UserData,error) {
   return nil,dfn.NoClaimsError
 }
 
+
+func (hnd *Handler) GetToken(req *http.Request) (string,error) {
+  cookie,err := req.Cookie("Authorization")
+  if err != nil{
+    return "",err
+  }
+  tokenString := cookie.Value
+  return tokenString, nil
+}
+
+
 func (hnd *Handler) AuthenticateUser(res http.ResponseWriter, req *http.Request) (*UserData, bool) {
   ud, err := hnd.GetUDFromToken(req)
   if err != nil {
@@ -180,4 +191,25 @@ func (hnd *Handler) AuthenticateUser(res http.ResponseWriter, req *http.Request)
     return nil, false
   }
   return ud, true
+}
+
+func (hnd *Handler) Internalserverror(res http.ResponseWriter, req *http.Request) {
+  tpl,err := hnd.Pages.GetATemplate("error","error.tmpl")
+  if err != nil{
+    utils.Warning(fmt.Sprintf("%s",err))
+    http.Error(res, "An error occurred", http.StatusInternalServerError)
+  }
+  tpl.ExecuteTemplate(res,"error",nil)
+  return
+}
+
+func (hnd *Handler) RenderErrorPage(res http.ResponseWriter, req *http.Request, errPage ErrorPage){
+    tpl,err := hnd.Pages.GetATemplate("tmpl_error","templated_error.tmpl")
+    if err != nil {
+      utils.Warning(fmt.Sprintf("%s", err))
+      hnd.Internalserverror(res, req)
+  	  return
+    }
+    tpl.ExecuteTemplate(res,"tmpl_error",errPage)
+    return
 }

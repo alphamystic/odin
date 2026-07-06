@@ -129,33 +129,65 @@ func (at AttackType) GetAttackType() string{
 	return ""
 }
 
+// type Vulnerabilities struct {
+// 	Trg *Target `json:"tagret,omitempty"`
+// 	TargetID string `json:"targetid,omitempty"`
+// 	VulnerabilityID string `json:"vulnerabilityid,omitempty"`
+//     Name Vulnerability `json:"name,omitempty"`
+// 	Severity int `json:"severity,omitempty"`
+// 	Target string `json:"targetid,omitempty"`
+//     Payload string `json:"payload,omitempty"`
+//     AT AttackType `json:"at,omitempty"`
+// 	Grouped bool `json:"grouped,omitempty"`
+//     Authenticated bool `json:"authenticated,omitempty"`
+// 	Works bool `json:"works,omitempty"`
+//     Details string  `json:"details,omitempty"`// you can plug in a client here to be used for http or login creds
+// 	utils.TimeStamps
+// }
+//
+// type Exploit struct {
+// 	Trg *Target `json:"target,omitempty"`
+//       ExploitID string `json:"exploitid"`
+// 	TargetID string `json:"targetid,omitempty"`
+// 	LHOST string `json:"lhost,omitempty"`
+// 	LPORT int `json:"lport,omitempty"`
+// 	Address string `json:"address,omitempty"`
+// 	Target string `json:"targetid,omitempty"`
+// 	AverageSeverity int `json:"average_severity,omitempty"`
+// 	Grouped bool `json:"grouped,omitempty"`
+// 	GroupedVulns []string `json:"grouped_vuns_ids,omitempty"`
+// 	Vulns []*Vulnerabilities `json:"vulnerabilities,omitempty"`
+// 	Works bool `json:"works,omitempty"`
+// 	utils.TimeStamps
+// }
+
 type Vulnerabilities struct {
-	Trg *Target `json: "tagret,omitempty"`
-	VulnerabilityID string `json: "vulnerabilityid,omitempty"`
-  Name Vulnerability `json: "name,omitempty"`
-	Severity int `json: "severity,omitempty"`
-	Target string `json: "targetid,omitempty"`
-  Payload string `json: "payload,omitempty"`
-  AT AttackType `json: "at,omitempty"`
-	Grouped bool `json: "grouped,omitempty"`
-  Authenticated bool `json: "authenticated,omitempty"`
-	Works bool `json: "works,omitempty"`
-  Details string  `json: "details,omitempty"`// you can plug in a client here to be used for http or login creds
+	Trg             *Target      `json:"target,omitempty"` // Fixed typo "tagret"
+	TargetID        string       `json:"targetid,omitempty"`
+	VulnerabilityID string       `json:"vulnerabilityid,omitempty"`
+	Name            Vulnerability `json:"name,omitempty"`
+	Severity        int          `json:"severity,omitempty"`
+	Payload         string       `json:"payload,omitempty"`
+	AT              AttackType   `json:"at,omitempty"`
+	Grouped         bool         `json:"grouped,omitempty"`
+	Authenticated   bool         `json:"authenticated,omitempty"`
+	Works           bool         `json:"works,omitempty"`
+	Details         string       `json:"details,omitempty"`
 	utils.TimeStamps
 }
 
 type Exploit struct {
-	Trg *Target `json: "target,omitempty"`
-  ExploitID string `json:"exploitid"`
-	LHOST string `json: "lhost,omitempty"`
-	LPORT int `json: "lport,omitempty"`
-	Address string `json: "address,omitempty"`
-	Target string `json: "targetid,omitempty"`
-	AverageSeverity int `json: "average_severity,omitempty"`
-	Grouped bool `json: "grouped,omitempty"`
-	GroupedVulns []string `json: "grouped_vuns_ids,omitempty"`
-	Vulns []*Vulnerabilities `json: "vulnerabilities,omitempty"`
-	Works bool `json: "works,omitempty"`
+	Trg             *Target      `json:"target,omitempty"`
+	TargetID        string       `json:"targetid,omitempty"`
+	ExploitID       string       `json:"exploitid"`
+	LHOST           string       `json:"lhost,omitempty"`
+	LPORT           int          `json:"lport,omitempty"`
+	Address         string       `json:"address,omitempty"`
+	AverageSeverity int          `json:"average_severity,omitempty"`
+	Grouped         bool         `json:"grouped,omitempty"`
+	GroupedVulns    []string     `json:"grouped_vuns_ids,omitempty"`
+	Vulns           []*Vulnerabilities `json:"vulnerabilities,omitempty"`
+	Works           bool         `json:"works,omitempty"`
 	utils.TimeStamps
 }
 type Scanner interface{

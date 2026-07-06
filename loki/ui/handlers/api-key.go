@@ -18,19 +18,20 @@ func (hnd *Handler) Listapikeys(res http.ResponseWriter, req *http.Request){
       Message: "Get a life dummy, anyway if you find a vulnerablity fix it or email us vulnerablity.odin@eloracle.africa",
       Back:"/logout",
     }
-    tpl,err := hnd.Pages.GetATemplate("tmpl_error","templated_error.tmpl")
-    if err != nil {
-      utils.Warning(fmt.Sprintf("%s", err))
-      hnd.Internalserverror(res, req)
-  		return
-    }
-    tpl.ExecuteTemplate(res,"tmpl_error",errPage)
+    hnd.RenderErrorPage(res,req, errPage)
     return
   }
   ud, authenticated := hnd.AuthenticateUser(res, req)
   if !authenticated {
     return // User is redirected in the helper
   }
+  token, _ := hnd.GetToken(req)
+  keys, err := hnd.SRVCS.ApiKeySrvs.ListApikeys(req.Context(), token)
+   if err != nil {
+      utils.Warning(fmt.Sprintf("API Key Fetch Error: %s", err))
+      hnd.Internalserverror(res, req)
+      return
+   }
   ntfs,err := hnd.SRVCS.NTFCNSvrs.ListUserNotifications(ud.UserId)
   if err != nil {
     utils.Warning(fmt.Sprintf("%s",err))
@@ -45,6 +46,7 @@ func (hnd *Handler) Listapikeys(res http.ResponseWriter, req *http.Request){
   tpl.ExecuteTemplate(res,"listapikey",LOKI{
     "notifications":ntfs,
     "userdata": ud,
+    "apikeys":       keys,
   })
   return
 }

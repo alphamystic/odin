@@ -91,15 +91,7 @@ func (hnd *Handler) Blank(res http.ResponseWriter, req *http.Request){
 
 
 
-func (hnd *Handler) Internalserverror(res http.ResponseWriter, req *http.Request) {
-  tpl,err := hnd.Pages.GetATemplate("error","error.tmpl")
-  if err != nil{
-    utils.Warning(fmt.Sprintf("%s",err))
-    http.Error(res, "An error occurred", http.StatusInternalServerError)
-  }
-  tpl.ExecuteTemplate(res,"error",nil)
-  return
-}
+
 
 func (hnd *Handler) Home(res http.ResponseWriter, req *http.Request){
   _, authenticated := hnd.AuthenticateUser(res, req)

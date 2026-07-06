@@ -55,9 +55,12 @@ type EnumType struct {
 
 // Types Examples
 // [
-//   "framework",
-//   "policy",
-//   "evidence",
+//   "SOP-Wazuh Agent Instalation",
+//   "Soc IR Policy",
 //   "SOC-report",
-//   "IR-SOP"
+//   "IR-SOP",
+//   "Audit-Report",
+//   "Vulnerability Assesement Report",
+//   "Pentesting Report",
+//   "Bug Bounty Report"
 // ]

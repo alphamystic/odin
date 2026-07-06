@@ -70,7 +70,7 @@ func (api_hnd *APIHandler) Createscan(res http.ResponseWriter, req *http.Request
 
 // list scans
 func (api_hnd *APIHandler) Listscans(res http.ResponseWriter, req *http.Request){
-  if req.Method != "GET"{
+  if req.Method != "GET" {
     api_hnd.MethodNotAllowed(res, "GET")
     return
   }
@@ -91,14 +91,18 @@ func (api_hnd *APIHandler) Listscans(res http.ResponseWriter, req *http.Request)
     utils.Logerror(err)
     return
   }
-  api_hnd.DynamicResponse(res,scans)
-  return
+  api_hnd.DynamicResponse(res, map[string]interface{}{
+        "status":  "success",
+        "message": "Scan retrieved.",
+        "data":    scans,
+      })
+    return
 }
 
 
 // View a scan is listing targets on it and data on it.
 func (api_hnd *APIHandler) Viewscan(res http.ResponseWriter, req *http.Request){
-  if req.Method != "GET"{
+  if req.Method != "GET" {
     api_hnd.MethodNotAllowed(res, "GET")
     return
   }
@@ -254,6 +258,7 @@ func (api_hnd *APIHandler) Createrecondata(res http.ResponseWriter, req *http.Re
 
 
 // list recon data is just viewing a target and the recon data on it.
+// this should list the vulneabilities and exploits of the target in question
 func (api_hnd *APIHandler) Viewtarget(res http.ResponseWriter, req *http.Request){
   if req.Method != "GET" {
     api_hnd.MethodNotAllowed(res, "GET")
@@ -296,8 +301,17 @@ func (api_hnd *APIHandler) Viewtarget(res http.ResponseWriter, req *http.Request
   if err != nil || count > 2 {
     utils.Notice(fmt.Sprintf("%s",err))
     if errors.Is(err,dfn.WebDataForTargetDoesNotExist) {
-      api_hnd.Success(res,"Target doess not have web data available.")
-      return
+//       api_hnd.Success(res,"Target doess not have web data available.")
+//       return
+        api_hnd.DynamicResponse(res, map[string]interface{}{
+        		"status":      "success",
+        		"redirecturl": "",
+        		"message":     "Target and it's WebData,serviives fetched successfully",
+        		"data": map[string]interface{}{
+        			"message":   "Target doess not have web data available.",
+        		},
+        	})
+        return
     }
     api_hnd.InternalServerError(res,"Internal Server error on getting webdata, try again later :).")
     return
@@ -316,7 +330,7 @@ func (api_hnd *APIHandler) Viewtarget(res http.ResponseWriter, req *http.Request
 		"data": map[string]interface{}{
 			"target":   trg, // Target details
 			"web_data": wd,  // Web data
-      "services": services, // services
+            "services": services, // services
 		},
 	})
   return

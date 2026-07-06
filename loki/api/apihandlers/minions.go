@@ -24,18 +24,26 @@ func (api_hnd *APIHandler) CreateMinion(res http.ResponseWriter, req *http.Reque
 		http.Error(res, err.Error(), http.StatusBadRequest)
 		return
 	}
+    ud := req.Context().Value("userData").(*UserData)
+    if ud == nil {
+        api_hnd.Unauthorized(res, "User data not found")
+        return
+    }
+    minion.OwnerID = ud.UserId
+    minion.UserID = ud.UserId
 
-	if utils.CheckifStringIsEmpty(minion.OwnerID) {
+	if !utils.CheckifStringIsEmpty(minion.OwnerID) {
 		api_hnd.BadRequest(res, "OwnerID is required.")
 		return
 	}
-	if utils.CheckifStringIsEmpty(minion.MothershipID) {
+	if !utils.CheckifStringIsEmpty(minion.MothershipID) {
 		api_hnd.BadRequest(res, "MothershipID is required.")
 		return
 	}
 
 	// Assign UUID and timestamps
 	minion.MinionID = utils.GenerateUUID()
+	minion.Active = true
 	minion.Touch()
 
 	ctx := context.Background()
@@ -62,27 +70,20 @@ func (api_hnd *APIHandler) ListMinions(res http.ResponseWriter, req *http.Reques
 		return
 	}
 
-	ownerID := req.URL.Query().Get("ownerid")
-	if utils.CheckifStringIsEmpty(ownerID) {
+    ud := req.Context().Value("userData").(*UserData)
+    if ud == nil {
+        api_hnd.Unauthorized(res, "User data not found")
+        return
+    }
+
+	ownerID := ud.UserId
+	if !utils.CheckifStringIsEmpty(ownerID) {
 		api_hnd.BadRequest(res, "OwnerID is required.")
 		return
 	}
 
-	// mothershipID := req.URL.Query().Get("mothershipid")
-	// activeStr := req.URL.Query().Get("active")
-	// hardwareStr := req.URL.Query().Get("hardware")
 	limitStr := req.URL.Query().Get("limit")
 	offsetStr := req.URL.Query().Get("offset")
-
-	active := true
-	if activeStr == "false" {
-		active = false
-	}
-
-	hardware := false
-	if hardwareStr == "true" {
-		hardware = true
-	}
 
 	limit := utils.StringToInt(limitStr)
 	offset := utils.StringToInt(offsetStr)
@@ -91,16 +92,19 @@ func (api_hnd *APIHandler) ListMinions(res http.ResponseWriter, req *http.Reques
 	}
 
 	ctx := context.Background()
-	minions, err := api_hnd.Dom.ListAllMinions(ctx, limit, offset)
+	minions, err := api_hnd.Dom.ListAllMinions(ctx, limit, offset, ownerID)
 	if err != nil {
 		utils.Warning(fmt.Sprintf("Error listing minions: %v", err))
 		api_hnd.InternalServerError(res, "Failed to list minions.")
 		return
 	}
 
-	res.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(res).Encode(minions)
-	return
+	api_hnd.DynamicResponse(res, map[string]interface{}{
+    		"status":  "success",
+    		"message": "Minion returned successfully.",
+    		"data":    minions,
+    	})
+    	return
 }
 
 // ==============================
@@ -113,7 +117,7 @@ func (api_hnd *APIHandler) ViewMinion(res http.ResponseWriter, req *http.Request
 	}
 
 	minionID := req.URL.Query().Get("minionid")
-	if utils.CheckifStringIsEmpty(minionID) {
+	if !utils.CheckifStringIsEmpty(minionID) {
 		api_hnd.BadRequest(res, "MinionID is required.")
 		return
 	}
@@ -153,8 +157,16 @@ func (api_hnd *APIHandler) UpdateMinion(res http.ResponseWriter, req *http.Reque
 		http.Error(res, err.Error(), http.StatusBadRequest)
 		return
 	}
+    ud := req.Context().Value("userData").(*UserData)
+    if ud == nil {
+        api_hnd.Unauthorized(res, "User data not found")
+        return
+    }
 
-	if utils.CheckifStringIsEmpty(update.MinionID) {
+	update.UserID = ud.UserId
+	update.OwnerID = ud.UserId
+
+	if !utils.CheckifStringIsEmpty(update.MinionID) {
 		api_hnd.BadRequest(res, "MinionID is required.")
 		return
 	}
@@ -182,30 +194,30 @@ func (api_hnd *APIHandler) DeactivateMinion(res http.ResponseWriter, req *http.R
 		return
 	}
 
-	// if !api_hnd.IsAdmin(req) {
-	// 	api_hnd.Unauthorized(res, "Only admins can deactivate minions.")
-	// 	return
-	// }
-	//
-	// minionID := req.URL.Query().Get("minionid")
-	// if utils.CheckifStringIsEmpty(minionID) {
-	// 	api_hnd.BadRequest(res, "MinionID is required.")
-	// 	return
-	// }
-	//
-	// ctx := context.Background()
-	// minion, err := api_hnd.Dom.ViewMinion(ctx, minionID)
-	// if err != nil {
-	// 	api_hnd.InternalServerError(res, "Minion not found or cannot be retrieved.")
-	// 	return
-	// }
-	//
-	// minion.Active = false
-	// if err := api_hnd.Dom.UpdateMinion(ctx, *minion); err != nil {
-	// 	utils.Warning(fmt.Sprintf("Error deactivating minion: %v", err))
-	// 	api_hnd.InternalServerError(res, "Failed to deactivate minion.")
-	// 	return
-	// }
+	if !api_hnd.IsAdmin(req) {
+		api_hnd.Unauthorized(res, "Only admins can deactivate minions.")
+		return
+	}
+
+	minionID := req.URL.Query().Get("minionid")
+	if !utils.CheckifStringIsEmpty(minionID) {
+		api_hnd.BadRequest(res, "MinionID is required.")
+		return
+	}
+
+	ctx := context.Background()
+	minion, err := api_hnd.Dom.ViewMinion(ctx, minionID)
+	if err != nil {
+		api_hnd.InternalServerError(res, "Minion not found or cannot be retrieved.")
+		return
+	}
+
+	minion.Active = false
+	if err := api_hnd.Dom.UpdateMinion(ctx, *minion); err != nil {
+		utils.Warning(fmt.Sprintf("Error deactivating minion: %v", err))
+		api_hnd.InternalServerError(res, "Failed to deactivate minion.")
+		return
+	}
 
 	api_hnd.DynamicResponse(res, map[string]interface{}{
 		"status":  "success",

@@ -1,0 +1,177 @@
+<!-- <div class="card shadow">
+<div class="card-body">
+  <h5 class="card-title">Simple Table</h5>
+  <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
+  <table class="table table-hover">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Company</th>
+        <th>Address</th>
+        <th>Date</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>3224</td>
+        <td>Keith Baird</td>
+        <td>Enim Limited</td>
+        <td>901-6206 Cras Av.</td>
+        <td>Apr 24, 2019</td>
+        <td><span class="badge badge-pill badge-warning">Hold</span></td>
+      </tr>
+      <tr>
+        <td>3218</td>
+        <td>Graham Price</td>
+        <td>Nunc Lectus Incorporated</td>
+        <td>Ap #705-5389 Id St.</td>
+        <td>May 23, 2020</td>
+        <td><span class="badge badge-pill badge-success">Success</span></td>
+      </tr>
+      <tr>
+        <td>2651</td>
+        <td>Reuben Orr</td>
+        <td>Nisi Aenean Eget Limited</td>
+        <td>7425 Malesuada Rd.</td>
+        <td>Nov 4, 2019</td>
+        <td><span class="badge badge-pill badge-warning">Hold</span></td>
+      </tr>
+      <tr>
+        <td>2636</td>
+        <td>Akeem Holder</td>
+        <td>Pellentesque Associates</td>
+        <td>896 Sodales St.</td>
+        <td>Mar 27, 2020</td>
+        <td><span class="badge badge-pill badge-danger">Danger</span></td>
+      </tr>
+      <tr>
+        <td>2757</td>
+        <td>Beau Barrera</td>
+        <td>Augue Incorporated</td>
+        <td>4583 Id St.</td>
+        <td>Jan 13, 2020</td>
+        <td><span class="badge badge-pill badge-success">Success</span></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+</div> -->
+
+
+<div id="report-alert-stack" style="position: fixed; top: 20px; right: 20px; z-index: 1100; width: 350px;"></div>
+
+<div class="card shadow">
+    <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <div>
+                <h5 class="card-title">Security Reports & Blogs</h5>
+                <p class="card-text text-muted small">Manage publication status and archiving for offensive security audit logs.</p>
+            </div>
+            <button class="btn btn-primary btn-sm">Create New Report</button>
+        </div>
+
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Title & Main Tag</th>
+                    <th>Author</th>
+                    <th>Visibility</th>
+                    <th>Status</th>
+                    <th>Created / Updated</th>
+                    <th class="text-right">Quick Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{range .Reports}}
+                <tr>
+                    <td>
+                        <strong>{{.Data.Title}}</strong><br>
+                        <span class="badge badge-light border">{{.Data.MainTag}}</span>
+                    </td>
+                    <td class="small">{{.Data.Author}}</td>
+                    <td>
+                        {{if .Data.Public}}
+                        <span class="badge badge-pill badge-success">Public</span>
+                        {{else}}
+                        <span class="badge badge-pill badge-dark">Private</span>
+                        {{end}}
+                    </td>
+                    <td>
+                        {{if .Data.Archived}}
+                        <span class="badge badge-pill badge-warning">Archived</span>
+                        {{else}}
+                        <span class="badge badge-pill badge-info">Live</span>
+                        {{end}}
+                    </td>
+                    <td class="small text-muted">
+                        C: {{.Data.CreatedAt.Format "Jan 02, 2006"}}<br>
+                        U: {{.Data.UpdatedAt.Format "Jan 02, 2006"}}
+                    </td>
+                    <td class="text-right">
+                        <div class="btn-group">
+                            <a href="/viewsreports?uuid={{.Data.UUID}}" class="btn btn-sm btn-outline-primary" title="View Blog">
+                                <i class="fe fe-eye"></i>
+                            </a>
+                            <button class="btn btn-sm btn-outline-secondary"
+                                    onclick="toggleReportProperty(this, 'public')"
+                                    data-full-json='{{.FullJSON}}'>
+                                <i class="fe {{if .Data.Public}}fe-lock{{else}}fe-unlock{{end}}"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-warning"
+                                    onclick="toggleReportProperty(this, 'archived')"
+                                    data-full-json='{{.FullJSON}}'>
+                                <i class="fe fe-archive"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                {{end}}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+const API_BASE = "https://127.0.0.1:5001/api/report/updateblog/";
+
+function spawnAlert(type, msg) {
+    const icons = { 'success': 'fe-check-circle', 'danger': 'fe-x-circle', 'info': 'fe-info' };
+    const html = `
+        <div class="alert alert-${type} shadow border-0 fade show" role="alert">
+            <span class="fe ${icons[type] || 'fe-info'} fe-16 mr-2"></span> ${msg}
+        </div>`;
+    $('#report-alert-stack').html(html);
+    setTimeout(() => { $('#report-alert-stack').empty(); }, 4000);
+}
+
+function toggleReportProperty(btn, property) {
+    // 1. Get the existing data from the data attribute (automatically parsed by jQuery)
+    let payload = $(btn).data('full-json');
+
+    // 2. Toggle the specific property
+    if (property === 'public') {
+        payload.public = !payload.public;
+    } else if (property === 'archived') {
+        payload.archived = !payload.archived;
+    }
+
+    // 3. Perform the AJAX call
+    $.ajax({
+        url: API_BASE,
+        method: "POST",
+        contentType: "application/json",
+        xhrFields: { withCredentials: true },
+        data: JSON.stringify(payload),
+        success: function(response) {
+            spawnAlert('success', `Report ${property} status updated.`);
+            setTimeout(() => { location.reload(); }, 1000);
+        },
+        error: function(xhr) {
+            const err = xhr.responseJSON ? (xhr.responseJSON.error || xhr.responseJSON.message) : "Internal API Error";
+            spawnAlert('danger', "Update Failed: " + err);
+        }
+    });
+}
+</script>

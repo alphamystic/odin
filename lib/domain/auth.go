@@ -24,7 +24,7 @@ func (d *Domain) Authenticate(ctx context.Context,password,email string)  (*dfn.
   var userEmail,userName,hash,userId,ownerid string
   var active,admin, anonymous bool
   row :=  conn.QueryRowContext(ctx,authStmt,email)
-  err = row.Scan(&userId,&ownerid,&userName,&userEmail,&hash,&active,&admin)
+  err = row.Scan(&userId,&ownerid,&userName,&userEmail,&hash,&active,&anonymous,&admin)
   if err != nil{
     if err == sql.ErrNoRows {
       utils.Warning(fmt.Sprintf("A none user with email %s tried accessing server",email))

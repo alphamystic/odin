@@ -41,7 +41,7 @@ const (
 	listFilteredMothershipStmt = `
 	SELECT ownerid, name, password, msid, address, implant_tunnel, admin_tunnel, other_motherships, description, tls, certpem, keypem, active, generate_command, machine_data, created_at, updated_at
 	FROM odin.motherships
-	WHERE ownerid = ? AND active = ? AND online = ?
+	WHERE ownerid = ? AND active = ?
 	ORDER BY updated_at DESC
 	LIMIT ? OFFSET ?;`
 )
@@ -159,7 +159,7 @@ func (d *Domain) ListMotherships(ownerID string, active bool, limit, offset int,
 	  var createdAtRaw, updatedAtRaw []byte
 		if err := rows.Scan(&m.OwnerID, &m.Name, &m.Password, &m.MSId, &m.Address, &m.ImplantTunnel,
 			&m.AdminTunnel, &m.Motherships, &m.Description, &m.Tls, &m.CertPem, &m.KeyPem,
-			&m.Active, &m.GenCommand, &m.Machinedata, createdAtRaw, updatedAtRaw); err != nil {
+			&m.Active, &m.GenCommand, &m.Machinedata, &createdAtRaw, &updatedAtRaw); err != nil {
 			d.LogToFile(utils.Logger{Name: "ms_sql", Text: fmt.Sprintf("Error scanning mothership: %v", err)})
 			return nil, fmt.Errorf("error scanning mothership: %w", err)
 		}
@@ -170,14 +170,14 @@ func (d *Domain) ListMotherships(ownerID string, active bool, limit, offset int,
 }
 
 // ListFilteredMotherships filters by online/active flags for a specific owner
-func (d *Domain) ListFilteredMotherships(ownerID string, active, online bool, limit, offset int, ctx context.Context) ([]dfn.Mothership, error) {
+func (d *Domain) ListFilteredMotherships(ownerID string, active bool, limit, offset int, ctx context.Context) ([]dfn.Mothership, error) {
 	conn, err := d.GetConnection(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("error getting db connection: %w", err)
 	}
 	defer conn.Close()
 
-	rows, err := conn.QueryContext(ctx, listFilteredMothershipStmt, ownerID, active, online, limit, offset)
+	rows, err := conn.QueryContext(ctx, listFilteredMothershipStmt, ownerID, active, limit, offset)
 	if err != nil {
 		d.LogToFile(utils.Logger{Name: "ms_sql", Text: fmt.Sprintf("Error filtering motherships: %v", err)})
 		return nil, errors.New("server error filtering motherships")

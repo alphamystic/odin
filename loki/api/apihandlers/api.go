@@ -8,6 +8,7 @@ import (
   "net/http"
   //"database/sql"
   "encoding/json"
+  "crypto/sha256"
   "github.com/dgrijalva/jwt-go"
 
   "github.com/alphamystic/odin/lib/utils"
@@ -89,8 +90,12 @@ func NewAPIHandler(shutdownCh chan bool, doneCh chan bool,rl *utils.RequestLogge
     utils.Warning(fmt.Sprintf("Error connecting to the DB. \n[-]   ERROR: %s",err))
     return nil,err
   }
+  keyHash := sha256.Sum256([]byte(SighnInKey))
+  ue := utils.NewCrypter(keyHash[:])
   dom := dom.NewDomain(dbConn,10,5)
+  dom.UE = ue
   return &APIHandler {
+    UE: ue,
     Dom: dom,
     Dbs: dbConn,
     CanWriteLogs: true,
@@ -100,6 +105,29 @@ func NewAPIHandler(shutdownCh chan bool, doneCh chan bool,rl *utils.RequestLogge
     RL: rl,
   },nil
 }
+// func NewAPIHandler(shutdownCh chan bool, doneCh chan bool,rl *utils.RequestLogger,mode string) (*APIHandler,error) {
+//   utils.PrintTextInASpecificColorInBold("white",fmt.Sprintf(" Starting API server at: %s",utils.GetCurrentTime()))
+//   // create db configurations
+//   dbConfig := dfn.InitializeConnector(mode)
+//   dbConn,err := dfn.NewMySQLConnector(dbConfig)
+//   if err != nil {
+//     utils.Warning(fmt.Sprintf("Error connecting to the DB. \n[-]   ERROR: %s",err))
+//     return nil,err
+//   }
+//   ue := utils.NewCrypter([]byte(SighnInKey))
+//   dom := dom.NewDomain(dbConn,10,5)
+//   dom.UE = ue
+//   return &APIHandler {
+//     UE: ue,
+//     Dom: dom,
+//     Dbs: dbConn,
+//     CanWriteLogs: true,
+//     ShutdownChan: shutdownCh,
+//     MaintenanceMode: false,
+//     DoneChan: doneCh,
+//     RL: rl,
+//   },nil
+// }
 
 func (api_hnd *APIHandler) GenerateJWT(ud *UserData) (string,error) {
   expTime := time.Now().Add(time.Hour * 72)

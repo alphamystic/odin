@@ -10,14 +10,18 @@ import (
 */
 type RICO struct{
   RD *handlers.ReconData
+  PluginName string
+  PluginPath string
 }
-
+// Returns a single or multiple vulnerabilities.
 type BruteForcer interface{
   BruteForce() Vulnerabilities
 }
 // rico creates a work group then a channel of handlers.Vulnerabilities to be written into
 // create a go routine for each of the scanners
 // each scanner writes into the vulns channel and when each is done they signal the work group
+
+
 /*
 func RunRico()([]handlers.Vulnerabilities){
   vulns := make(chan []*handlers.Vulnerabilities)
@@ -32,6 +36,47 @@ func RunRico()([]handlers.Vulnerabilities){
   vulns := VScanner.VulnScanner()
   return vulns
 }
+*/
+// ScanNetworkLayer processes network layer infrastructure state checks (FTP/SSH brute-forcers)
+func (r *RICO) ScanNetworkLayer(ctx context.Context) []*handlers.Vulnerabilities {
+	var found []*handlers.Vulnerabilities
+
+	for _, svc := range r.RD.Services {
+		if ctx.Err() != nil {
+			break
+		}
+
+		if !svc.State {
+			continue
+		}
+
+		// Automated Protocol Hardening Assessment
+		if svc.Port == 21 && svc.ServiceName == "ftp" {
+			if r.CheckAnonymousFTP(svc) {
+				v := &handlers.Vulnerabilities{
+					Trg:             r.RD.Trg,
+					TargetID:        r.RD.Trg.TargetID,
+					VulnerabilityID: utils.Md5Hash(utils.GenerateUUID()),
+					Name:            handlers.UNKNOWN,
+					Severity:        5,
+					Payload:         "anonymous:anonymous",
+					AT:              handlers.BRUTEFORCE,
+					Works:           true,
+					Details:         "Target server allows unauthenticated interactive read/write directory bindings via Anonymous FTP.",
+				}
+				found = append(found, v)
+			}
+		}
+	}
+
+	return found
+}
+
+func (r *RICO) CheckAnonymousFTP(svc *handlers.Service) bool {
+	return false
+}
+
+/*
 
 // all this willl go into a goroutine(one for each)
 func (r *RICO) VulnScannerw() (vulns chan []handlers.Vulnerabilities,err error){

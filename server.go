@@ -7,7 +7,7 @@ import (
 )
 func main(){
   Loki := &loki.Loki {
-    Address: "127.0.0.1",
+    Address: "0.0.0.0",
     PortS: 4001,
     //Port: 4000,
     TlsCert: "",

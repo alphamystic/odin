@@ -1,0 +1,174 @@
+<div class="container-fluid">
+  <div class="row justify-content-center">
+    <div class="col-12 col-lg-10 col-xl-9">
+
+      <div class="row align-items-center mb-4">
+        <div class="col">
+          <h2 class="h5 page-title">
+            <small class="text-muted text-uppercase">Security Advisory</small><br />
+            #ADV-2026-0403: Critical RCE in Internal Middleware
+          </h2>
+        </div>
+        <div class="col-auto text-right">
+          <span class="badge badge-pill badge-danger mr-3">Critical Severity</span>
+          <button type="button" class="btn btn-secondary btn-sm">Export PDF</button>
+          <button type="button" class="btn btn-primary btn-sm">Deploy Patch</button>
+        </div>
+      </div>
+
+      <div class="row mb-4">
+        <div class="col-md-3">
+          <div class="card shadow border-0">
+            <div class="card-body text-center">
+              <p class="small text-muted mb-1">CVSS Score</p>
+              <h3 class="mb-0 text-danger">9.8</h3>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card shadow border-0">
+            <div class="card-body text-center">
+              <p class="small text-muted mb-1">Status</p>
+              <h3 class="mb-0 text-warning">Active</h3>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card shadow border-0">
+            <div class="card-body text-center">
+              <p class="small text-muted mb-1">Affected Assets</p>
+              <h3 class="mb-0">14</h3>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card shadow border-0">
+            <div class="card-body text-center">
+              <p class="small text-muted mb-1">Owner</p>
+              <h3 class="mb-0 text-muted">SOC-T2</h3>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card shadow mb-4">
+        <div class="card-header">
+          <strong class="card-title text-uppercase">Executive Summary</strong>
+        </div>
+        <div class="card-body p-4">
+          <p class="lead">A critical remote code execution vulnerability was identified during the routine audit of the <code>/api/v1/internal-sync</code> endpoint. This flaw allows an unauthenticated attacker to execute arbitrary commands with SYSTEM privileges.</p>
+          <p>This report outlines the technical findings, proof-of-concept evidence, and the required standard operating procedures (SOP) for remediation and recovery.</p>
+        </div>
+      </div>
+
+      <div class="card shadow mb-4">
+        <div class="card-header">
+          <strong class="card-title">Vulnerability Details</strong>
+        </div>
+        <div class="card-body">
+          <table class="table table-borderless table-striped">
+            <thead>
+              <tr>
+                <th>CVE / ID</th>
+                <th>Category</th>
+                <th>Affected Service</th>
+                <th class="text-right">Complexity</th>
+                <th class="text-right">Exposure</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>CVE-2026-X123</strong></td>
+                <td>Injection</td>
+                <td><span class="text-muted">Auth-Middleware</span></td>
+                <td class="text-right text-success">Low</td>
+                <td class="text-right"><span class="dot dot-md bg-danger mr-1"></span> Public</td>
+              </tr>
+              <tr>
+                <td><strong>INT-AUD-88</strong></td>
+                <td>Misconfiguration</td>
+                <td><span class="text-muted">Nginx-Proxy</span></td>
+                <td class="text-right text-warning">Medium</td>
+                <td class="text-right"><span class="dot dot-md bg-warning mr-1"></span> Internal</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card shadow mb-4">
+        <div class="card-header">
+          <strong class="card-title">Technical Walkthrough & POC</strong>
+        </div>
+        <div class="card-body">
+          <h6 class="mb-3 text-uppercase">Steps to Reproduce</h6>
+          <div class="timeline">
+            <div class="pb-3 timeline-item item-primary">
+              <div class="pl-5">
+                <div class="mb-1"><strong>Step 1: Payload Generation</strong></div>
+                <p class="small text-muted">Generate a base64 encoded reverse shell payload for Linux environments.</p>
+              </div>
+            </div>
+            <div class="pb-3 timeline-item item-warning">
+              <div class="pl-5">
+                <div class="mb-1"><strong>Step 2: Injection Vector</strong></div>
+                <p class="small text-muted">Submit the payload via the <code>X-Internal-Header</code> parameter.</p>
+                <div class="card d-inline-flex mb-2 w-100 bg-dark">
+                  <div class="card-body py-2 px-3">
+                    <code class="text-success">curl -H "X-Internal-Header: $(PAYLOAD)" http://internal.target/api/sync</code>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-md-6 mb-4">
+          <div class="card shadow bg-primary-dark border-0">
+            <div class="card-header text-white">
+              <strong class="card-title">Remediation Steps</strong>
+            </div>
+            <div class="card-body">
+              <div class="custom-control custom-checkbox mb-3">
+                <input type="checkbox" class="custom-control-input" id="r1" checked disabled>
+                <label class="custom-control-label text-white" for="r1">Disable vulnerable endpoint</label>
+              </div>
+              <div class="custom-control custom-checkbox mb-3">
+                <input type="checkbox" class="custom-control-input" id="r2">
+                <label class="custom-control-label text-white" for="r2">Update <code>lib-auth-core</code> to v2.4.1</label>
+              </div>
+              <div class="custom-control custom-checkbox mb-0">
+                <input type="checkbox" class="custom-control-input" id="r3">
+                <label class="custom-control-label text-white" for="r3">Rotate all API secrets</label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-6 mb-4">
+          <div class="card shadow">
+            <div class="card-header border-0">
+              <strong class="card-title">Resources & Links</strong>
+            </div>
+            <div class="card-body p-0">
+              <ul class="list-group list-group-flush">
+                <li class="list-group-item bg-transparent">
+                  <i class="fe fe-external-link mr-2 text-muted"></i><a href="#">Official Vendor Advisory</a>
+                </li>
+                <li class="list-group-item bg-transparent">
+                  <i class="fe fe-shield mr-2 text-muted"></i><a href="#">Compliance Impact (SOC2)</a>
+                </li>
+                <li class="list-group-item bg-transparent border-0">
+                  <i class="fe fe-file-text mr-2 text-muted"></i><a href="#">Internal Post-Mortem SOP</a>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+   </div>
+   </div>

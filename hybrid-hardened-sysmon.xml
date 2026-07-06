@@ -1,0 +1,211 @@
+<Sysmon schemaversion="4.82">
+    <HashAlgorithms>md5,sha256,IMPHASH</HashAlgorithms>
+    <EventFiltering>
+
+        <RuleGroup name="Process Creation" groupRelation="or">
+            <ProcessCreate onmatch="include">
+                <CommandLine condition="contains">whoami</CommandLine>
+                <CommandLine condition="contains">net user</CommandLine>
+                <CommandLine condition="contains">net group</CommandLine>
+                <CommandLine condition="contains">net localgroup</CommandLine>
+                <CommandLine condition="contains">nltest</CommandLine>
+                <CommandLine condition="contains">qwinsta</CommandLine>
+                <CommandLine condition="contains">quser</CommandLine>
+                <CommandLine condition="contains">sc.exe</CommandLine>
+                <CommandLine condition="contains">tasklist</CommandLine>
+
+                <CommandLine condition="contains">ntdsutil</CommandLine>
+                <CommandLine condition="contains">mimikatz</CommandLine>
+                <CommandLine condition="contains">sharphound</CommandLine>
+                <CommandLine condition="contains">bloodhound</CommandLine>
+                <CommandLine condition="contains">sekurlsa</CommandLine>
+                <CommandLine condition="contains">kerberoast</CommandLine>
+                <CommandLine condition="contains">domain_dump</CommandLine>
+                <CommandLine condition="contains">adfind</CommandLine>
+
+                <Image condition="end with">powershell.exe</Image>
+                <Image condition="end with">pwsh.exe</Image>
+                <Image condition="end with">cmd.exe</Image>
+                <Image condition="end with">certutil.exe</Image>
+                <Image condition="end with">bitsadmin.exe</Image>
+                <Image condition="end with">mshta.exe</Image>
+                <Image condition="end with">rundll32.exe</Image>
+                <Image condition="end with">regsvr32.exe</Image>
+                <Image condition="end with">wscript.exe</Image>
+                <Image condition="end with">cscript.exe</Image>
+                <Image condition="end with">wmic.exe</Image>
+                <Image condition="end with">schtasks.exe</Image>
+                <Image condition="end with">vssadmin.exe</Image>
+                <Image condition="end with">sc.exe</Image>
+                <Image condition="end with">csc.exe</Image>
+                <Image condition="end with">psexec.exe</Image>
+
+                <Image condition="begin with">C:\Users\Public\</Image>
+                <Image condition="begin with">C:\Windows\Temp\</Image>
+                <Image condition="begin with">C:\AppData\</Image>
+                <Image condition="contains">\Local\Temp\</Image>
+                <Image condition="begin with">C:\PerfLogs\</Image>
+            </ProcessCreate>
+
+            <ProcessCreate onmatch="exclude">
+                <Image condition="end with">\SearchIndexer.exe</Image>
+                <Image condition="end with">\SearchProtocolHost.exe</Image>
+                <CommandLine condition="contains">Google\Update</CommandLine>
+            </ProcessCreate>
+        </RuleGroup>
+
+        <RuleGroup name="File Create Time Mutation" groupRelation="or">
+            <FileCreateTime onmatch="include">
+                <Image condition="begin with">C:\Users\Public</Image>
+                <Image condition="begin with">C:\Windows\Temp</Image>
+                <Image condition="end with">powershell.exe</Image>
+                <Image condition="end with">cmd.exe</Image>
+            </FileCreateTime>
+        </RuleGroup>
+
+        <RuleGroup name="Network Connections" groupRelation="or">
+            <NetworkConnect onmatch="include">
+                <Image condition="end with">powershell.exe</Image>
+                <Image condition="end with">cmd.exe</Image>
+                <Image condition="end with">certutil.exe</Image>
+                <Image condition="end with">mshta.exe</Image>
+                <Image condition="end with">rundll32.exe</Image>
+                <Image condition="end with">regsvr32.exe</Image>
+                <Image condition="end with">wmic.exe</Image>
+                <Image condition="end with">cscript.exe</Image>
+                <Image condition="end with">wscript.exe</Image>
+
+                <DestinationPort condition="is">88</DestinationPort>   <DestinationPort condition="is">389</DestinationPort>  <DestinationPort condition="is">636</DestinationPort>  <DestinationPort condition="is">445</DestinationPort>  <DestinationPort condition="is">5985</DestinationPort> <DestinationPort condition="is">5986</DestinationPort> <DestinationPort condition="is">139</DestinationPort>  </NetworkConnect>
+            <NetworkConnect onmatch="exclude">
+                <DestinationHostname condition="end with">.microsoft.com</DestinationHostname>
+                <DestinationHostname condition="end with">.windowsupdate.com</DestinationHostname>
+            </NetworkConnect>
+        </RuleGroup>
+
+        <RuleGroup name="Process Terminated" groupRelation="or">
+            <ProcessTerminate onmatch="include">
+                <Image condition="end with">wazuh-agent.exe</Image>
+                <Image condition="end with">MsMpEng.exe</Image>
+            </ProcessTerminate>
+        </RuleGroup>
+
+        <RuleGroup name="Image Module Loaded" groupRelation="or">
+            <ImageLoad onmatch="include">
+                <ImageLoaded condition="end with">System.Management.Automation.dll</ImageLoaded>
+                <ImageLoaded condition="end with">System.Management.Automation.ni.dll</ImageLoaded>
+                <ImageLoaded condition="end with">vaultcli.dll</ImageLoaded>
+                <ImageLoaded condition="end with">samlib.dll</ImageLoaded>
+                <ImageLoaded condition="end with">winscard.dll</ImageLoaded>
+                <ImageLoaded condition="end with">wlanapi.dll</ImageLoaded>
+            </ImageLoad>
+            <ImageLoad onmatch="exclude">
+                <Image condition="end with">powershell.exe</Image>
+                <Image condition="end with">scom_agent.exe</Image>
+            </ProcessCreate>
+        </RuleGroup>
+
+        <RuleGroup name="Create Remote Thread" groupRelation="or">
+            <CreateRemoteThread onmatch="include">
+                <TargetImage condition="end with">lsass.exe</TargetImage>
+                <TargetImage condition="end with">svchost.exe</TargetImage>
+                <TargetImage condition="end with">spoolsv.exe</TargetImage>
+                <TargetImage condition="end with">explorer.exe</TargetImage>
+                <TargetImage condition="end with">smss.exe</TargetImage>
+                <TargetImage condition="end with">winlogon.exe</TargetImage>
+                <TargetImage condition="end with">services.exe</TargetImage>
+            </CreateRemoteThread>
+        </RuleGroup>
+
+        <RuleGroup name="Process Access" groupRelation="or">
+            <ProcessAccess onmatch="include">
+                <TargetImage condition="end with">lsass.exe</TargetImage>
+                <TargetImage condition="end with">winlogon.exe</TargetImage>
+                <TargetImage condition="end with">samamin.exe</TargetImage>
+            </ProcessAccess>
+            <ProcessAccess onmatch="exclude">
+                <SourceImage condition="end with">C:\Windows\System32\wbem\WmiPrvSE.exe</SourceImage>
+            </ProcessAccess>
+        </RuleGroup>
+
+        <RuleGroup name="File Created" groupRelation="or">
+            <FileCreate onmatch="include">
+                <TargetFilename condition="end with">.exe</TargetFilename>
+                <TargetFilename condition="end with">.ps1</TargetFilename>
+                <TargetFilename condition="end with">.bat</TargetFilename>
+                <TargetFilename condition="end with">.vbs</TargetFilename>
+                <TargetFilename condition="end with">.dll</TargetFilename>
+                <TargetFilename condition="end with">.sys</TargetFilename>
+                <TargetFilename condition="contains">\GroupPolicy\Scripts</TargetFilename>
+                <TargetFilename condition="contains">\sysvol\</TargetFilename>
+            </FileCreate>
+        </RuleGroup>
+
+        <RuleGroup name="Registry Modifications" groupRelation="or">
+            <RegistryEvent onmatch="include">
+                <TargetObject condition="contains">Windows\CurrentVersion\Run</TargetObject>
+                <TargetObject condition="contains">Windows\CurrentVersion\RunOnce</TargetObject>
+                <TargetObject condition="contains">System\CurrentControlSet\Services</TargetObject>
+                <TargetObject condition="contains">Microsoft\Windows NT\CurrentVersion\Winlogon</TargetObject>
+                <TargetObject condition="contains">Microsoft\Windows\CurrentVersion\Group Policy</TargetObject>
+                <TargetObject condition="contains">Microsoft\Windows NT\CurrentVersion\Image File Execution Options</TargetObject>
+                <TargetObject condition="contains">Microsoft\Windows Defender</TargetObject>
+                <TargetObject condition="contains">Policies\Microsoft\Windows Defender</TargetObject>
+            </RegistryEvent>
+        </RuleGroup>
+
+        <RuleGroup name="Named Pipe Activity" groupRelation="or">
+            <PipeEvent onmatch="include">
+                <PipeName condition="begin with">\</PipeName>
+            </PipeEvent>
+            <PipeEvent onmatch="exclude">
+                <PipeName condition="is">\lsass</PipeName>
+                <PipeName condition="is">\ProtectedRef</PipeName>
+                <PipeName condition="is">\wkssvc</PipeName>
+                <PipeName condition="is">\srvsvc</PipeName>
+                <PipeName condition="is">\winreg</PipeName>
+            </PipeEvent>
+        </RuleGroup>
+
+        <RuleGroup name="DNS Query Tracking" groupRelation="or">
+            <DnsQuery onmatch="include">
+                <Image condition="end with">powershell.exe</Image>
+                <Image condition="end with">cmd.exe</Image>
+                <Image condition="end with">mshta.exe</Image>
+                <Image condition="end with">cscript.exe</Image>
+                <Image condition="end with">wscript.exe</Image>
+                <Image condition="end with">rundll32.exe</Image>
+                <Image condition="end with">regsvr32.exe</Image>
+            </DnsQuery>
+        </RuleGroup>
+
+        <RuleGroup name="File Deletion Monitoring" groupRelation="or">
+            <FileDeleteDetected onmatch="include">
+                <TargetFilename condition="begin with">C:\Users\</TargetFilename>
+                <TargetFilename condition="begin with">C:\ProgramData\</TargetFilename>
+                <TargetFilename condition="contains">\sysvol\</TargetFilename>
+            </FileDeleteDetected>
+        </RuleGroup>
+
+        <RuleGroup name="Clipboard Changes" groupRelation="or">
+            <ClipboardChange onmatch="include">
+                <Image condition="end with">powershell.exe</Image>
+                <Image condition="end with">cmd.exe</Image>
+            </ClipboardChange>
+        </RuleGroup>
+
+        <RuleGroup name="Process Tampering Events" groupRelation="or">
+            <ProcessTampering onmatch="include">
+                <Image condition="begin with">C:\Windows\</Image>
+                <Image condition="begin with">C:\Program Files\</Image>
+            </ProcessTampering>
+        </RuleGroup>
+
+        <RuleGroup name="File Block Executable Controls" groupRelation="or">
+            <FileBlockExecutable onmatch="include">
+                <TargetFilename condition="begin with">C:\Users\</TargetFilename>
+                <TargetFilename condition="begin with">C:\Windows\Temp\</TargetFilename>
+            </FileBlockExecutable>
+        </RuleGroup>
+
+    </EventFiltering>
+</Sysmon>

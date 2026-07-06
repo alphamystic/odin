@@ -14,7 +14,8 @@ type Mothership struct {
 	MSId         string `json:"mothershipid"`
 	Address      string `json:"address"`
 	IAddress string `json:"iaddress"`
-  OAddress string `json:"oaddress"`
+    OAddress string `json:"oaddress"`
+    OProtocol string `json:"oprotocol"`
 	ImplantTunnel string `json:"implant_tunnel"`
 	AdminTunnel  string `json:"admin_tunnel"`
 	Motherships  string `json:"motherships"` // Keep as a bunch of strings, initialize as needed

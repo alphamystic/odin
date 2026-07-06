@@ -15,7 +15,7 @@ const (
   createScanStmt = `INSERT INTO odin.scans (scan_id,name,scan_type,owner_id,created_at,updated_at) VALUES(?,?,?,?,?,?);`
   createWebDataStmt = `INSERT INTO odin.webdata (target_id, 	directory_path, 	parameter_path, 	file_path, created_at, updated_at) VALUES(?,?,?,?,?,?);`
   listScansStmt = "SELECT `scan_id`,`name`,`scan_type`,`owner_id`,`created_at`,`updated_at` FROM `odin`.`scans`WHERE `owner_id` = ? ORDER BY updated_at DESC;"
-  listScanByTypeStmt = "SELECT `scan_id`,`name`,`scan_type`,`owner_id`,`created_at`,`updated_at`  FROM `odin`.`scans` WHERE `scan_type` = ? AND `owner_id` = ?) ORDER BY updated_at DESC;"
+  listScanByTypeStmt = "SELECT `scan_id`,`name`,`scan_type`,`owner_id`,`created_at`,`updated_at`  FROM `odin`.`scans` WHERE `scan_type` = ? AND `owner_id` = ? ORDER BY updated_at DESC;"
   viewScanStmt = `SELECT * FROM odin.scans   WHERE (scan_id = ?);`
   getScanStmt = `SELECT * FROM odin.scans   WHERE (scan_id = ? AND owner_id = ?);`
   getWebDataStmt =  "SELECT directory_path,parameter_path,file_path FROM `odin`.`webdata` WHERE (`target_id` = ?);"

@@ -1,351 +1,264 @@
+
+<div id="ms-alert-stack" style="position: fixed; top: 20px; right: 20px; z-index: 1100; width: 350px;"></div>
+
 <div class="container-fluid">
-  <div class="row justify-content-center">
-    <div class="col-12">
-      <h2 class="h3 mb-0 page-title">List Of Active C2 Servers (Motherships)</h2>
-      <div class="row align-items-center my-4">
-        <div class="col-md-6">
-          <div id="chart-box">
-            <div id="donutChartWidget"></div>
-          </div>
+    <div class="d-flex align-items-center mb-4">
+        <h2 class="h3 mb-0">Mothership Fleet</h2>
+        <button class="btn btn-primary ml-auto" data-toggle="modal" data-target="#msModal" onclick="prepModal('create')">
+            <span class="fe fe-plus mr-2"></span>Deploy Node
+        </button>
+    </div>
+
+    <table class="table table-striped table-hover">
+        <thead>
+            <tr>
+                <th>Identification</th>
+                <th>Network & Tunnels</th>
+                <th>Machine Info</th>
+                <th>Status</th>
+                <th class="text-right">Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{range .motherships}}
+            <tr>
+                <td>
+                    <strong>{{.Name}}</strong><br>
+                    <small class="text-muted">{{.MSId}}</small>
+                </td>
+                <td>
+                    <code>{{.Address}}</code><br>
+                    <small class="text-info">Imp: {{.ImplantTunnel}}</small>
+                </td>
+                <td id="machine-cell-{{.MSId}}">
+                    <script>
+                        (function() {
+                            const raw = '{{.Machinedata}}'; //
+                            const id = '{{.MSId}}';
+                            const target = document.getElementById(`machine-cell-${id}`);
+                            if (raw && raw !== "" && raw !== "{}") {
+                                try {
+                                    const data = JSON.parse(raw);
+                                    let badges = '';
+                                    for (const [key, value] of Object.entries(data)) {
+                                        badges += `<span class="badge badge-light border mr-1 text-uppercase">${key}: ${value}</span>`;
+                                    }
+                                    target.innerHTML = badges;
+                                } catch (e) {
+                                    target.innerText = raw;
+                                }
+                            }
+                        })();
+                    </script>
+                </td>
+                <td>
+                    <span class="dot dot-lg {{if .IsOnline}}bg-success{{else}}bg-secondary{{end}} mr-2"></span>
+                    {{if .Active}}<span class="badge badge-dark">Active</span>{{else}}<span class="badge badge-warning">Paused</span>{{end}}
+                </td>
+                <td class="text-right">
+                    <button class="btn btn-sm btn-outline-primary" 
+                        onclick="prepEdit(this)"
+                        data-msid="{{.MSId}}"
+                        data-name="{{.Name}}"
+                        data-owner="{{.OwnerID}}"
+                        data-addr="{{.Address}}"
+                        data-iaddr="{{.IAddress}}"
+                        data-oaddr="{{.OAddress}}"
+                        data-imp="{{.ImplantTunnel}}"
+                        data-adm="{{.AdminTunnel}}"
+                        data-gen="{{.GenCommand}}"
+                        data-machine='{{.Machinedata}}'
+                        data-desc="{{.Description}}"
+                        data-tls="{{.Tls}}"
+                        data-active="{{.Active}}"> 
+                        <i class="fe fe-edit"></i>
+                    </button>
+                </td>
+            </tr>
+            {{else}}
+            <tr>
+                <td colspan="5" class="text-center text-muted">No motherships found in the intelligence database.</td>
+            </tr>
+            {{end}}
+        </tbody>
+    </table>
+</div>
+
+<div class="modal fade" id="msModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content shadow border-0">
+            <div class="modal-header bg-dark text-white">
+                <h5 class="modal-title" id="msModalLabel">Mothership Intelligence Core</h5>
+                <button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
+            </div>
+            <form id="msForm">
+                <div class="modal-body">
+                    <input type="hidden" id="f_msid">
+                    <input type="hidden" id="f_ownerid">
+
+                    <div class="row">
+                        <div class="col-md-7 border-right">
+                            <h6 class="text-uppercase small font-weight-bold mb-3 text-primary">Identity & Networking</h6>
+                            <div class="row">
+                                <div class="col-6 form-group">
+                                    <label class="small font-weight-bold">Name</label>
+                                    <input type="text" id="f_name" class="form-control" placeholder="Megladon MS">
+                                </div>
+                                <div class="col-6 form-group">
+                                    <label class="small font-weight-bold">Primary IP (Address)</label>
+                                    <input type="text" id="f_addr" class="form-control" placeholder="9.9.9.9">
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-6 form-group">
+                                    <label class="small font-weight-bold">Internal Address (iAddress)</label>
+                                    <input type="text" id="f_iaddr" class="form-control">
+                                </div>
+                                <div class="col-6 form-group">
+                                    <label class="small font-weight-bold">Overlay Address (oAddress)</label>
+                                    <input type="text" id="f_oaddr" class="form-control">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="small font-weight-bold">Implant Tunnel</label>
+                                <input type="text" id="f_imp" class="form-control" placeholder="https://...">
+                            </div>
+                            <div class="form-group">
+                                <label class="small font-weight-bold">Admin Tunnel</label>
+                                <input type="text" id="f_adm" class="form-control" placeholder="https://...">
+                            </div>
+                        </div>
+
+                        <div class="col-md-5">
+                            <h6 class="text-uppercase small font-weight-bold mb-3 text-primary">Deployment & Metadata</h6>
+                            <div class="form-group">
+                                <label class="small font-weight-bold">Generate Command</label>
+                                <input type="text" id="f_gen" class="form-control" placeholder="go build .">
+                            </div>
+                            <div class="form-group">
+                                <label class="small font-weight-bold">Machine Data (JSON)</label>
+                                <div style="height: 120px; border: 1px solid #ced4da; border-radius: 4px; padding: 5px; background: #f8f9fa;">
+                                    <textarea id="f_machine" class="form-control border-0 bg-transparent p-1" style="height: 100%; font-family: monospace; font-size: 12px;"
+                                        placeholder='{"os":"linux"}'></textarea>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="small font-weight-bold">Description</label>
+                                <textarea id="f_desc" class="form-control" rows="2"></textarea>
+                            </div>
+                            <div class="row mt-3">
+                                <div class="col-6">
+                                    <div class="custom-control custom-switch">
+                                        <input type="checkbox" class="custom-control-input" id="f_tls">
+                                        <label class="custom-control-label small" for="f_tls">TLS Active</label>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="custom-control custom-switch">
+                                        <input type="checkbox" class="custom-control-input" id="f_active" checked>
+                                        <label class="custom-control-label small" for="f_active">Status Active</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-success px-5" onclick="executeSync()">Deploy Mothership</button>
+                </div>
+            </form>
         </div>
-        <div class="col-md-6">
-          <div class="row align-items-center my-2">
-            <div class="col">
-              <strong>Completed</strong><br / />
-              <span class="my-0 text-muted small">+85%</span>
-            </div>
-            <div class="col-auto">
-              <strong class="my-0">1200</strong>
-            </div>
-            <div class="col-3">
-              <div class="progress" style="height: 4px;">
-                <div class="progress-bar bg-success" role="progressbar" style="width: 85%" aria-valuenow="85" aria-valuemin="0" aria-valuemax="100"></div>
-              </div>
-            </div>
-          </div>
-          <div class="row align-items-center my-2">
-            <div class="col">
-              <strong>Processing</strong><br / />
-              <span class="my-0 text-muted small">+60%</span>
-            </div>
-            <div class="col-auto">
-              <strong>80</strong>
-            </div>
-            <div class="col-3">
-              <div class="progress" style="height: 4px;">
-                <div class="progress-bar bg-primary" role="progressbar" style="width: 75%" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"></div>
-              </div>
-            </div>
-          </div>
-          <div class="row align-items-center my-2">
-            <div class="col">
-              <strong>Assigned</strong>
-              <div class="my-0 text-muted small">+2%</div>
-            </div>
-            <div class="col-auto">
-              <strong>262</strong>
-            </div>
-            <div class="col-3">
-              <div class="progress" style="height: 4px;">
-                <div class="progress-bar bg-warning" role="progressbar" style="width: 20%" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100"></div>
-              </div>
-            </div>
-          </div>
-          <div class="row align-items-center my-2">
-            <div class="col">
-              <strong>Pending</strong>
-              <div class="my-0 text-muted small">+6%</div>
-            </div>
-            <div class="col-auto">
-              <strong>26</strong>
-            </div>
-            <div class="col-3">
-              <div class="progress" style="height: 4px;">
-                <div class="progress-bar" role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
-              </div>
-            </div>
-          </div>
-        </div> <!-- .col-md-12 -->
-      </div> <!-- .row -->
-      <div class="row items-align-center my-4  d-none d-lg-flex">
-        <div class="col-md">
-          <ul class="nav nav-pills justify-content-start">
-            <li class="nav-item">
-              <a class="nav-link active bg-transparent pr-2 pl-0 text-primary" href="#">All <span class="badge badge-pill bg-primary text-white ml-2">164</span></a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link text-muted px-2" href="#">Pending <span class="badge badge-pill bg-white border text-muted ml-2">64</span></a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link text-muted px-2" href="#">Processing <span class="badge badge-pill bg-white border text-muted ml-2">48</span></a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link text-muted px-2" href="#">Completed <span class="badge badge-pill bg-white border text-muted ml-2">52</span></a>
-            </li>
-          </ul>
-        </div>
-        <div class="col-md-auto ml-auto text-right">
-          <span class="small bg-white border py-1 px-2 rounded mr-2">
-            <a href="#" class="text-muted"><i class="fe fe-x mx-1"></i></a>
-            <span class="text-muted">Status : <strong>Pending</strong></span>
-          </span>
-          <span class="small bg-white border py-1 px-2 rounded mr-2">
-            <a href="#" class="text-muted"><i class="fe fe-x mx-1"></i></a>
-            <span class="text-muted">April 14, 2020 - May 13, 2020</span>
-          </span>
-          <button type="button" class="btn" data-toggle="modal" data-target=".modal-slide"><span class="fe fe-filter fe-16 text-muted"></span></button>
-          <button type="button" class="btn"><span class="fe fe-refresh-ccw fe-16 text-muted"></span></button>
-        </div>
-      </div>
-      <div class="row">
-        <div class="col-md-12">
-          <!-- table -->
-          <table class="table table-borderless table-striped">
-            <thead>
-              <tr>
-                <th>OS Type</th>
-                <th>Online</th>
-                <th>Description</th>
-                <th>Create At</th>
-                <th>Status(Work)</th>
-                <th>Updated At</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td class="text-muted small">Linux(Ubuntu)</td>
-                <td class="text-center"><span class="dot dot-lg bg-secondary mr-2"></span></td>
-                <th scope="col">A CnC for my agents.</th>
-                <td class="text-muted small">Apr 29, 2020</td>
-                <td>
-                  <span class="small text-muted">Completed</span>
-                  <div class="progress mt-2" style="height: 3px;">
-                    <div class="progress-bar bg-success" role="progressbar" style="width: 100%" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
-                  </div>
-                </td>
-                <td class="text-muted small">May 9, 2020</td>
-                <td><button class="btn btn-sm dropdown-toggle more-horizontal" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    <span class="text-muted sr-only">Action</span>
-                  </button>
-                  <div class="dropdown-menu dropdown-menu-right">
-                    <a class="dropdown-item" href="#">Edit</a>
-                    <a class="dropdown-item" href="#">Remove</a>
-                    <a class="dropdown-item" href="#">Assign</a>
-                  </div>
-                </td>
-              </tr>
-              <tr>
-                <td class="text-muted small">Windows 10</td>
-                <td class="text-center"><span class="dot dot-lg bg-success mr-2"></span></td>
-                <th scope="col">A CnC for my agents.</th>
-                <td class="text-muted small">May 4, 2020</td>
-                <td>
-                  <span class="small text-muted">Completed</span>
-                  <div class="progress mt-2" style="height: 3px;">
-                    <div class="progress-bar bg-success" role="progressbar" style="width: 100%" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
-                  </div>
-                </td>
-                <td class="text-muted small">May 2, 2020</td>
-                <td><button class="btn btn-sm dropdown-toggle more-horizontal" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    <span class="text-muted sr-only">Action</span>
-                  </button>
-                  <div class="dropdown-menu dropdown-menu-right">
-                    <a class="dropdown-item" href="#">Edit</a>
-                    <a class="dropdown-item" href="#">Remove</a>
-                    <a class="dropdown-item" href="#">Assign</a>
-                  </div>
-                </td>
-              </tr>
-              <tr>
-                <td class="text-muted small">Linux(Red Hat)</td>
-                <td class="text-center"><span class="dot dot-lg bg-secondary mr-2"></span></td>
-                <th scope="col">A CnC for my agents.</th>
-                <td class="text-muted small">May 7, 2020</td>
-                <td>
-                  <span class="small text-muted">Pending</span>
-                  <div class="progress mt-2" style="height: 3px;">
-                    <div class="progress-bar bg-success" role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
-                  </div>
-                </td>
-                <td class="text-muted small">May 9, 2020</td>
-                <td><button class="btn btn-sm dropdown-toggle more-horizontal" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    <span class="text-muted sr-only">Action</span>
-                  </button>
-                  <div class="dropdown-menu dropdown-menu-right">
-                    <a class="dropdown-item" href="#">Edit</a>
-                    <a class="dropdown-item" href="#">Remove</a>
-                    <a class="dropdown-item" href="#">Assign</a>
-                  </div>
-                </td>
-              </tr>
-              <tr>
-                <td class="text-muted small">Linux (Ubutnu)</td>
-                <td class="text-center"><span class="dot dot-lg bg-primary mr-2"></span></td>
-                <th scope="col">A CnC for my agents.</th>
-                <td class="text-muted small">May 5, 2020</td>
-                <td>
-                  <span class="small text-muted">Processing</span>
-                  <div class="progress mt-2" style="height: 3px;">
-                    <div class="progress-bar bg-primary" role="progressbar" style="width: 50%" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
-                  </div>
-                </td>
-                <td class="text-muted small">Apr 27, 2020</td>
-                <td><button class="btn btn-sm dropdown-toggle more-horizontal" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    <span class="text-muted sr-only">Action</span>
-                  </button>
-                  <div class="dropdown-menu dropdown-menu-right">
-                    <a class="dropdown-item" href="#">Edit</a>
-                    <a class="dropdown-item" href="#">Remove</a>
-                    <a class="dropdown-item" href="#">Assign</a>
-                  </div>
-                </td>
-              </tr>
-              <tr>
-                <td class="text-muted small">Windows Server</td>
-                <td class="text-center"><span class="dot dot-lg bg-success mr-2"></span></td>
-                <th scope="col">A CnC for my agents incide target AD.</th>
-                <td class="text-muted small">May 2, 2020</td>
-                <td>
-                  <span class="small text-muted">Assigned</span>
-                  <div class="progress mt-2" style="height: 3px;">
-                    <div class="progress-bar bg-warning" role="progressbar" style="width: 20%" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100"></div>
-                  </div>
-                </td>
-                <td class="text-muted small">May 4, 2020</td>
-                <td><button class="btn btn-sm dropdown-toggle more-horizontal" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    <span class="text-muted sr-only">Action</span>
-                  </button>
-                  <div class="dropdown-menu dropdown-menu-right">
-                    <a class="dropdown-item" href="#">Edit</a>
-                    <a class="dropdown-item" href="#">Remove</a>
-                    <a class="dropdown-item" href="#">Assign</a>
-                  </div>
-                </td>
-              </tr>
-              <tr>
-                <td class="text-muted small">Windows</td>
-                <td class="text-center"><span class="dot dot-lg bg-primary mr-2"></span></td>
-                <th scope="col">A CnC for my agents./th>
-                <td class="text-muted small">May 13, 2020</td>
-                <td>
-                  <span class="small text-muted">Processing</span>
-                  <div class="progress mt-2" style="height: 3px;">
-                    <div class="progress-bar bg-primary" role="progressbar" style="width: 50%" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
-                  </div>
-                </td>
-                <td class="text-muted small">May 3, 2020</td>
-                <td><button class="btn btn-sm dropdown-toggle more-horizontal" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    <span class="text-muted sr-only">Action</span>
-                  </button>
-                  <div class="dropdown-menu dropdown-menu-right">
-                    <a class="dropdown-item" href="#">Edit</a>
-                    <a class="dropdown-item" href="#">Remove</a>
-                    <a class="dropdown-item" href="#">Assign</a>
-                  </div>
-                </td>
-              </tr>
-              <tr>
-                <td class="text-muted small">Windows Server</td>
-                <td class="text-center"><span class="dot dot-lg bg-primary mr-2"></span></td>
-                <td>A CnC for my agents.</td>
-                <td class="text-muted small">May 7, 2020</td>
-                <td>
-                  <span class="small text-muted">Completed</span>
-                  <div class="progress mt-2" style="height: 3px;">
-                    <div class="progress-bar bg-success" role="progressbar" style="width: 100%" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
-                  </div>
-                </td>
-                <td class="text-muted small">May 8, 2020</td>
-                <td><button class="btn btn-sm dropdown-toggle more-horizontal" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    <span class="text-muted sr-only">Action</span>
-                  </button>
-                  <div class="dropdown-menu dropdown-menu-right">
-                    <a class="dropdown-item" href="#">Edit</a>
-                    <a class="dropdown-item" href="#">Remove</a>
-                    <a class="dropdown-item" href="#">Assign</a>
-                  </div>
-                </td>
-              </tr>
-              <tr>
-                <td class="text-muted small">Linux (Ubuntu Server)</td>
-                <td class="text-center"><span class="dot dot-lg bg-secondary mr-2"></span></td>
-                <td>A CnC for my agents.</td>
-                <td class="text-muted small">May 2, 2020</td>
-                <td>
-                  <span class="small text-muted">Assigned</span>
-                  <div class="progress mt-2" style="height: 3px;">
-                    <div class="progress-bar bg-warning" role="progressbar" style="width: 20%" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100"></div>
-                  </div>
-                </td>
-                <td class="text-muted small">Apr 30, 2020</td>
-                <td><button class="btn btn-sm dropdown-toggle more-horizontal" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    <span class="text-muted sr-only">Action</span>
-                  </button>
-                  <div class="dropdown-menu dropdown-menu-right">
-                    <a class="dropdown-item" href="#">Edit</a>
-                    <a class="dropdown-item" href="#">Remove</a>
-                    <a class="dropdown-item" href="#">Assign</a>
-                  </div>
-                </td>
-              </tr>
-              <tr>
-                <td class="text-muted small">Linux (Oracle)</td>
-                <td class="text-center"><span class="dot dot-lg bg-success mr-2"></span></td>
-                <th scope="col">A CnC for my agents.</th>
-                <td class="text-muted small">May 2, 2020</td>
-                <td>
-                  <span class="small text-muted">Completed</span>
-                  <div class="progress mt-2" style="height: 3px;">
-                    <div class="progress-bar bg-success" role="progressbar" style="width: 100%" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
-                  </div>
-                </td>
-                <td class="text-muted small">May 6, 2020</td>
-                <td><button class="btn btn-sm dropdown-toggle more-horizontal" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    <span class="text-muted sr-only">Action</span>
-                  </button>
-                  <div class="dropdown-menu dropdown-menu-right">
-                    <a class="dropdown-item" href="#">Edit</a>
-                    <a class="dropdown-item" href="#">Remove</a>
-                    <a class="dropdown-item" href="#">Assign</a>
-                  </div>
-                </td>
-              </tr>
-              <tr>
-                <td class="text-muted small">Windows (Server)</td>
-                <td class="text-center"><span class="dot dot-lg bg-secondary mr-2"></span></td>
-                <th scope="col">A CnC for my agents.</th>
-                <td class="text-muted small">Apr 5, 2020</td>
-                <td>
-                  <span class="small text-muted">Processing</span>
-                  <div class="progress mt-2" style="height: 3px;">
-                    <div class="progress-bar bg-primary" role="progressbar" style="width: 50%" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
-                  </div>
-                </td>
-                <td class="text-muted small">May 14, 2020</td>
-                <td><button class="btn btn-sm dropdown-toggle more-horizontal" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    <span class="text-muted sr-only">Action</span>
-                  </button>
-                  <div class="dropdown-menu dropdown-menu-right">
-                    <a class="dropdown-item" href="#">Edit</a>
-                    <a class="dropdown-item" href="#">Remove</a>
-                    <a class="dropdown-item" href="#">Assign</a>
-                  </div>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-          <nav aria-label="Table Paging" class="my-3">
-            <ul class="pagination justify-content-end mb-0">
-              <li class="page-item"><a class="page-link" href="#">Previous</a></li>
-              <li class="page-item active"><a class="page-link" href="#">1</a></li>
-              <li class="page-item"><a class="page-link" href="#">2</a></li>
-              <li class="page-item"><a class="page-link" href="#">3</a></li>
-              <li class="page-item"><a class="page-link" href="#">Next</a></li>
-            </ul>
-          </nav>
-        </div> <!-- .col -->
-      </div> <!-- .row -->
-    </div> <!-- .col-12 -->
-  </div> <!-- .row -->
-</div> <!-- .container-fluid -->
+    </div>
+</div>
+
+<script>
+const API_URL = "/api/mothership"; // Local route to your UI handler or direct API
+
+function spawnAlert(type, msg) {
+    const icon = type === 'success' ? 'fe-help-circle' : 'fe-minus-circle';
+    const alertBody = `
+        <div class="alert alert-${type} shadow border-0 fade show" role="alert">
+            <span class="fe ${icon} fe-16 mr-2"></span> ${msg}
+        </div>`;
+    $('#ms-alert-stack').html(alertBody);
+    setTimeout(() => { $('#ms-alert-stack').empty(); }, 4000);
+}
+
+function prepModal(mode) {
+    $('#msModalLabel').text(mode === 'create' ? "Deploy New Mothership" : "Edit Configuration");
+    $('#f_msid').val("");
+    document.getElementById('msForm').reset();
+    if(mode === 'create') {
+        $('#f_machine').val('{"os": "linux", "arch": "amd64"}'); // Sample input for machine data
+    }
+}
+
+function prepEdit(btn) {
+    const d = $(btn).data();
+    
+    $('#f_msid').val(d.msid);
+    $('#f_ownerid').val(d.owner);
+    $('#f_name').val(d.name);
+    $('#f_addr').val(d.addr);
+    $('#f_iaddr').val(d.iaddr);
+    $('#f_oaddr').val(d.oaddr);
+    $('#f_imp').val(d.imp);
+    $('#f_adm').val(d.adm);
+    $('#f_gen').val(d.gen);
+    $('#f_desc').val(d.desc);
+    
+    // Parse strings/booleans from data attributes
+    $('#f_tls').prop('checked', String(d.tls) === "true");
+    $('#f_active').prop('checked', String(d.active) === "true");
+    $('#f_machine').val(d.machine); //
+
+    $('#msModalLabel').text("Modify Mothership Intelligence");
+    $('#msModal').modal('show');
+}
+
+function executeSync() {
+    const id = $('#f_msid').val();
+    const machineDataRaw = $('#f_machine').val();
+
+    // Validate JSON before submission
+    try {
+        if (machineDataRaw !== "") JSON.parse(machineDataRaw); //
+    } catch (e) {
+        spawnAlert('danger', 'JSON Error in Machine Data field.');
+        return;
+    }
+
+    const payload = {
+        mothershipid: id,
+        ownerid: $('#f_ownerid').val(),
+        name: $('#f_name').val(),
+        address: $('#f_addr').val(),
+        iaddress: $('#f_iaddr').val(),
+        oaddress: $('#f_oaddr').val(),
+        implant_tunnel: $('#f_imp').val(),
+        admin_tunnel: $('#f_adm').val(),
+        generate_command: $('#f_gen').val(),
+        machine_data: machineDataRaw, // Transmitted as a string to be handled as escaped JSON
+        description: $('#f_desc').val(),
+        tls: $('#f_tls').is(':checked'),
+        active: $('#f_active').is(':checked')
+    };
+
+    $.ajax({
+        url: API_URL + (id ? "/update" : "/create"), //
+        method: "POST",
+        contentType: "application/json",
+        xhrFields: { withCredentials: true },
+        data: JSON.stringify(payload),
+        success: function() {
+            spawnAlert('success', 'Mothership intelligence synchronized.');
+            setTimeout(() => { location.reload(); }, 1200);
+        },
+        error: function(xhr) {
+            const err = xhr.responseJSON ? (xhr.responseJSON.error || xhr.responseJSON.message) : "Network failure";
+            spawnAlert('danger', err);
+        }
+    });
+}
+</script>

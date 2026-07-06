@@ -10,244 +10,232 @@ import (
     "github.com/alphamystic/odin/lib/utils"
 )
 
-//
-// ================================
-// CREATE API KEY  (ADMIN ONLY)
-// ================================
+// CreateApiKey — Register new encrypted tool credentials (Admin Only)
 func (api_hnd *APIHandler) CreateApiKey(res http.ResponseWriter, req *http.Request) {
-  if req.Method != http.MethodPost {
-    api_hnd.MethodNotAllowed(res, "POST")
+	if req.Method != http.MethodPost {
+		api_hnd.MethodNotAllowed(res, "POST")
+		return
+	}
+
+	// Security check: Only admins should handle raw API keys/secrets
+	if !api_hnd.IsAdmin(req) {
+		api_hnd.Unauthorized(res, "Only admins can register API keys.")
+		return
+	}
+
+	var api dfn.Api
+	if err := json.NewDecoder(req.Body).Decode(&api); err != nil {
+		api_hnd.BadRequest(res, "Invalid JSON body.")
+		return
+	}
+    ud := req.Context().Value("userData").(*UserData)
+    if ud == nil {
+      api_hnd.Unauthorized(res, "User data not found")
+      return
+    }
+    api.OwnerID = ud.UserId
+
+	// Validation: Ensure mandatory fields are present
+	if !utils.CheckifStringIsEmpty(api.OwnerID) {
+		api_hnd.BadRequest(res, "OwnerID is required.")
+		return
+	}
+	if !utils.CheckifStringIsEmpty(api.ToolName) {
+		api_hnd.BadRequest(res, "ToolName is required.")
+		return
+	}
+
+	// Metadata Assignment
+	api.KeyID = utils.GenerateUUID()
+	api.Touch() // Assigns timestamps
+
+	ctx := context.Background()
+	if err := api_hnd.Dom.CreateApiKey(ctx, api); err != nil {
+		utils.Warning(fmt.Sprintf("Error creating ApiKey: %v", err))
+		api_hnd.InternalServerError(res, "Failed to store credentials.")
+		return
+	}
+
+	api_hnd.DynamicResponse(res, map[string]interface{}{
+		"status":  "success",
+		"message": "Credential stored and encrypted successfully.",
+		"data":    api.KeyID,
+	})
     return
-  }
-
-  if !api_hnd.IsAdmin(req) {
-    api_hnd.Unauthorized(res, "Only admins can create API keys.")
-    return
-  }
-
-  var body struct {
-    ApiKey  string `json:"apikey"`
-    OwnerID string `json:"ownerid"`
-    Active  bool   `json:"active"`
-  }
-
-  if err := json.NewDecoder(req.Body).Decode(&body); err != nil {
-    api_hnd.BadRequest(res, "Invalid JSON body.")
-    return
-  }
-
-  if utils.CheckifStringIsEmpty(body.ApiKey) || utils.CheckifStringIsEmpty(body.OwnerID) {
-    api_hnd.BadRequest(res, "apikey and ownerid are required.")
-    return
-  }
-
-  apiObj := dfn.Api{
-    ApiKey:    body.ApiKey,
-    OwnerID:   body.OwnerID,
-    Active:    body.Active,
-  }
-  apiObj.Touch()
-
-  ctx := context.Background()
-  if err := api_hnd.Dom.CreateApiKey(apiObj, ctx); err != nil {
-    utils.Warning(fmt.Sprintf("Error creating apikey: %v", err))
-    api_hnd.InternalServerError(res, "Failed to create apikey.")
-    return
-  }
-
-  api_hnd.DynamicResponse(res, map[string]interface{}{
-    "status":  "success",
-    "message": "API key created successfully.",
-  })
-  return
 }
 
-//
-// ================================
-// LIST API KEYS (ADMIN ONLY)
-// ================================
+// ListApiKeys — List all tool credentials for a specific owner
 func (api_hnd *APIHandler) ListApiKeys(res http.ResponseWriter, req *http.Request) {
-  if req.Method != http.MethodGet {
-    api_hnd.MethodNotAllowed(res, "GET")
+	if req.Method != http.MethodGet {
+		api_hnd.MethodNotAllowed(res, "GET")
+		return
+	}
+
+
+    ud := req.Context().Value("userData").(*UserData)
+    if ud == nil {
+      api_hnd.Unauthorized(res, "User data not found")
+      return
+    }
+    ownerID := ud.UserId
+
+	active := req.URL.Query().Get("active") != "false"
+	limit := utils.StringToInt(req.URL.Query().Get("limit"))
+	if limit <= 0 {
+		limit = 20
+	}
+	offset := utils.StringToInt(req.URL.Query().Get("offset"))
+
+	ctx := req.Context()
+	keys, err := api_hnd.Dom.ListApiKeys(ctx, ownerID, active, limit, offset)
+	if err != nil {
+		utils.Warning(fmt.Sprintf("Error listing ApiKeys for %s: %v", ownerID, err))
+		api_hnd.InternalServerError(res, "Failed to retrieve credentials.")
+		return
+	}
+
+    api_hnd.DynamicResponse(res, map[string]interface{}{
+		"status":  "success",
+		"message": "User APIKeys rerturned successfully.",
+		"data":    keys,
+	})
     return
-  }
-
-  if !api_hnd.IsAdmin(req) {
-    api_hnd.Unauthorized(res, "Only admins can list API keys.")
-    return
-  }
-
-  active := utils.StringToBool(req.URL.Query().Get("active"))
-
-  ctx := context.Background()
-  keys, err := api_hnd.Dom.ListApiKeys(active, ctx)
-  if err != nil {
-    utils.Warning(fmt.Sprintf("Error listing API keys: %v", err))
-    api_hnd.InternalServerError(res, "Failed to list API keys.")
-    return
-  }
-
-  res.Header().Set("Content-Type", "application/json")
-  json.NewEncoder(res).Encode(keys)
-  return
+// 	res.Header().Set("Content-Type", "application/json")
+// 	json.NewEncoder(res).Encode(keys)
 }
 
-//
-// ================================
-// VIEW API KEY (ADMIN ONLY)
-// ================================
+// ViewApiKey — Retrieve details for a specific key (Decrypted for App Use)
 func (api_hnd *APIHandler) ViewApiKey(res http.ResponseWriter, req *http.Request) {
-  if req.Method != http.MethodGet {
-    api_hnd.MethodNotAllowed(res, "GET")
-    return
-  }
+	if req.Method != http.MethodGet {
+		api_hnd.MethodNotAllowed(res, "GET")
+		return
+	}
 
-  if !api_hnd.IsAdmin(req) {
-    api_hnd.Unauthorized(res, "Only admins can view API key details.")
-    return
-  }
+	keyID := req.URL.Query().Get("keyid")
+	if !utils.CheckifStringIsEmpty(keyID) {
+		api_hnd.BadRequest(res, "keyid cannot be empty.")
+		return
+	}
 
-  keyId := req.URL.Query().Get("apikey")
-  if utils.CheckifStringIsEmpty(keyId) {
-    api_hnd.BadRequest(res, "apikey parameter is required.")
-    return
-  }
+	ctx := context.Background()
+	key, err := api_hnd.Dom.ViewApiKey(ctx, keyID)
+	if err != nil {
+		utils.Warning(fmt.Sprintf("Error viewing ApiKey %s: %v", keyID, err))
+		api_hnd.InternalServerError(res, "Failed to fetch credential details.")
+		return
+	}
 
-  ctx := context.Background()
-  key, err := api_hnd.Dom.ViewApiKey(keyId, ctx)
-  if err != nil {
-    api_hnd.BadRequest(res, err.Error())
+	api_hnd.DynamicResponse(res, map[string]interface{}{
+		"status":  "success",
+		"message": "Credential retrieved and decrypted.",
+		"data":    key,
+	})
     return
-  }
-
-  res.Header().Set("Content-Type", "application/json")
-  json.NewEncoder(res).Encode(key)
-  return
 }
 
-//
-// ================================
-// UPDATE API KEY (ADMIN ONLY)
-// ================================
+// UpdateApiKey — Modify tool credential fields (Admin Only)
 func (api_hnd *APIHandler) UpdateApiKey(res http.ResponseWriter, req *http.Request) {
-  if req.Method != http.MethodPut && req.Method != http.MethodPatch {
-    api_hnd.MethodNotAllowed(res, "PUT/PATCH")
+	if req.Method != http.MethodPost {
+		api_hnd.MethodNotAllowed(res, "POST")
+		return
+	}
+
+	if !api_hnd.IsAdmin(req) {
+		api_hnd.Unauthorized(res, "Only admins can update credentials.")
+		return
+	}
+
+	var update dfn.Api
+	if err := json.NewDecoder(req.Body).Decode(&update); err != nil {
+		api_hnd.BadRequest(res, "Invalid JSON body.")
+		return
+	}
+
+	if !utils.CheckifStringIsEmpty(update.KeyID) {
+		api_hnd.BadRequest(res, "KeyID is required for updates.")
+		return
+	}
+
+	update.Touch() // Refresh the updated_at timestamp
+
+	ctx := context.Background()
+	if err := api_hnd.Dom.UpdateKey(ctx, update); err != nil {
+		utils.Warning(fmt.Sprintf("Error updating ApiKey: %v", err))
+		api_hnd.InternalServerError(res, "Failed to update credentials.")
+		return
+	}
+
+	api_hnd.DynamicResponse(res, map[string]interface{}{
+		"status":  "success",
+		"message": "Credentials updated successfully.",
+	})
     return
-  }
-
-  if !api_hnd.IsAdmin(req) {
-    api_hnd.Unauthorized(res, "Only admins can update API keys.")
-    return
-  }
-
-  var body struct {
-    OwnerID string `json:"ownerid"`
-    ApiKey  string `json:"apikey"`
-  }
-
-  if err := json.NewDecoder(req.Body).Decode(&body); err != nil {
-    api_hnd.BadRequest(res, "Invalid JSON body.")
-    return
-  }
-
-  if utils.CheckifStringIsEmpty(body.OwnerID) || utils.CheckifStringIsEmpty(body.ApiKey) {
-    api_hnd.BadRequest(res, "ownerid and apikey are required.")
-    return
-  }
-
-  ctx := context.Background()
-  if err := api_hnd.Dom.UpdateKey(body.OwnerID, body.ApiKey, ctx); err != nil {
-    utils.Warning(fmt.Sprintf("Error updating API key: %v", err))
-    api_hnd.InternalServerError(res, "Failed to update API key.")
-    return
-  }
-
-  api_hnd.DynamicResponse(res, map[string]interface{}{
-    "status":  "success",
-    "message": "API key updated.",
-  })
-  return
 }
 
-//
-// ================================
-// DEACTIVATE API KEY (ADMIN ONLY)
-// ================================
+// DeactivateApiKey — Set a tool's key to inactive
 func (api_hnd *APIHandler) DeactivateApiKey(res http.ResponseWriter, req *http.Request) {
-  if req.Method != http.MethodPost && req.Method != http.MethodPatch {
-    api_hnd.MethodNotAllowed(res, "POST/PATCH")
+	if req.Method != http.MethodPost {
+		api_hnd.MethodNotAllowed(res, "POST")
+		return
+	}
+
+	if !api_hnd.IsAdmin(req) {
+		api_hnd.Unauthorized(res, "Only admins can deactivate keys.")
+		return
+	}
+
+	keyID := req.URL.Query().Get("keyid")
+	if !utils.CheckifStringIsEmpty(keyID) {
+		api_hnd.BadRequest(res, "keyid is required.")
+		return
+	}
+
+	ctx := context.Background()
+	key, err := api_hnd.Dom.ViewApiKey(ctx, keyID)
+	if err != nil {
+		api_hnd.InternalServerError(res, "Credential not found.")
+		return
+	}
+
+	key.Active = false
+	key.Touch()
+
+	if err := api_hnd.Dom.UpdateKey(ctx, *key); err != nil {
+		utils.Warning(fmt.Sprintf("Error deactivating ApiKey: %v", err))
+		api_hnd.InternalServerError(res, "Failed to deactivate key.")
+		return
+	}
+
+	api_hnd.DynamicResponse(res, map[string]interface{}{
+		"status":  "success",
+		"message": "ApiKey deactivated successfully.",
+	})
     return
-  }
-
-  if !api_hnd.IsAdmin(req) {
-    api_hnd.Unauthorized(res, "Only admins can deactivate API keys.")
-    return
-  }
-
-  var body struct {
-    OwnerID string `json:"ownerid"`
-    ApiKey  string `json:"apikey"`
-  }
-
-  if err := json.NewDecoder(req.Body).Decode(&body); err != nil {
-    api_hnd.BadRequest(res, "Invalid JSON body.")
-    return
-  }
-
-  if utils.CheckifStringIsEmpty(body.OwnerID) || utils.CheckifStringIsEmpty(body.ApiKey) {
-    api_hnd.BadRequest(res, "ownerid and apikey are required.")
-    return
-  }
-
-  ctx := context.Background()
-  if err := api_hnd.Dom.DeactivateKey(body.OwnerID, body.ApiKey, ctx); err != nil {
-    utils.Warning(fmt.Sprintf("Error deactivating API key: %v", err))
-    api_hnd.InternalServerError(res, "Failed to deactivate API key.")
-    return
-  }
-
-  api_hnd.DynamicResponse(res, map[string]interface{}{
-    "status":  "success",
-    "message": "API key deactivated.",
-  })
-  return
 }
 
-//
-// ================================
-// VALIDATE API KEY (Server-to-server)
-// ================================
-// NOTE: This is NOT admin-only.
-//       Used for internal integrations.
-// ================================
+// ValidateApiKey — Server-to-server validation (Check if key matches)
 func (api_hnd *APIHandler) ValidateApiKey(res http.ResponseWriter, req *http.Request) {
-  if req.Method != http.MethodPost {
-    api_hnd.MethodNotAllowed(res, "POST")
+	if req.Method != http.MethodPost {
+		api_hnd.MethodNotAllowed(res, "POST")
+		return
+	}
+
+	var body struct {
+		ApiKey  string `json:"api_key"`
+		OwnerID string `json:"ownerid"`
+	}
+
+	if err := json.NewDecoder(req.Body).Decode(&body); err != nil {
+		api_hnd.BadRequest(res, "Invalid body.")
+		return
+	}
+
+	ctx := context.Background()
+	isValid := api_hnd.Dom.CheckIfApiKey(ctx, body.ApiKey, body.OwnerID)
+
+	api_hnd.DynamicResponse(res, map[string]interface{}{
+		"status": "success",
+		"valid":  isValid,
+	})
     return
-  }
-
-  var body struct {
-    ApiKey  string `json:"apikey"`
-    OwnerID string `json:"ownerid"`
-  }
-
-  if err := json.NewDecoder(req.Body).Decode(&body); err != nil {
-    api_hnd.BadRequest(res, "Invalid JSON body.")
-    return
-  }
-
-  if utils.CheckifStringIsEmpty(body.ApiKey) || utils.CheckifStringIsEmpty(body.OwnerID) {
-    api_hnd.BadRequest(res, "apikey and ownerid are required.")
-    return
-  }
-
-  ctx := context.Background()
-  valid := api_hnd.Dom.CheckIfApiKey(body.ApiKey, body.OwnerID, ctx)
-
-  api_hnd.DynamicResponse(res, map[string]interface{}{
-    "status":  "success",
-    "valid":   valid,
-    "message": "API key validation complete.",
-  })
-  return
 }

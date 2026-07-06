@@ -1,6 +1,7 @@
 <div class="container-fluid">
   <div class="row justify-content-center">
     <div class="col-12">
+
       <div class="row">
         <div class="col-md-6 col-xl-3 mb-4">
           <div class="card shadow bg-primary text-white border-0">
@@ -8,13 +9,13 @@
               <div class="row align-items-center">
                 <div class="col-3 text-center">
                   <span class="circle circle-sm bg-primary-light">
-                    <i class="fe fe-16 fe-shopping-bag text-white mb-0"></i>
+                    <i class="fe fe-16 fe-search text-white mb-0"></i>
                   </span>
                 </div>
                 <div class="col pr-0">
-                  <p class="small text-muted mb-0">Monthly Sales</p>
-                  <span class="h3 mb-0 text-white">$1250</span>
-                  <span class="small text-muted">+5.5%</span>
+                  <p class="small text-white-50 mb-0">Vulnerabilities Found</p>
+                  <span class="h3 mb-0 text-white">4,382</span>
+                  <span class="small text-white-50">+12.3%</span>
                 </div>
               </div>
             </div>
@@ -26,13 +27,13 @@
               <div class="row align-items-center">
                 <div class="col-3 text-center">
                   <span class="circle circle-sm bg-primary">
-                    <i class="fe fe-16 fe-shopping-cart text-white mb-0"></i>
+                    <i class="fe fe-16 fe-send text-white mb-0"></i>
                   </span>
                 </div>
                 <div class="col pr-0">
-                  <p class="small text-muted mb-0">Orders</p>
-                  <span class="h3 mb-0">1,869</span>
-                  <span class="small text-success">+16.5%</span>
+                  <p class="small text-muted mb-0">Vulnerabilities Reported</p>
+                  <span class="h3 mb-0">3,120</span>
+                  <span class="small text-success">+8.5%</span>
                 </div>
               </div>
             </div>
@@ -43,19 +44,19 @@
             <div class="card-body">
               <div class="row align-items-center">
                 <div class="col-3 text-center">
-                  <span class="circle circle-sm bg-primary">
-                    <i class="fe fe-16 fe-filter text-white mb-0"></i>
+                  <span class="circle circle-sm bg-success">
+                    <i class="fe fe-16 fe-dollar-sign text-white mb-0"></i>
                   </span>
                 </div>
                 <div class="col">
-                  <p class="small text-muted mb-0">Conversion</p>
+                  <p class="small text-muted mb-0">Vulnerabilities Paid</p>
                   <div class="row align-items-center no-gutters">
                     <div class="col-auto">
-                      <span class="h3 mr-2 mb-0"> 86.6% </span>
+                      <span class="h3 mr-2 mb-0">1,842</span>
                     </div>
                     <div class="col-md-12 col-lg">
                       <div class="progress progress-sm mt-2" style="height:3px">
-                        <div class="progress-bar bg-success" role="progressbar" style="width: 87%" aria-valuenow="87" aria-valuemin="0" aria-valuemax="100"></div>
+                        <div class="progress-bar bg-success" role="progressbar" style="width: 59%" aria-valuenow="59" aria-valuemin="0" aria-valuemax="100"></div>
                       </div>
                     </div>
                   </div>
@@ -69,20 +70,20 @@
             <div class="card-body">
               <div class="row align-items-center">
                 <div class="col-3 text-center">
-                  <span class="circle circle-sm bg-primary">
-                    <i class="fe fe-16 fe-activity text-white mb-0"></i>
+                  <span class="circle circle-sm bg-warning">
+                    <i class="fe fe-16 fe-alert-octagon text-white mb-0"></i>
                   </span>
                 </div>
                 <div class="col">
-                  <p class="small text-muted mb-0">AVG Orders</p>
-                  <span class="h3 mb-0">$80</span>
+                  <p class="small text-muted mb-0">N/A or Duplicates</p>
+                  <span class="h3 mb-0">1,278</span>
+                  <span class="small text-muted">29.1% total</span>
                 </div>
               </div>
             </div>
           </div>
         </div>
-      </div> <!-- end section -->
-      <div class="row align-items-center my-2">
+      </div> <div class="row align-items-center my-2">
         <div class="col-auto ml-auto">
           <form class="form-inline">
             <div class="form-group">
@@ -99,395 +100,400 @@
           </form>
         </div>
       </div>
-      <!-- charts-->
+
       <div class="row my-4">
         <div class="col-md-12">
-          <div class="chart-box">
+          <div class="chart-box bg-white p-4 rounded shadow-sm">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <div>
+                <strong class="text-uppercase text-muted small">Overview</strong>
+                <h4 class="mb-0">Vulnerability Analytics Trend</h4>
+              </div>
+            </div>
             <div id="columnChart"></div>
           </div>
-        </div> <!-- .col -->
-      </div> <!-- end section -->
-      <!-- info small box -->
+        </div>
+      </div>
+
       <div class="row">
         <div class="col-md-4">
           <div class="card shadow mb-4">
             <div class="card-body">
-              <div class="chart-widget">
+              <div class="mb-3 border-bottom pb-2">
+                <p class="mb-0"><strong class="mb-0 text-uppercase text-muted">Daily Earnings</strong></p>
+                <h2 class="mb-0 text-primary font-weight-bold">$850.00</h2>
+                <p class="text-success small mb-0"><i class="fe fe-arrow-up mr-1"></i>+4.2% from yesterday</p>
+              </div>
+              <div class="chart-box">
                 <div id="gradientRadial"></div>
               </div>
-              <div class="row">
-                <div class="col-6 text-center">
-                  <p class="text-muted mb-0">Yesterday</p>
-                  <h4 class="mb-1">126</h4>
-                  <p class="text-muted mb-2">+5.5%</p>
+              <div class="row mt-3">
+                <div class="col-4 text-center">
+                  <p class="mb-1 text-muted small">Hourly Avg</p>
+                  <h6 class="mb-0">$35.40</h6>
                 </div>
-                <div class="col-6 text-center">
-                  <p class="text-muted mb-0">Today</p>
-                  <h4 class="mb-1">86</h4>
-                  <p class="text-muted mb-2">-5.5%</p>
+                <div class="col-4 text-center">
+                  <p class="mb-1 text-muted small">Highest Hour</p>
+                  <h6 class="mb-0">$300</h6>
+                </div>
+                <div class="col-4 text-center">
+                  <p class="mb-1 text-muted small">Bounties</p>
+                  <h6 class="mb-0">3</h6>
                 </div>
               </div>
-            </div> <!-- .card-body -->
-          </div> <!-- .card -->
-        </div> <!-- .col -->
+            </div>
+          </div>
+        </div>
+
         <div class="col-md-4">
           <div class="card shadow mb-4">
             <div class="card-body">
-              <div class="chart-widget mb-2">
+              <div class="mb-3 border-bottom pb-2">
+                <p class="mb-0"><strong class="mb-0 text-uppercase text-muted">Weekly Earnings</strong></p>
+                <h2 class="mb-0 text-primary font-weight-bold">$5,920.00</h2>
+                <p class="text-success small mb-0"><i class="fe fe-arrow-up mr-1"></i>+12.5% from last week</p>
+              </div>
+              <div class="chart-box">
                 <div id="radialbar"></div>
               </div>
-              <div class="row items-align-center">
+              <div class="row mt-3">
                 <div class="col-4 text-center">
-                  <p class="text-muted mb-1">Cost</p>
-                  <h6 class="mb-1">$1,823</h6>
-                  <p class="text-muted mb-0">+12%</p>
+                  <p class="mb-1 text-muted small">Weekly Avg</p>
+                  <h6 class="mb-0">$1,480</h6>
                 </div>
                 <div class="col-4 text-center">
-                  <p class="text-muted mb-1">Revenue</p>
-                  <h6 class="mb-1">$6,830</h6>
-                  <p class="text-muted mb-0">+8%</p>
+                  <p class="mb-1 text-muted small">Highest Week</p>
+                  <h6 class="mb-0">$2,100</h6>
                 </div>
                 <div class="col-4 text-center">
-                  <p class="text-muted mb-1">Earning</p>
-                  <h6 class="mb-1">$4,830</h6>
-                  <p class="text-muted mb-0">+8%</p>
+                  <p class="mb-1 text-muted small">Bounties</p>
+                  <h6 class="mb-0">14</h6>
                 </div>
               </div>
-            </div> <!-- .card-body -->
-          </div> <!-- .card -->
-        </div> <!-- .col -->
+            </div>
+          </div>
+        </div>
+
         <div class="col-md-4">
           <div class="card shadow mb-4">
             <div class="card-body">
-              <p class="mb-0"><strong class="mb-0 text-uppercase text-muted">Today</strong></p>
-              <h3 class="mb-0">$2,562.30</h3>
-              <p class="text-muted">+18.9% Last week</p>
-              <div class="chart-box mt-n5">
+              <div class="mb-3 border-bottom pb-2">
+                <p class="mb-0"><strong class="mb-0 text-uppercase text-muted">Monthly Earnings</strong></p>
+                <h2 class="mb-0 text-primary font-weight-bold">$24,560.00</h2>
+                <p class="text-success small mb-0"><i class="fe fe-arrow-up mr-1"></i>+18.9% Last month</p>
+              </div>
+              <div class="chart-box">
                 <div id="lineChartWidget"></div>
               </div>
-              <div class="row">
-                <div class="col-4 text-center mt-3">
-                  <p class="mb-1 text-muted">Completions</p>
-                  <h6 class="mb-0">26</h6>
-                  <span class="small text-muted">+20%</span>
-                  <span class="fe fe-arrow-up text-success fe-12"></span>
+              <div class="row mt-3">
+                <div class="col-4 text-center">
+                  <p class="mb-1 text-muted small">Daily Avg</p>
+                  <h6 class="mb-0">$818</h6>
                 </div>
-                <div class="col-4 text-center mt-3">
-                  <p class="mb-1 text-muted">Goal Value</p>
-                  <h6 class="mb-0">$260</h6>
-                  <span class="small text-muted">+6%</span>
-                  <span class="fe fe-arrow-up text-success fe-12"></span>
+                <div class="col-4 text-center">
+                  <p class="mb-1 text-muted small">Highest Day</p>
+                  <h6 class="mb-0">$3,200</h6>
                 </div>
-                <div class="col-4 text-center mt-3">
-                  <p class="mb-1 text-muted">Conversion</p>
-                  <h6 class="mb-0">6%</h6>
-                  <span class="small text-muted">-2%</span>
-                  <span class="fe fe-arrow-down text-danger fe-12"></span>
+                <div class="col-4 text-center">
+                  <p class="mb-1 text-muted small">Payouts</p>
+                  <h6 class="mb-0">48</h6>
                 </div>
               </div>
-            </div> <!-- .card-body -->
-          </div> <!-- .card -->
-        </div> <!-- .col-md -->
+            </div>
+          </div>
+        </div>
+      </div> <div class="row">
         <div class="col-md-6">
           <div class="card shadow mb-4">
             <div class="card-body">
               <div class="card-title">
-                <strong>Most Bought Trending Plugins</strong>
-                <a class="float-right small text-muted" href="#!">View all</a>
+                <strong>Vulnerability Severity Distribution</strong>
+                <span class="badge badge-pill badge-light float-right small text-muted">All Found</span>
               </div>
               <div class="row">
-                <div class="col-md-12">
-                  <div id="chart-box">
-                    <div id="donutChartWidget"></div>
+                <div class="col-md-12 mb-3">
+                  <div id="donutChartWidget"></div>
+                </div>
+                <div class="col-md-12 mb-3">
+                  <div class="chart-box d-flex align-items-center justify-content-center" style="min-height: 130px; margin:0 auto;">
+                    <div id="dataMapUSA" style="display:none;"></div>
+                    <h2 class="text-success">5000 Total Vulnerabilities</h2>
                   </div>
                 </div>
                 <div class="col-md-12">
                   <div class="row align-items-center my-3">
                     <div class="col">
-                      <strong>Email Security</strong>
-                      <div class="my-0 text-muted small">Plugins Assisting in  email Security</div>
+                      <strong class="text-danger">Critical</strong>
+                      <div class="my-0 text-muted small">RCE, SQLi, Auth Bypass</div>
                     </div>
-                    <div class="col-auto">
-                      <strong>+85%</strong>
-                    </div>
+                    <div class="col-auto"><strong>15%</strong></div>
                     <div class="col-3">
                       <div class="progress" style="height: 4px;">
-                        <div class="progress-bar" role="progressbar" style="width: 85%" aria-valuenow="85" aria-valuemin="0" aria-valuemax="100"></div>
+                        <div class="progress-bar bg-danger" role="progressbar" style="width: 15%"></div>
                       </div>
                     </div>
                   </div>
                   <div class="row align-items-center my-3">
                     <div class="col">
-                      <strong>Packet Filters</strong>
-                      <div class="my-0 text-muted small">Plugins attached to the agent for packet scanning.</div>
+                      <strong class="text-warning">High</strong>
+                      <div class="my-0 text-muted small">Stored XSS, CSRF, IDOR</div>
                     </div>
-                    <div class="col-auto">
-                      <strong>+75%</strong>
-                    </div>
+                    <div class="col-auto"><strong>35%</strong></div>
                     <div class="col-3">
                       <div class="progress" style="height: 4px;">
-                        <div class="progress-bar" role="progressbar" style="width: 75%" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"></div>
+                        <div class="progress-bar bg-warning" role="progressbar" style="width: 35%"></div>
                       </div>
                     </div>
                   </div>
                   <div class="row align-items-center my-3">
                     <div class="col">
-                      <strong>Encoders</strong>
-                      <div class="my-0 text-muted small">Plugins runing alongside porcupine in odin to encodes binaries</div>
+                      <strong class="text-info">Medium & Low</strong>
+                      <div class="my-0 text-muted small">Information Disclosure, CORS</div>
                     </div>
-                    <div class="col-auto">
-                      <strong>+62%</strong>
-                    </div>
+                    <div class="col-auto"><strong>50%</strong></div>
                     <div class="col-3">
                       <div class="progress" style="height: 4px;">
-                        <div class="progress-bar" role="progressbar" style="width: 62%" aria-valuenow="62" aria-valuemin="0" aria-valuemax="100"></div>
+                        <div class="progress-bar bg-info" role="progressbar" style="width: 50%"></div>
                       </div>
                     </div>
-                  </div>
-                </div> <!-- .col-md-12 -->
-              </div> <!-- .row -->
-            </div> <!-- .card-body -->
-          </div> <!-- .card -->
-        </div> <!-- .col-md -->
-        <div class="col-md-6">
-          <div class="card shadow mb-4">
-            <div class="card-body">
-              <div class="card-title">
-                <strong>Region</strong>
-                <a class="float-right small text-muted" href="#!">View all</a>
-              </div>
-              <div class="map-box" style="position: relative; width: 350px; min-height: 130px; margin:0 auto;">
-                <div id="dataMapUSA"></div>
-              </div>
-              <div class="row align-items-center h-100 my-2">
-                <div class="col">
-                  <p class="mb-0">France</p>
-                  <span class="my-0 text-muted small">+10%</span>
-                </div>
-                <div class="col-auto text-right">
-                  <span>118</span><br />
-                  <div class="progress mt-2" style="height: 4px;">
-                    <div class="progress-bar" role="progressbar" style="width: 85%" aria-valuenow="85" aria-valuemin="0" aria-valuemax="100"></div>
-                  </div>
-                </div>
-              </div>
-              <div class="row align-items-center my-2">
-                <div class="col">
-                  <p class="mb-0">Netherlands</p>
-                  <span class="my-0 text-muted small">+0.6%</span>
-                </div>
-                <div class="col-auto text-right">
-                  <span>1008</span><br />
-                  <div class="progress mt-2" style="height: 4px;">
-                    <div class="progress-bar" role="progressbar" style="width: 85%" aria-valuenow="85" aria-valuemin="0" aria-valuemax="100"></div>
-                  </div>
-                </div>
-              </div>
-              <div class="row align-items-center my-2">
-                <div class="col">
-                  <p class="mb-0">Italy</p>
-                  <span class="my-0 text-muted small">+1.6%</span>
-                </div>
-                <div class="col-auto text-right">
-                  <span>67</span><br />
-                  <div class="progress mt-2" style="height: 4px;">
-                    <div class="progress-bar" role="progressbar" style="width: 85%" aria-valuenow="85" aria-valuemin="0" aria-valuemax="100"></div>
-                  </div>
-                </div>
-              </div>
-              <div class="row align-items-center my-2">
-                <div class="col">
-                  <p class="mb-0">Spain</p>
-                  <span class="my-0 text-muted small">+118%</span>
-                </div>
-                <div class="col-auto text-right">
-                  <span>186</span><br />
-                  <div class="progress mt-2" style="height: 4px;">
-                    <div class="progress-bar" role="progressbar" style="width: 85%" aria-valuenow="85" aria-valuemin="0" aria-valuemax="100"></div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
-        </div> <!-- .col -->
-      </div> <!-- / .row -->
-      <div class="row">
-        <!-- Recent orders -->
+        </div>
+
+        <div class="col-md-6">
+          <div class="card shadow mb-4">
+            <div class="card-body">
+              <div class="card-title">
+                <strong>Paid Severity Distribution</strong>
+                <span class="badge badge-pill badge-success float-right small text-muted">Bounty Awarded</span>
+              </div>
+              <div class="row">
+                <div class="col-md-12 mb-3">
+                  <div class="chart-box d-flex align-items-center justify-content-center" style="min-height: 130px; margin:0 auto;">
+                    <div id="dataMapUSA" style="display:none;"></div>
+                    <h2 class="text-success">$24,560 Total Payout</h2>
+                  </div>
+                </div>
+                <div class="col-md-12">
+                  <div class="row align-items-center my-2">
+                    <div class="col">
+                      <p class="mb-0 font-weight-bold text-danger">Critical Status Payouts</p>
+                      <span class="my-0 text-muted small">Avg $1,500 per bug</span>
+                    </div>
+                    <div class="col-auto text-right">
+                      <span>42 Bugs Paid</span><br />
+                      <div class="progress mt-2" style="height: 4px;">
+                        <div class="progress-bar bg-danger" role="progressbar" style="width: 85%"></div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="row align-items-center my-2">
+                    <div class="col">
+                      <p class="mb-0 font-weight-bold text-warning">High Status Payouts</p>
+                      <span class="my-0 text-muted small">Avg $600 per bug</span>
+                    </div>
+                    <div class="col-auto text-right">
+                      <span>118 Bugs Paid</span><br />
+                      <div class="progress mt-2" style="height: 4px;">
+                        <div class="progress-bar bg-warning" role="progressbar" style="width: 65%"></div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="row align-items-center my-2">
+                    <div class="col">
+                      <p class="mb-0 font-weight-bold text-info">Medium Status Payouts</p>
+                      <span class="my-0 text-muted small">Avg $250 per bug</span>
+                    </div>
+                    <div class="col-auto text-right">
+                      <span>210 Bugs Paid</span><br />
+                      <div class="progress mt-2" style="height: 4px;">
+                        <div class="progress-bar bg-info" role="progressbar" style="width: 40%"></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div> <div class="row">
         <div class="col-md-12">
-          <h6 class="mb-3">Recent orders</h6>
-          <table class="table table-borderless table-striped">
+          <h6 class="mb-3 text-uppercase font-weight-bold text-muted">Top 10 Security Scans (By Highest Paid Vulnerabilities)</h6>
+          <table class="table table-borderless table-striped bg-white shadow-sm rounded">
             <thead>
               <tr role="row">
-                <th>ID</th>
-                <th>Purchase Date</th>
-                <th>Name</th>
-                <th>Phone</th>
-                <th>Address</th>
-                <th>Total</th>
-                <th>Payment</th>
+                <th>Scan ID</th>
+                <th>Execution Date</th>
+                <th>Target Domain / Target Name</th>
+                <th>Total Issues</th>
+                <th>Paid Vulnerabilities</th>
+                <th>Total Bounty Paid</th>
+                <th>Top Found Class</th>
                 <th>Status</th>
                 <th>Action</th>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <th scope="col">1331</th>
-                <td>2023-10-12  01:32:21</td>
-                <td>Kasimir Lindsey</td>
-                <td>(697) 486-2101</td>
-                <td>996-3523 Et Ave</td>
-                <td>$3.64</td>
-                <td> Mpesa</td>
-                <td>Hash File Sent</td>
+                <th scope="col">SCN-9082</th>
+                <td>2026-05-14 01:32:21</td>
+                <td>api.corp-production.internal</td>
+                <td>34</td>
+                <td><strong class="text-success">12 Paid</strong></td>
+                <td><strong>$6,400.00</strong></td>
+                <td>Broken Auth</td>
+                <td><span class="badge badge-pill badge-success">Completed</span></td>
                 <td>
                   <div class="dropdown">
-                    <button class="btn btn-sm dropdown-toggle more-vertical" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                      <span class="text-muted sr-only">Action</span>
-                    </button>
+                    <button class="btn btn-sm dropdown-toggle more-vertical" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></button>
                     <div class="dropdown-menu dropdown-menu-right">
-                      <a class="dropdown-item" href="#">Edit</a>
-                      <a class="dropdown-item" href="#">Remove</a>
-                      <a class="dropdown-item" href="#">Assign</a>
+                      <a class="dropdown-item" href="#">View Details</a>
+                      <a class="dropdown-item" href="#">Export CSV</a>
                     </div>
                   </div>
                 </td>
               </tr>
               <tr>
-                <th scope="col">1156</th>
-                <td>2023-09-11  02:32:21</td>
-                <td>Melinda Levy</td>
-                <td>(748) 927-4423</td>
-                <td>Ap #516-8821 Vitae Street</td>
-                <td>$4.18</td>
-                <td> Paypal</td>
-                <td>Pending</td>
+                <th scope="col">SCN-8812</th>
+                <td>2026-05-12 11:22:15</td>
+                <td>auth.main-portal.com</td>
+                <td>19</td>
+                <td><strong class="text-success">9 Paid</strong></td>
+                <td><strong>$4,800.00</strong></td>
+                <td>IDOR</td>
+                <td><span class="badge badge-pill badge-success">Completed</span></td>
                 <td>
                   <div class="dropdown">
-                    <button class="btn btn-sm dropdown-toggle more-vertical" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                      <span class="text-muted sr-only">Action</span>
-                    </button>
-                    <div class="dropdown-menu dropdown-menu-right">
-                      <a class="dropdown-item" href="#">Edit</a>
-                      <a class="dropdown-item" href="#">Remove</a>
-                      <a class="dropdown-item" href="#">Assign</a>
-                    </div>
+                    <button class="btn btn-sm dropdown-toggle more-vertical" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></button>
                   </div>
                 </td>
               </tr>
               <tr>
-                <th scope="col">1038</th>
-                <td>2023-22-23  22:32:21</td>
-                <td>Aubrey Sweeney</td>
-                <td>(422) 405-2736</td>
-                <td>Ap #598-7581 Tellus Av.</td>
-                <td>$4.98</td>
-                <td>Credit Card </td>
-                <td>Compiling Binary</td>
+                <th scope="col">SCN-7611</th>
+                <td>2026-05-10 09:14:02</td>
+                <td>checkout-flow.service.io</td>
+                <td>22</td>
+                <td><strong class="text-success">8 Paid</strong></td>
+                <td><strong>$3,200.00</strong></td>
+                <td>SQL Injection</td>
+                <td><span class="badge badge-pill badge-success">Completed</span></td>
                 <td>
                   <div class="dropdown">
-                    <button class="btn btn-sm dropdown-toggle more-vertical" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                      <span class="text-muted sr-only">Action</span>
-                    </button>
-                    <div class="dropdown-menu dropdown-menu-right">
-                      <a class="dropdown-item" href="#">Edit</a>
-                      <a class="dropdown-item" href="#">Remove</a>
-                      <a class="dropdown-item" href="#">Assign</a>
-                    </div>
+                    <button class="btn btn-sm dropdown-toggle more-vertical" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></button>
                   </div>
                 </td>
               </tr>
               <tr>
-                <th scope="col">1227</th>
-                <td>2023-09-12  01:32:21</td>
-                <td>Timon Bauer</td>
-                <td>(690) 965-1551</td>
-                <td>840-2188 Placerat, Rd.</td>
-                <td>$3.46</td>
-                <td> Skrill</td>
-                <td>Compiling Binary</td>
+                <th scope="col">SCN-6504</th>
+                <td>2026-04-28 22:11:45</td>
+                <td>staging.internal-dashboard.net</td>
+                <td>45</td>
+                <td><strong class="text-success">7 Paid</strong></td>
+                <td><strong>$2,100.00</strong></td>
+                <td>Stored XSS</td>
+                <td><span class="badge badge-pill badge-success">Completed</span></td>
                 <td>
                   <div class="dropdown">
-                    <button class="btn btn-sm dropdown-toggle more-vertical" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                      <span class="text-muted sr-only">Action</span>
-                    </button>
-                    <div class="dropdown-menu dropdown-menu-right">
-                      <a class="dropdown-item" href="#">Edit</a>
-                      <a class="dropdown-item" href="#">Remove</a>
-                      <a class="dropdown-item" href="#">Assign</a>
-                    </div>
+                    <button class="btn btn-sm dropdown-toggle more-vertical" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></button>
                   </div>
                 </td>
               </tr>
               <tr>
-                <th scope="col">1956</th>
-                <td>2023-12-12  12:22:21</td>
-                <td>Kelly Barrera</td>
-                <td>(117) 625-6737</td>
-                <td>816 Ornare, Street</td>
-                <td>$4.16</td>
-                <td>Credit Card </td>
-                <td>Hash File Sent</td>
+                <th scope="col">SCN-5491</th>
+                <td>2026-04-21 04:12:00</td>
+                <td>partner-integration.xyz</td>
+                <td>12</td>
+                <td><strong class="text-success">5 Paid</strong></td>
+                <td><strong>$1,850.00</strong></td>
+                <td>SSRF</td>
+                <td><span class="badge badge-pill badge-success">Completed</span></td>
                 <td>
                   <div class="dropdown">
-                    <button class="btn btn-sm dropdown-toggle more-vertical" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                      <span class="text-muted sr-only">Action</span>
-                    </button>
-                    <div class="dropdown-menu dropdown-menu-right">
-                      <a class="dropdown-item" href="#">Edit</a>
-                      <a class="dropdown-item" href="#">Remove</a>
-                      <a class="dropdown-item" href="#">Assign</a>
-                    </div>
+                    <button class="btn btn-sm dropdown-toggle more-vertical" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></button>
                   </div>
                 </td>
               </tr>
               <tr>
-                <th scope="col">1669</th>
-                <td>2023-09-29  03:30:29</td>
-                <td>Kellie Roach</td>
-                <td>(422) 748-1761</td>
-                <td>5432 A St.</td>
-                <td>$3.53</td>
-                <td> Paypal</td>
-                <td>Hash File Sent</td>
+                <th scope="col">SCN-4911</th>
+                <td>2026-04-12 07:07:13</td>
+                <td>cdn-assets.main-portal.com</td>
+                <td>8</td>
+                <td><strong class="text-success">4 Paid</strong></td>
+                <td><strong>$1,200.00</strong></td>
+                <td>Information Disc.</td>
+                <td><span class="badge badge-pill badge-success">Completed</span></td>
                 <td>
                   <div class="dropdown">
-                    <button class="btn btn-sm dropdown-toggle more-vertical" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                      <span class="text-muted sr-only">Action</span>
-                    </button>
-                    <div class="dropdown-menu dropdown-menu-right">
-                      <a class="dropdown-item" href="#">Edit</a>
-                      <a class="dropdown-item" href="#">Remove</a>
-                      <a class="dropdown-item" href="#">Assign</a>
-                    </div>
+                    <button class="btn btn-sm dropdown-toggle more-vertical" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></button>
                   </div>
                 </td>
               </tr>
               <tr>
-                <th scope="col">1909</th>
-                <td>2023-10-12  01:32:21</td>
-                <td>Lani Diaz</td>
-                <td>(767) 486-2253</td>
-                <td>3328 Ut Street</td>
-                <td>$4.29</td>
-                <td> Mpesa</td>
-                <td>Pending</td>
+                <th scope="col">SCN-4309</th>
+                <td>2026-03-29 03:30:29</td>
+                <td>legacy-subdomain.corp.com</td>
+                <td>51</td>
+                <td><strong class="text-success">4 Paid</strong></td>
+                <td><strong>$950.00</strong></td>
+                <td>CSRF</td>
+                <td><span class="badge badge-pill badge-success">Completed</span></td>
                 <td>
                   <div class="dropdown">
-                    <button class="btn btn-sm dropdown-toggle more-vertical" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                      <span class="text-muted sr-only">Action</span>
-                    </button>
-                    <div class="dropdown-menu dropdown-menu-right">
-                      <a class="dropdown-item" href="#">Edit</a>
-                      <a class="dropdown-item" href="#">Remove</a>
-                      <a class="dropdown-item" href="#">Assign</a>
-                    </div>
+                    <button class="btn btn-sm dropdown-toggle more-vertical" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></button>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <th scope="col">SCN-3102</th>
+                <td>2026-03-15 14:22:10</td>
+                <td>mobile-api.service.io</td>
+                <td>15</td>
+                <td><strong class="text-success">3 Paid</strong></td>
+                <td><strong>$900.00</strong></td>
+                <td>RCE</td>
+                <td><span class="badge badge-pill badge-success">Completed</span></td>
+                <td>
+                  <div class="dropdown">
+                    <button class="btn btn-sm dropdown-toggle more-vertical" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></button>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <th scope="col">SCN-2900</th>
+                <td>2026-03-02 18:45:31</td>
+                <td>blog.main-portal.com</td>
+                <td>6</td>
+                <td><strong class="text-success">2 Paid</strong></td>
+                <td><strong>$500.00</strong></td>
+                <td>XSS</td>
+                <td><span class="badge badge-pill badge-success">Completed</span></td>
+                <td>
+                  <div class="dropdown">
+                    <button class="btn btn-sm dropdown-toggle more-vertical" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></button>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <th scope="col">SCN-1105</th>
+                <td>2026-02-18 10:05:12</td>
+                <td>dev-sandbox.internal-dashboard.net</td>
+                <td>38</td>
+                <td><strong class="text-success">2 Paid</strong></td>
+                <td><strong>$450.00</strong></td>
+                <td>CORS Misconfig</td>
+                <td><span class="badge badge-pill badge-success">Completed</span></td>
+                <td>
+                  <div class="dropdown">
+                    <button class="btn btn-sm dropdown-toggle more-vertical" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></button>
                   </div>
                 </td>
               </tr>
             </tbody>
           </table>
-        </div> <!-- / .col-md-3 -->
-      </div> <!-- end section -->
-    </div>
-  </div> <!-- .row -->
-</div> <!-- .container-fluid -->
+        </div>
+      </div> </div>
+  </div>
+</div>

@@ -1,111 +1,118 @@
 <div class="container-fluid">
-  <div class="row justify-content-center">
-    <div class="col-12 col-lg-10">
-      <h2 class="page-title">Form Wizard</h2>
-      <p>Using jQuery Steps as default wizard plugin. That is an extremely flexible, compact and feature-rich plugin.</p>
-      <div class="card my-4">
-        <div class="card-header">
-          <strong>Basic</strong>
-        </div>
-        <div class="card-body">
-          <div id="example-basic">
-            <h3>Keyboard</h3>
-            <section>
-              <p>Try the keyboard navigation by clicking arrow left or right!</p>
-            </section>
-            <h3>Effects</h3>
-            <section>
-              <p>Wonderful transition effects.</p>
-            </section>
-            <h3>Pager</h3>
-            <section>
-              <p>The next and previous buttons help you to navigate through your content.</p>
-            </section>
-          </div>
-        </div> <!-- .card-body -->
-      </div> <!-- .card -->
-      <div class="card my-4">
-        <div class="card-header">
-          <strong>Vertical</strong>
-        </div>
-        <div class="card-body">
-          <div id="example-vertical">
-            <h3>Keyboard</h3>
-            <section>
-              <p>Try the keyboard navigation by clicking arrow left or right!</p>
-            </section>
-            <h3>Effects</h3>
-            <section>
-              <p>Wonderful transition effects.</p>
-            </section>
-            <h3>Pager</h3>
-            <section>
-              <p>The next and previous buttons help you to navigate through your content.</p>
-            </section>
-          </div>
-        </div> <!-- .card-body -->
-      </div> <!-- .card -->
-      <div class="card my-4">
-        <div class="card-header">
-          <strong>Validation</strong>
-        </div>
-        <div class="card-body">
-          <form id="example-form" action="#">
-            <div>
-              <h3>Account</h3>
-              <section>
-                <div class="form-group">
-                  <label for="userName">User name *</label>
-                  <input id="userName" name="userName" type="text" class="form-control required">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card shadow mb-4 border-left-primary">
+                <div class="card-header"><strong>Create Standard API Key</strong></div>
+                <div class="card-body">
+                    <form id="form-create-apikey">
+                        <div class="form-group">
+                            <label>Tool/Service Name</label>
+                            <input type="text" name="tool_name" class="form-control" required placeholder="e.g. VirusTotal">
+                        </div>
+                        <div class="form-group">
+                            <label>API Key / Token</label>
+                            <input type="password" name="api_key" class="form-control" required>
+                        </div>
+                        <div class="custom-control custom-switch mb-3">
+                            <input type="checkbox" class="custom-control-input" id="active_apikey" name="active" checked>
+                            <label class="custom-control-label" for="active_apikey">Active</label>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-block">Create API Key</button>
+                    </form>
                 </div>
-                <div class="form-group">
-                  <label for="password">Password *</label>
-                  <input id="password" name="password" type="text" class="form-control required">
-                </div>
-                <div class="form-group">
-                  <label for="confirm">Confirm Password *</label>
-                  <input id="confirm" name="confirm" type="text" class="form-control required">
-                </div>
-                <div class="help-text text-muted">(*) Mandatory</div>
-              </section>
-              <h3>Profile</h3>
-              <section>
-                <div class="form-row">
-                  <div class="form-group col-md-6">
-                    <label for="name">First name *</label>
-                    <input id="name" name="name" type="text" class="form-control required">
-                  </div>
-                  <div class="form-group col-md-6">
-                    <label for="surname">Last name *</label>
-                    <input id="surname" name="surname" type="text" class="form-control required">
-                  </div>
-                </div>
-                <div class="form-group">
-                  <label for="email">Email *</label>
-                  <input id="email" name="email" type="text" class="form-control required email">
-                </div>
-                <div class="form-group">
-                  <label for="address">Address</label>
-                  <input id="address" name="address" class="form-control" type="text">
-                </div>
-                <div class="help-text text-muted">(*) Mandatory</div>
-              </section>
-              <h3>Hints</h3>
-              <section>
-                <ul class="ml-5">
-                  <li>Foo</li>
-                  <li>Bar</li>
-                  <li>Foobar</li>
-                </ul>
-              </section>
-              <h3>Finish</h3>
-              <section>
-                <input id="acceptTerms" name="acceptTerms" type="checkbox" class="required"> <label for="acceptTerms">I agree with the Terms and Conditions.</label>
-              </section>
             </div>
-          </form>
-        </div> <!-- .card-body -->
-      </div> <!-- .card -->
-    </div> <!-- .col-12 -->
-  </div> <!-- .row -->
-</div> <!-- .container-fluid -->
+        </div>
+
+        <div class="col-md-6">
+            <div class="card shadow mb-4 border-left-success">
+                <div class="card-header"><strong>Create OAuth2 Credential</strong></div>
+                <div class="card-body">
+                    <form id="form-create-oauth">
+                        <div class="form-group">
+                            <label>Tool/Service Name</label>
+                            <input type="text" name="tool_name" class="form-control" required placeholder="e.g. Meraki Dashboard">
+                        </div>
+                        <div class="form-group">
+                            <label>Client ID</label>
+                            <input type="text" name="client_id" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Client Secret</label>
+                            <input type="password" name="client_secret" class="form-control" required>
+                        </div>
+                        <div class="custom-control custom-switch mb-3">
+                            <input type="checkbox" class="custom-control-input" id="active_oauth" name="active" checked>
+                            <label class="custom-control-label" for="active_oauth">Active</label>
+                        </div>
+                        <button type="submit" class="btn btn-success btn-block">Create OAuth2</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+$(document).ready(function() {
+
+    // --- Handler for Standard API Key ---
+    $('#form-create-apikey').on('submit', function(e) {
+        e.preventDefault();
+
+        const payload = {
+            tool_name: $(this).find('input[name="tool_name"]').val(),
+            credential_type: "apikey",
+            active: $(this).find('input[name="active"]').is(':checked'),
+            data: {
+                api_key: $(this).find('input[name="api_key"]').val()
+            }
+        };
+
+        submitCredential(payload);
+    });
+
+    // --- Handler for OAuth2 Credentials ---
+    $('#form-create-oauth').on('submit', function(e) {
+        e.preventDefault();
+
+        const payload = {
+            tool_name: $(this).find('input[name="tool_name"]').val(),
+            credential_type: "oauth",
+            active: $(this).find('input[name="active"]').is(':checked'),
+            data: {
+                client_id: $(this).find('input[name="client_id"]').val(),
+                client_secret: $(this).find('input[name="client_secret"]').val()
+            }
+        };
+
+        submitCredential(payload);
+    });
+
+    // --- Generic Submission Function ---
+    function submitCredential(payload) {
+        console.log("Sending Payload:", payload); // Debugging
+
+        $.ajax({
+            url: "/api/keys/create",
+            method: "POST",
+            contentType: "application/json",
+            data: JSON.stringify(payload),
+            success: function(res) {
+                // Server B response usually includes status
+                alert("Success: " + payload.tool_name + " created.");
+                window.location.reload();
+            },
+            error: function(xhr) {
+                // If Server B returns an error map, we extract it
+                let errMsg = "System Error";
+                if (xhr.responseJSON) {
+                    errMsg = xhr.responseJSON.error || xhr.responseJSON.message || "Unknown Error";
+                }
+                alert("Error: " + errMsg);
+                console.error("Submission failed:", xhr.responseText);
+            }
+        });
+    }
+});
+</script>

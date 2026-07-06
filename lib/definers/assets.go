@@ -24,5 +24,12 @@ type Describer struct {
   Ops  string  `json:"ostype"`
   Description string `json:"description"`
   Installed bool `json:"installed"`
-  AType string `json:"asset_type"` //.dll .exe .so
+  AType string `json:"asset_type"` //.dll .exe .so, Docker Container
+  Location string `json:"location"`
+  Criticality string `json:"criticality"`
+  EndOfSupport string `json:"end_of_support"`
+  EndOfLife string `json:"end_of_support"`
+  Obervability  string `json:"obervability"`
+  ObservabilityTool string `json:"obervability_tool"`
+  Notes string `json:"notes"`
 }

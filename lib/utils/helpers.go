@@ -86,6 +86,24 @@ func ArrayContainsInt(array []int, target int) bool {
 	return false
 }
 
+// RemoveElementFromArray searches a string slice for all instances matching 'element',
+// removes them, and returns the modified slice with adjusted length.
+func RemoveElementFromArray(slice []string, element string) []string {
+	// Keep track of the position where valid elements should be placed
+	writeIndex := 0
+
+	for _, val := range slice {
+		// If the current element doesn't match the one we want to remove, keep it
+		if val != element {
+			slice[writeIndex] = val
+			writeIndex++
+		}
+	}
+
+	// Reslice to remove trailing elements that are no longer valid
+	return slice[:writeIndex]
+}
+
 func GetCurrentTime() string {
   var now = time.Now()
   return now.Format("2006-01-02 15:04:05")

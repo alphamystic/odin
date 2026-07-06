@@ -33,7 +33,7 @@ func (api_hnd *APIHandler) CreateEnumType(res http.ResponseWriter, req *http.Req
     return
   }
 
-  if utils.CheckifStringIsEmpty(body.Name) {
+  if !utils.CheckifStringIsEmpty(body.Name) {
     api_hnd.BadRequest(res, "Enum type name is required.")
     return
   }
@@ -47,7 +47,7 @@ func (api_hnd *APIHandler) CreateEnumType(res http.ResponseWriter, req *http.Req
 
   api_hnd.DynamicResponse(res, map[string]interface{}{
     "status":  "success",
-    "message": "Enum type created.",
+    "message": "Parent Category created.",
   })
   return
 }
@@ -75,8 +75,11 @@ func (api_hnd *APIHandler) ListEnumTypes(res http.ResponseWriter, req *http.Requ
     return
   }
 
-  res.Header().Set("Content-Type", "application/json")
-  json.NewEncoder(res).Encode(enums)
+  api_hnd.DynamicResponse(res, map[string]interface{}{
+        "status":  "success",
+        "message": "Parent Categories retrieved.",
+        "data":    enums,
+      })
   return
 }
 
@@ -95,7 +98,8 @@ func (api_hnd *APIHandler) CreateCategory(res http.ResponseWriter, req *http.Req
   }
 
   var body struct {
-    Name string `json:"name"`
+    Name     string `json:"name"`
+    ParentID *int   `json:"parent_id"` // Use pointer to handle null/optional
   }
 
   if err := json.NewDecoder(req.Body).Decode(&body); err != nil {
@@ -103,13 +107,15 @@ func (api_hnd *APIHandler) CreateCategory(res http.ResponseWriter, req *http.Req
     return
   }
 
-  if utils.CheckifStringIsEmpty(body.Name) {
+  // Corrected logic: error if the string IS empty
+  if !utils.CheckifStringIsEmpty(body.Name) {
     api_hnd.BadRequest(res, "Category name is required.")
     return
   }
 
   ctx := context.Background()
-  if err := api_hnd.Dom.CreateCategory(ctx, body.Name); err != nil {
+  // Pass both Name and ParentID to the domain layer
+  if err := api_hnd.Dom.CreateCategory(ctx, body.Name, body.ParentID); err != nil {
     utils.Warning(fmt.Sprintf("Error creating category: %v", err))
     api_hnd.InternalServerError(res, "Failed to create category.")
     return
@@ -117,7 +123,7 @@ func (api_hnd *APIHandler) CreateCategory(res http.ResponseWriter, req *http.Req
 
   api_hnd.DynamicResponse(res, map[string]interface{}{
     "status":  "success",
-    "message": "Category created.",
+    "message": "Category created successfully.",
   })
   return
 }
@@ -145,8 +151,11 @@ func (api_hnd *APIHandler) ListCategories(res http.ResponseWriter, req *http.Req
     return
   }
 
-  res.Header().Set("Content-Type", "application/json")
-  json.NewEncoder(res).Encode(cats)
+  api_hnd.DynamicResponse(res, map[string]interface{}{
+        "status":  "success",
+        "message": "Categories Retrieved.",
+        "data":    cats,
+      })
   return
 }
 
@@ -160,7 +169,7 @@ func (api_hnd *APIHandler) SearchBlogsByTag(res http.ResponseWriter, req *http.R
   }
 
   tag := req.URL.Query().Get("tag")
-  if utils.CheckifStringIsEmpty(tag) {
+  if !utils.CheckifStringIsEmpty(tag) {
     api_hnd.BadRequest(res, "Tag is required.")
     return
   }
@@ -179,7 +188,10 @@ func (api_hnd *APIHandler) SearchBlogsByTag(res http.ResponseWriter, req *http.R
     return
   }
 
-  res.Header().Set("Content-Type", "application/jsoVBn")
-  json.NewEncoder(res).Encode(blogs)
+  api_hnd.DynamicResponse(res, map[string]interface{}{
+        "status":  "success",
+        "message": "Blogs retrieved.",
+        "data":    blogs,
+      })
   return
 }

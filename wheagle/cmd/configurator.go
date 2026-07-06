@@ -34,7 +34,7 @@ func NewMSR()*MSRunner{
 func (rm *MSRunner) runMS(id,name,pathToExec string)error{
   rm.mu.Lock()
 	defer rm.mu.Unlock()
-  pid,err := utils.RunExecutable(pathToExec)
+  pid,err := utils.UniversalRunExecutable(pathToExec)
   if err != nil{
     return fmt.Errorf("Error starting Mothership: %s with id %s.\nERROR: %q",name,id,err)
   }

@@ -17,6 +17,7 @@ import (
 
 type Domain struct {
   Dbs *sql.DB
+  UE *utils.Crypter
   *utils.ErrorLogger
 }
 
@@ -24,8 +25,8 @@ type Domain struct {
 func NewDomain(dbs *sql.DB,max,min int) *Domain {
   dbs.SetMaxOpenConns(max)
 	dbs.SetMaxIdleConns(min)
-  errorFiles := []string{"users_sql", "blog_sql", "comment_sql", "recon_conversion", "minions_sql", "auth_sql", "api_sql", "assets_sql", "ms_sql", "recon_sql"}
-  errorLogger := utils.NewErrorLogger("./.logs/sql", 0644, errorFiles)
+  errorFiles := []string{"users_sql", "blog_sql", "comment_sql", "recon_conversion", "minion_sql", "auth_sql", "auth_danger", "vuln_exploits_sql", "api_sql", "assets_sql", "ms_sql", "recon_sql", "rmm_sql"}
+  errorLogger := utils.NewErrorLogger("./.data/logs/sql", 0644, errorFiles)
   return &Domain {
     Dbs: dbs,
     ErrorLogger: errorLogger,

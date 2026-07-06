@@ -1,0 +1,36 @@
+Getting a vulnerable XSS parameterrs:
+echo https://target.com | gau | gf xss | uro | Gxss | kxss | tee outputfile.txt
+
+Get the vulnerable parameters
+cat outputfile.txt | grep -o:P '^URL: \K\S+' | sed 's/=.*/=/' | sort -u > final_output.txt
+
+xssstrike
+
+
+ASSN Port scan.
+echo {ANNUMBER} | asnmap -silent | naabu -silent -nmap-cli 'nmap -sV'
+
+
+SScan target without using your ip/touching the target
+smap target.com
+
+subfinder -d target.com
+
+
+Getting js files
+echo "target.com" | waybackurls | grep ''\.js$' | sort -u > wayback_.js.txt
+
+curl -H "https://web.archive.org/cdx/search/cdx" --data-urlencode "url=target.com/*" --data-urlencode "output=text" --data-urlencode "fl=original" grep '\.js$' > js-cdx.txt
+
+Filter for Li9ve endpoints alone:
+cat cat js-cdx.txt | httpx -mc 200 -o js-live-cdx
+
+
+LinkFinder
+python3 linkfinder.py -i https://www.target.com -d
+
+JSLeaks
+cat   jsfiles_urls.txt | jsleaks - -l -k
+
+
+403bypasser
